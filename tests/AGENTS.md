@@ -8,4 +8,6 @@ installed agent clients, network access, user state databases, or another reposi
 | Path | Purpose |
 |---|---|
 | `AGENTS.md`, `CLAUDE.md` | Test context pair |
+| `support.py` | Shared test fixtures |
 | `test_cli.py` | CLI argument and output-contract tests |
+| `test_authority.py` | Authority manifest tests |
