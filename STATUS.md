@@ -12,6 +12,7 @@
 - Dependency installation authorized: **no**
 - External or provider calls authorized: **none**
 - M0 status: **accepted by the owner on 2026-08-05**
+- Post-M0 context: **client execution playbook added at `59c3a87`; no authority widened**
 
 ## Active authority
 
@@ -19,9 +20,10 @@ The owner accepted the planning-only M0 baseline on 2026-08-05. M0 acceptance cl
 milestone; it does not activate another milestone or authorize application code, package metadata,
 dependencies, installers, extensions, runtime databases, background services, or worker launches.
 
-The accepted baseline contains 21 planning files, all five created documentation directories have
-matching context pairs, and no implementation artifact exists. Root `HANDOVER.md` records the
-manual cold-start workflow. M1 remains inactive.
+The accepted M0 baseline contained 21 planning files. The post-M0 client playbook brings the current
+tracked documentation count to 22; all five created documentation directories have matching context
+pairs, and no implementation artifact exists. Root `HANDOVER.md` records the manual cold-start
+workflow and `CLIENT-EXECUTION.md` records the dated agent-client profiles. M1 remains inactive.
 
 ## Planned but inactive
 

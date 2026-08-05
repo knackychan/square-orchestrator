@@ -4,8 +4,9 @@ State records progress; it does not grant authority.
 
 ## Cold start
 
-Read root `AGENTS.md` and `CLAUDE.md`, then `SPEC.md`, `STATUS.md`, `HANDOVER.md`, and this
-directory's `PACKET.md`, `BUILD.md`, `BUILD-TASKS.md`, and `STATE.md`.
+Read root `AGENTS.md` and `CLAUDE.md`, then `SPEC.md`, `STATUS.md`, `HANDOVER.md`,
+`CLIENT-EXECUTION.md` when an agent client is involved, and this directory's `PACKET.md`,
+`BUILD.md`, `BUILD-TASKS.md`, and `STATE.md`.
 
 ## Current position
 
@@ -16,7 +17,8 @@ directory's `PACKET.md`, `BUILD.md`, `BUILD-TASKS.md`, and `STATE.md`.
 | T-M0-03 commit | `d475094` — `docs: add cold-start workflow handover` |
 | T-M0-04 commit | `5a6f60b` — `docs: record handover amendment` |
 | T-M0-05 starting HEAD | `5a6f60b` — `docs: record handover amendment` |
-| Verified file count | 21 tracked planning files |
+| Post-M0 context commit | `59c3a87` — `docs: add agent client execution playbook` |
+| Verified file count | 22 current tracked planning files; M0 was accepted at 21 |
 | Context pairs | passed: all five created documentation directories plus root carry both files |
 | Implementation artifacts | none: no `src/`, `tests/`, `pyproject.toml`, dependency, installer, extension, or runtime file |
 | Open `STOP:` items | none |
@@ -24,7 +26,7 @@ directory's `PACKET.md`, `BUILD.md`, `BUILD-TASKS.md`, and `STATE.md`.
 
 ## Verification
 
-- `rg --files`: 21 files.
+- `rg --files`: 22 current files; 21 at the M0 acceptance boundary before the client playbook.
 - Recursive context-pair check: five created documentation directories passed; root pair present.
 - Implementation-artifact guard: passed.
 - Required project-foundry, practice-lab, routing, concurrency, and responsibility-graph terms:
@@ -34,6 +36,9 @@ directory's `PACKET.md`, `BUILD.md`, `BUILD-TASKS.md`, and `STATE.md`.
 - Ledger reconciliation: the tracked-file count and required cold-start order now match repository
   reality.
 - Owner acceptance: explicitly granted on 2026-08-05 and recorded without activating M1.
+- Client execution playbook: exact dated routes, four launch profiles, risk/escalation selection,
+  availability gates, visible terminals, token rotation, reselection, and handoff verified at
+  `59c3a87`; no client was launched and no authority was widened.
 - Sticker Generator worktree: unchanged and clean at bootstrap entry.
 
 ## Carry-forward

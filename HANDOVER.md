@@ -20,16 +20,18 @@ From the repository root:
 3. Read `SPEC.md` for durable product intent and planned/shipped truth.
 4. Read `STATUS.md` for current authority and the active subplan.
 5. Read this `HANDOVER.md` for the operating loop.
-6. Read only the active packet named by `STATUS.md`, in this order:
+6. Read `CLIENT-EXECUTION.md` when selecting, launching, monitoring, or reviewing Command Code,
+   OpenCode, Claude Code, or Codex CLI.
+7. Read only the active packet named by `STATUS.md`, in this order:
    `PACKET.md`, `BUILD.md`, `BUILD-TASKS.md`, `STATE.md`.
-7. Inspect repository reality:
+8. Inspect repository reality:
 
    ```powershell
    git status --short
    git log --oneline --decorate -5
    ```
 
-8. Before editing, state the exact active task, allowed paths, forbidden actions, route/budget
+9. Before editing, state the exact active task, allowed paths, forbidden actions, route/budget
    bounds, starting `HEAD`, open `STOP:` items, and acceptance authority.
 
 If `STATUS.md` names no active task matching the request, do not infer one from a plan or from
@@ -39,7 +41,8 @@ before mutation.
 ### Reusable cold-start prompt
 
 ```text
-Read AGENTS.md and CLAUDE.md, then SPEC.md, STATUS.md, HANDOVER.md, and only the active packet.
+Read AGENTS.md and CLAUDE.md, then SPEC.md, STATUS.md, HANDOVER.md, CLIENT-EXECUTION.md when an
+agent client is involved, and only the active packet.
 Inspect git status and recent history. Before editing, report the exact authority, active task,
 allowed paths, forbidden actions, budgets, selected route if any, starting HEAD, open STOP items,
 and acceptance authority. Do not infer implementation permission from planned work or STATE.md.
