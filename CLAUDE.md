@@ -47,6 +47,12 @@ exact route is unavailable, record `STOP:` or `ROUTE_UNAVAILABLE` and do not edi
 packet authoring, ordinary read-only questions, and primary boundary review do not require a worker
 unless the active packet explicitly assigns one.
 
+When the primary opens a new Windows Terminal surface with native `wt.exe`, it must use the
+argument-array wrapper in `CLIENT-EXECUTION.md`. A bounded prompt passed through `wt.exe` must
+contain no semicolon characters: Windows Terminal interprets them as action separators even when
+the prompt is one array element, which can open extra tabs or commands. Verify the guard and one
+new worker surface before allowing edits.
+
 ## Root file map
 
 | Path | Purpose |

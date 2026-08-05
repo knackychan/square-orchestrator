@@ -43,6 +43,12 @@ the approved visible surface or exact route is unavailable, record `STOP:` or `R
 and do not edit. Planning, packet authoring, ordinary read-only questions, and primary boundary
 review do not require launching a worker unless their active packet explicitly assigns one.
 
+When the primary opens a new Windows Terminal surface with native `wt.exe`, it must use the
+argument-array wrapper in `CLIENT-EXECUTION.md`. A bounded prompt passed through `wt.exe` must
+contain no semicolon characters: Windows Terminal interprets them as action separators even when
+the prompt is one array element, which can open extra tabs or commands. Verify the guard and one
+new worker surface before allowing edits.
+
 ## Global invariants
 
 - A target repository remains the authority for its own scope, budgets, accepted results, and

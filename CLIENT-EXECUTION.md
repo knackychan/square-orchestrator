@@ -191,6 +191,70 @@ Use one of the exact Command Code IDs from the adopted route profile. A mileston
 Pro assignments uses separate sessions at task boundaries; do not weaken Pro work to keep a Flash
 session alive.
 
+#### Native Windows Terminal wrapper
+
+When the primary must create a new visible Windows Terminal window itself, use an argument array
+rather than an interpolated command string. The following is the accepted Command Code wrapper:
+
+```powershell
+$repository = (Resolve-Path '<repository>').Path
+$cmdcPath = (Get-Command cmdc -ErrorAction Stop).Source
+$prompt = @'
+<bounded prompt containing no semicolon characters>
+'@
+
+if ($prompt.Contains([char]59)) {
+    throw 'The bounded prompt contains a Windows Terminal action separator.'
+}
+
+$terminalArgs = @(
+    '-w'
+    'new'
+    'new-tab'
+    '--title'
+    '<task-title>'
+    '-d'
+    $repository
+    'powershell.exe'
+    '-NoLogo'
+    '-NoExit'
+    '-ExecutionPolicy'
+    'Bypass'
+    '-File'
+    $cmdcPath
+    '--trust'
+    '--permission-mode'
+    'auto-accept'
+    '--no-auto-update'
+    '--model'
+    '<assigned-command-code-model>'
+    '--effort'
+    'high'
+    '--max-turns'
+    '100'
+    '--name'
+    '<subplan>-<milestone>-<attempt>'
+    $prompt
+)
+
+& wt.exe @terminalArgs
+if ($LASTEXITCODE -ne 0) {
+    throw "Windows Terminal launch failed with exit code $LASTEXITCODE."
+}
+```
+
+`-ExecutionPolicy Bypass` applies only to the new Windows PowerShell process that executes the
+resolved npm `cmdc.ps1` shim. It does not widen packet authority or replace any Command Code
+permission flag. If `Get-Command cmdc` resolves a different executable type, record and review the
+wrapper change before launch.
+
+Do not place a semicolon anywhere in a bounded prompt passed through `wt.exe`. Windows Terminal
+parses semicolons as action separators even when the prompt is a single array element; one prompt
+can otherwise become multiple tabs or attempted commands. Use periods, commas, or line breaks
+instead. After launch, confirm exactly one new visible surface and one worker process tree before
+allowing edits. This restriction is specific to prompts passed through `wt.exe`; a direct `cmdc`
+command typed inside an already open approved terminal still follows the profile above.
+
 ### 7.2 OpenCode
 
 ```powershell
@@ -230,6 +294,8 @@ scope changes, a new milestone, or an invented `STOP:` answer. `--yolo` is not p
 - The terminal must be visible and interactive before the primary session leaves the launch.
 - A native `wt.exe` launch is permitted only when it opens a visible tab/window that immediately
   runs the selected client in the foreground.
+- A native `wt.exe` launch uses the reviewed argument-array wrapper for its selected client, rejects
+  semicolons in the bounded prompt before launch, and confirms that no extra tab or command opened.
 - Do not use `Start-Process`, `Start-Job`, PowerShell background operators, a hidden or minimized
   runner, scheduled task, service, detached process, terminal multiplexer, or remote/headless
   executor.

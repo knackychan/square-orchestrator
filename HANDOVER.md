@@ -63,7 +63,11 @@ For every activated implementation, fix, or delegated review task:
 4. Open a visible VS Code terminal or Windows Terminal tab/window.
 5. Run exactly one foreground worker command family: `cmdc`, `opencode run`, `claude`, or
    `codex exec`, using the selected client's full profile from `CLIENT-EXECUTION.md`.
-6. Confirm the worker is visible and owns the terminal before it edits.
+6. For a native `wt.exe` launch, use the documented argument-array wrapper and reject any bounded
+   prompt containing a semicolon before launch; Windows Terminal treats semicolons as action
+   separators even when the prompt is one argument.
+7. Confirm exactly one new worker surface is visible, the selected client owns its foreground, and
+   no extra error tab or command was opened before it edits.
 
 Do not substitute an inline primary edit, internal sub-agent, hidden/background process, or another
 CLI. An exact owner exception must be recorded in `STATUS.md` before deviating. No visible surface
