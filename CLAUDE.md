@@ -23,7 +23,8 @@ install a tool, or change global policy without recorded approval.
 2. `SPEC.md`.
 3. `STATUS.md`.
 4. `HANDOVER.md`.
-5. Only the active packet named there.
+5. `CLIENT-EXECUTION.md` for any agent-client selection, launch, monitoring, or review task.
+6. Only the active packet named there.
 
 ## Root file map
 
@@ -34,6 +35,7 @@ install a tool, or change global policy without recorded approval.
 | `SPEC.md` | Canonical contract |
 | `STATUS.md` | Current authority |
 | `HANDOVER.md` | Cold-start operating workflow |
+| `CLIENT-EXECUTION.md` | Client routes, launch profiles, and lifecycle reference |
 | `docs/` | Specifications and plans |
 
 No source or package tree exists by design.

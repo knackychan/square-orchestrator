@@ -16,7 +16,8 @@ authority from a completed plan, an unblocked dependency, or the existence of a 
 3. `SPEC.md`.
 4. `STATUS.md`.
 5. `HANDOVER.md`.
-6. The active packet named by `STATUS.md`.
+6. `CLIENT-EXECUTION.md` when the task selects, launches, monitors, or reviews an agent client.
+7. The active packet named by `STATUS.md`.
 
 `CLAUDE.md` files carry equivalent context for Claude-based sessions. If a context pair conflicts,
 stop and report the conflict rather than choosing one silently.
@@ -60,6 +61,7 @@ stop and report the conflict rather than choosing one silently.
 | `SPEC.md` | Canonical planned product and safety contract |
 | `STATUS.md` | Current authority and milestone state |
 | `HANDOVER.md` | Cold-start operating workflow; never authority |
+| `CLIENT-EXECUTION.md` | Dated client routes, launch profiles, and lifecycle reference |
 | `docs/` | Project documentation, with its own context pair |
 | `docs/superpowers/` | Specs and execution plans, with its own context pair |
 | `docs/superpowers/specs/` | Design specifications |
