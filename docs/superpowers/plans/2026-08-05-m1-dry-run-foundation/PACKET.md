@@ -2,9 +2,10 @@
 
 ## Authority state
 
-This packet is being authored under the owner's 2026-08-05 planning authorization. It is not an
-active implementation packet. No task below may edit source or tests until root `STATUS.md`
-activates that exact task and records its starting commit and route preflight.
+This packet was technically completed at planning commit `44428ce` under the owner's 2026-08-05
+planning authorization. It is not an active implementation packet. No task below may edit source
+or tests until root `STATUS.md` activates that exact task and records its starting commit and route
+preflight.
 
 ## Objective
 

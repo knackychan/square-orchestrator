@@ -5,10 +5,10 @@ use the repository workflow; it does not grant authority. `STATUS.md` always con
 
 ## 1. Current project boundary
 
-At this handover revision, Square Orchestrator is planning-only. The owner accepted M0 and
-authorized primary-session authoring of the M1 dry-run design and packet on 2026-08-05. No
-application implementation, dependency installation, client launch, or external call is
-authorized. The M1 packet cannot execute until `STATUS.md` records a separate activation.
+At this handover revision, Square Orchestrator is planning-only. The owner accepted M0, and the M1
+dry-run design and packet are technically complete at `44428ce`. No application implementation,
+dependency installation, client launch, or external call is authorized. T-M1-01 cannot execute
+until `STATUS.md` records a separate activation with its exact starting commit and verified route.
 
 Never translate a planned command or interface in `SPEC.md` into shipped behavior.
 

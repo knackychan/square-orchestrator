@@ -12,9 +12,11 @@ Read root `AGENTS.md`, `CLAUDE.md`, `SPEC.md`, `STATUS.md`, and `HANDOVER.md`. R
 
 | Field | Value |
 |---|---|
-| Current activity | M1 design and packet authoring |
+| Current activity | M1 planning technically complete; implementation inactive |
 | Planning authorization | Owner instruction on 2026-08-05 |
 | Starting HEAD | `0c6351e` — `docs: record client playbook context` |
+| Planning commit | `44428ce` — `docs: plan m1 dry-run foundation` |
+| Verified file count | 29 tracked documentation files |
 | Implementation authority | none |
 | Delegated agent authority | none |
 | External calls / spend | `0 / $0` |
@@ -22,17 +24,21 @@ Read root `AGENTS.md`, `CLAUDE.md`, `SPEC.md`, `STATUS.md`, and `HANDOVER.md`. R
 | Proposed implementation tasks | T-M1-01 through T-M1-07; all inactive |
 | Live route checks | none; proposed dated routes are not availability evidence |
 | Open `STOP:` items | none |
-| Owner gate | Review completed planning packet, then activate or amend one exact task |
+| Owner gate | Review the M1 plan, then activate or amend T-M1-01 |
 
-## Planning validation pending
+## Planning verification
 
-- Design responsibility graph matches the source projection.
-- Packet includes objective, authority, paths, budgets, stops, validation, evidence, and acceptance.
-- Build guide closes runtime, CLI, manifest, path, project, practice, SQLite, lock, and test choices.
-- Task list names exact artifacts, assertions, proposed routes, boundaries, and commit messages.
-- New directories carry context pairs and parent file maps.
-- No source, tests, package metadata, dependency, runtime state, client launch, or external call.
-- The known extra blank line at the end of `CLIENT-EXECUTION.md` is removed.
+- Design responsibility graph matches the source projection: passed.
+- Packet fields for authority, paths, budgets, stops, validation, evidence, and acceptance: passed.
+- Build decisions for runtime, CLI, manifest, paths, projects, practices, SQLite, locks, and tests:
+  closed.
+- Six implementation task blocks plus owner-gated T-M1-07: present and inactive.
+- New plan directory context pair and parent spec/plan file maps: passed.
+- `rg --files`: 29 documentation files.
+- `git diff --check 0c6351e..44428ce`: passed.
+- Implementation-artifact guard: passed; no `sqorch/`, `tests/`, or `pyproject.toml` exists.
+- External calls, spend, dependencies, client launches, and delegated agents used: `0`.
+- The extra blank line at the end of `CLIENT-EXECUTION.md`: removed.
 
 ## Carry-forward
 

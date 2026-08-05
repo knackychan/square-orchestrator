@@ -4,7 +4,7 @@
 
 ## Current state
 
-- Phase: M1 packet authoring
+- Phase: M1 plan ready; implementation closed
 - Specification: `0.1-draft`
 - Active planning subplan: `docs/superpowers/plans/2026-08-05-m1-dry-run-foundation/`
 - Application implementation authorized: **no**
@@ -13,7 +13,7 @@
 - External or provider calls authorized: **none**
 - M0 status: **accepted by the owner on 2026-08-05**
 - Post-M0 context: **client execution playbook added at `59c3a87`; no authority widened**
-- M1 planning status: **owner-authorized on 2026-08-05 at starting HEAD `0c6351e`**
+- M1 planning status: **technically complete at `44428ce`; owner implementation gate pending**
 
 ## Active authority
 
@@ -31,6 +31,10 @@ build guide, task list, state ledger, and required documentation context maps. T
 does not authorize application source, tests, package metadata, dependencies, runtime state,
 client launches, or external calls.
 
+The M1 planning result brings the repository to 29 tracked documentation files. Its six compiled
+implementation tasks and owner-gated acceptance task are planned and inactive; every placeholder
+starting commit and dated route requires an authority amendment and live preflight before launch.
+
 ## Planned but inactive
 
 - M1 dry-run CLI, project-foundry preview, practice-record schema, and manifest validator
@@ -45,6 +49,7 @@ The existence of these planned milestones creates no implementation authority.
 
 ## Next owner gate
 
-After the M1 planning artifacts are technically complete, the owner may review them and activate an
-exact implementation task. Application implementation remains closed until that separate decision
-is recorded here.
+The owner may review the M1 plan and activate T-M1-01. Activation must replace its
+`ACTIVATION_REQUIRED` starting commit, adopt and reverify its exact route, and preserve the packet's
+zero-dependency, zero-call, and zero-spend budgets. Until then, application implementation remains
+closed.
