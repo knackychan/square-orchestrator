@@ -1,5 +1,6 @@
 import hashlib
 import subprocess
+import tempfile
 from pathlib import Path
 
 
@@ -88,3 +89,27 @@ def write_build_tasks(packet_dir: Path, *task_blocks: str) -> None:
         parts.append(block)
         parts.append("\n```\n<!-- /sqorch:task -->\n")
     (packet_dir / "BUILD-TASKS.md").write_text("".join(parts), encoding="utf-8")
+
+
+def make_authority_fixture(root: Path | None = None, task_id: str = "T-TEST-01") -> Path:
+    if root is None:
+        root = Path(tempfile.mkdtemp())
+    root.mkdir(parents=True, exist_ok=True)
+    head = init_git_repo(root)
+    docs = (
+        root
+        / "docs"
+        / "superpowers"
+        / "plans"
+        / "2026-08-05-m1-dry-run-foundation"
+    )
+    write_context_pairs(root)
+    write_context_pairs(docs)
+    write_status(
+        root,
+        "docs/superpowers/plans/2026-08-05-m1-dry-run-foundation",
+        task_id,
+    )
+    write_packet(docs)
+    write_build_tasks(docs, toml_task_block(head, id=f'"{task_id}"'))
+    return root
