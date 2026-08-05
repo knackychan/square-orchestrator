@@ -11,7 +11,7 @@
 - Delegated agent launch authorized: **no**
 - Dependency installation authorized: **no**
 - External or provider calls authorized: **none**
-- M0 status: **technically complete at `b5e7a85`; owner acceptance pending**
+- M0 status: **technically complete through cold-start handover `d475094`; owner acceptance pending**
 
 ## Active authority
 
@@ -20,8 +20,9 @@ M0 baseline on 2026-08-05. M0 may create and verify documentation, initialize lo
 and record its own state. It may not create application code, package metadata, dependencies,
 installers, extensions, runtime databases, background services, or launch a worker client.
 
-The baseline contains 20 planning files, all five created documentation directories have matching
-context pairs, and no implementation artifact exists. This technical result does not activate M1.
+The amended baseline contains 21 planning files, all five created documentation directories have
+matching context pairs, and no implementation artifact exists. Root `HANDOVER.md` now records the
+manual cold-start workflow. This technical result does not activate M1.
 
 ## Planned but inactive
 

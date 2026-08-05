@@ -11,10 +11,11 @@ Read root `AGENTS.md`, `SPEC.md`, `STATUS.md`, then this directory's `PACKET.md`
 
 | Field | Value |
 |---|---|
-| Current task | T-M0-02 complete; M0 awaits owner acceptance |
+| Current task | T-M0-04 complete; M0 awaits owner acceptance |
 | T-M0-01 commit | `b5e7a85` — `docs: establish square orchestrator planning baseline` |
-| HEAD at last update | `b5e7a85` before this state-record commit |
-| Verified file count | 20 tracked planning files |
+| T-M0-03 commit | `d475094` — `docs: add cold-start workflow handover` |
+| HEAD at last update | `d475094` before this state-record commit |
+| Verified file count | 21 tracked planning files |
 | Context pairs | passed: all five created documentation directories plus root carry both files |
 | Implementation artifacts | none: no `src/`, `tests/`, `pyproject.toml`, dependency, installer, extension, or runtime file |
 | Open `STOP:` items | none |
@@ -27,6 +28,8 @@ Read root `AGENTS.md`, `SPEC.md`, `STATUS.md`, then this directory's `PACKET.md`
 - Implementation-artifact guard: passed.
 - Required project-foundry, practice-lab, routing, concurrency, and responsibility-graph terms:
   present in the canonical documents.
+- Cold-start handover assertions: reading order, context-map references, `STOP:`, boundary review,
+  and technical-versus-owner acceptance wording all passed.
 - Sticker Generator worktree: unchanged and clean at bootstrap entry.
 
 ## Carry-forward
