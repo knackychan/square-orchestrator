@@ -83,3 +83,26 @@ Stage only `STATUS.md` and `STATE.md`. Commit message:
 ```text
 docs: record handover amendment
 ```
+
+## T-M0-05 — Reconcile the handover ledger and record owner acceptance
+
+Correct the stale `STATE.md` file count and cold-start order identified during handover review.
+Record the owner's explicit M0 acceptance in `STATUS.md`, `HANDOVER.md`, and `STATE.md`. Update this
+packet and D-019 so the amendment remains bounded. Do not activate or create M1 work.
+
+Literal documentation assertions:
+
+```powershell
+assert (Select-String -Path STATE.md -Pattern '`rg --files`: 21 files')
+assert ((Get-Content -Raw STATE.md) -match '(?s)AGENTS\.md.*CLAUDE\.md.*HANDOVER\.md')
+assert (Select-String -Path ../../../../STATUS.md -Pattern 'accepted by the owner')
+assert (Select-String -Path ../../../../HANDOVER.md -Pattern 'owner accepted M0')
+assert (Select-String -Path ../../../../STATUS.md -Pattern 'Active planning subplan: \*\*none\*\*')
+```
+
+Stage only `STATUS.md`, `HANDOVER.md`, `PACKET.md`, `BUILD.md`, `BUILD-TASKS.md`, and `STATE.md`.
+Commit message:
+
+```text
+docs: record m0 owner acceptance
+```

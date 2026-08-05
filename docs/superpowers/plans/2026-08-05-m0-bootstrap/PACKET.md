@@ -15,6 +15,7 @@ authority model, minimal architecture, first implementation boundary, and cold-s
 - This packet has a build guide, ordered task list, and state ledger.
 - Root `HANDOVER.md` lets a cold session operate the same packet/delegation/review workflow without
   relying on chat history or describing planned automation as shipped.
+- The owner acceptance gate and final cold-start evidence are recorded without activating M1.
 - Git is initialized on `main`, exact files are committed by task, and the final worktree is clean.
 - No implementation artifact exists.
 
@@ -27,7 +28,7 @@ authority model, minimal architecture, first implementation boundary, and cold-s
 ## Allowed changes
 
 - Files listed in the root and directory context maps.
-- Local Git initialization, exact-path staging, and the four commits named in `BUILD-TASKS.md`.
+- Local Git initialization, exact-path staging, and the five commits named in `BUILD-TASKS.md`.
 
 ## Forbidden changes
 
@@ -42,7 +43,7 @@ authority model, minimal architecture, first implementation boundary, and cold-s
 
 ## Ordered work
 
-Follow `BUILD-TASKS.md` T-M0-01 through T-M0-04 exactly.
+Follow `BUILD-TASKS.md` T-M0-01 through T-M0-05 exactly.
 
 ## Validation
 
@@ -58,10 +59,10 @@ rg --files
 if ((Test-Path src) -or (Test-Path tests) -or (Test-Path pyproject.toml)) {
   throw 'implementation artifact found'
 }
-git log --oneline --decorate -4
+git log --oneline --decorate -5
 ```
 
-Expected: all context pairs exist, no implementation artifacts exist, four matching commits are on
+Expected: all context pairs exist, no implementation artifacts exist, five matching commits are on
 `main`, and the worktree is clean.
 
 ## Stop conditions
@@ -76,5 +77,5 @@ if unrelated files appear or exact-path staging cannot isolate M0.
 
 ## Acceptance authority
 
-Technical completion is recorded by the primary session. Project-owner acceptance is a separate
-gate and is not inferred from technical completion.
+Technical completion is recorded by the primary session. The project owner explicitly accepted M0
+on 2026-08-05; T-M0-05 records that gate without activating M1.

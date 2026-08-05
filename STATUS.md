@@ -4,25 +4,24 @@
 
 ## Current state
 
-- Phase: planning bootstrap
+- Phase: M0 accepted; implementation closed
 - Specification: `0.1-draft`
-- Active planning subplan: `docs/superpowers/plans/2026-08-05-m0-bootstrap/`
+- Active planning subplan: **none**
 - Application implementation authorized: **no**
 - Delegated agent launch authorized: **no**
 - Dependency installation authorized: **no**
 - External or provider calls authorized: **none**
-- M0 status: **technically complete through cold-start handover `d475094`; owner acceptance pending**
+- M0 status: **accepted by the owner on 2026-08-05**
 
 ## Active authority
 
-The owner authorized creation of an independent Square Orchestrator project and its planning-only
-M0 baseline on 2026-08-05. M0 may create and verify documentation, initialize local Git history,
-and record its own state. It may not create application code, package metadata, dependencies,
-installers, extensions, runtime databases, background services, or launch a worker client.
+The owner accepted the planning-only M0 baseline on 2026-08-05. M0 acceptance closes the bootstrap
+milestone; it does not activate another milestone or authorize application code, package metadata,
+dependencies, installers, extensions, runtime databases, background services, or worker launches.
 
-The amended baseline contains 21 planning files, all five created documentation directories have
-matching context pairs, and no implementation artifact exists. Root `HANDOVER.md` now records the
-manual cold-start workflow. This technical result does not activate M1.
+The accepted baseline contains 21 planning files, all five created documentation directories have
+matching context pairs, and no implementation artifact exists. Root `HANDOVER.md` records the
+manual cold-start workflow. M1 remains inactive.
 
 ## Planned but inactive
 
@@ -38,5 +37,6 @@ The existence of these planned milestones creates no implementation authority.
 
 ## Next owner gate
 
-After M0 is reviewed, the owner may accept it and either keep implementation closed or activate an
-exact M1 packet. M1 must not be packeted as executable work until that activation is recorded.
+No task is active. The owner may next authorize a bounded M1 packet-authoring task. Application
+implementation remains closed until `STATUS.md` later activates an exact M1 task and its packet,
+build guide, and task list exist.

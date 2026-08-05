@@ -5,9 +5,9 @@ use the repository workflow; it does not grant authority. `STATUS.md` always con
 
 ## 1. Current project boundary
 
-At this handover revision, Square Orchestrator is planning-only. M0 documentation is technically
-complete and awaits owner acceptance. No application implementation, dependency installation,
-client launch, external call, or M1 executable packet is authorized.
+At this handover revision, Square Orchestrator is planning-only. The owner accepted M0 on
+2026-08-05, and no task is active. No application implementation, dependency installation, client
+launch, external call, M1 packet-authoring task, or M1 executable packet is authorized.
 
 Never translate a planned command or interface in `SPEC.md` into shipped behavior.
 
@@ -241,4 +241,3 @@ automate owner authority, packet judgement, `STOP:` invention, practice adoption
 
 Until accepted implementation evidence exists, follow the manual procedure above and describe all
 `sqorch` commands as planned.
-

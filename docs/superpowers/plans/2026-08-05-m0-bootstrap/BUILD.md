@@ -63,6 +63,10 @@ rollout require separate packets and acceptance.
 operating loop, role boundaries, delegation prompt, `STOP:` procedure, diff review, and milestone
 handoff. It is required reading but never authority, so workflow guidance cannot activate work.
 
+**D-019 — M0 acceptance closes bootstrap without opening M1.**  Owner acceptance is recorded in
+`STATUS.md`, `HANDOVER.md`, and `STATE.md`. A later owner instruction must separately authorize M1
+packet authoring or implementation; acceptance alone creates no new active task.
+
 ## Closed vocabulary for future task roles
 
 `RESEARCH`, `PLAN_CONTRIBUTION`, `DOCUMENT`, `IMPLEMENT`, `REVIEW`, `FIX`, `AMENDMENT`.
