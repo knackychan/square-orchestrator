@@ -267,4 +267,3 @@ The future application may store versioned client profiles, validate exact IDs a
 safe argument arrays, open approved terminals, enforce locks, record attempts, and detect route or
 token gates. It must not choose an unrecorded route, infer escalation from marketing claims, enable
 fallback, weaken packet authority, or accept a result for the owner.
-

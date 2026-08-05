@@ -4,15 +4,16 @@
 
 ## Current state
 
-- Phase: M0 accepted; implementation closed
+- Phase: M1 packet authoring
 - Specification: `0.1-draft`
-- Active planning subplan: **none**
+- Active planning subplan: `docs/superpowers/plans/2026-08-05-m1-dry-run-foundation/`
 - Application implementation authorized: **no**
 - Delegated agent launch authorized: **no**
 - Dependency installation authorized: **no**
 - External or provider calls authorized: **none**
 - M0 status: **accepted by the owner on 2026-08-05**
 - Post-M0 context: **client execution playbook added at `59c3a87`; no authority widened**
+- M1 planning status: **owner-authorized on 2026-08-05 at starting HEAD `0c6351e`**
 
 ## Active authority
 
@@ -24,6 +25,11 @@ The accepted M0 baseline contained 21 planning files. The post-M0 client playboo
 tracked documentation count to 22; all five created documentation directories have matching context
 pairs, and no implementation artifact exists. Root `HANDOVER.md` records the manual cold-start
 workflow and `CLIENT-EXECUTION.md` records the dated agent-client profiles. M1 remains inactive.
+
+The owner authorized the primary session on 2026-08-05 to author the M1 dry-run design, packet,
+build guide, task list, state ledger, and required documentation context maps. This planning task
+does not authorize application source, tests, package metadata, dependencies, runtime state,
+client launches, or external calls.
 
 ## Planned but inactive
 
@@ -39,6 +45,6 @@ The existence of these planned milestones creates no implementation authority.
 
 ## Next owner gate
 
-No task is active. The owner may next authorize a bounded M1 packet-authoring task. Application
-implementation remains closed until `STATUS.md` later activates an exact M1 task and its packet,
-build guide, and task list exist.
+After the M1 planning artifacts are technically complete, the owner may review them and activate an
+exact implementation task. Application implementation remains closed until that separate decision
+is recorded here.

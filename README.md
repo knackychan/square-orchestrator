@@ -11,9 +11,9 @@ turn opted-in project outcomes and sourced engineering research into reviewable 
 
 ## Current state
 
-Planning only. No executable, package, dependency, background service, model call, or delegated
-worker launch is authorized yet. The canonical project contract is `SPEC.md`; `STATUS.md` is the
-only authority for active work.
+Planning only. M1 dry-run foundation packet authoring is active; no executable, package,
+dependency, background service, model call, or delegated worker launch is authorized. The
+canonical project contract is `SPEC.md`; `STATUS.md` is the only authority for active work.
 
 ## Intended shape
 

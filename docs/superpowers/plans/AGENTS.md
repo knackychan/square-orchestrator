@@ -9,4 +9,4 @@ Packet, build guide, task list, and state are separate so recorded progress cann
 |---|---|
 | `AGENTS.md`, `CLAUDE.md` | Directory context pair |
 | `2026-08-05-m0-bootstrap/` | Planning-only repository bootstrap packet |
-
+| `2026-08-05-m1-dry-run-foundation/` | M1 dry-run foundation implementation packet |
