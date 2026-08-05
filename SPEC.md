@@ -45,8 +45,8 @@ The first implementation will not:
 - run hidden, detached, cloud, or background workers;
 - permit simultaneous writers on the same repository;
 - merge worktrees or resolve merge conflicts;
-- require ACP, MCP, a VS Code extension, or a daemon; or
-- replace repository-specific `AGENTS.md`, `SPEC.md`, `STATUS.md`, packets, or acceptance records.
+- require ACP, MCP, a VS Code extension, or a daemon;
+- replace repository-specific `AGENTS.md`, `SPEC.md`, `STATUS.md`, packets, or acceptance records;
 - treat one project's convention as universally correct without context and evidence;
 - upload or centralize private repository contents as learning data;
 - silently mutate its own code, global workflow, project templates, or practice rankings; or

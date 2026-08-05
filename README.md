@@ -27,3 +27,6 @@ only authority for active work.
 
 Sticker Generator is the first planned reference integration. Its project decisions remain local
 to that repository and do not grant authority here.
+
+A new session starts with `AGENTS.md`, `SPEC.md`, `STATUS.md`, and then `HANDOVER.md`. The handover
+contains the complete manual workflow used until the planned CLI begins to ship.

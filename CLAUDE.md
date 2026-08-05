@@ -22,7 +22,8 @@ install a tool, or change global policy without recorded approval.
 1. `AGENTS.md` and the nearest context pair.
 2. `SPEC.md`.
 3. `STATUS.md`.
-4. Only the active packet named there.
+4. `HANDOVER.md`.
+5. Only the active packet named there.
 
 ## Root file map
 
@@ -32,6 +33,7 @@ install a tool, or change global policy without recorded approval.
 | `AGENTS.md`, `CLAUDE.md` | Root agent context pair |
 | `SPEC.md` | Canonical contract |
 | `STATUS.md` | Current authority |
+| `HANDOVER.md` | Cold-start operating workflow |
 | `docs/` | Specifications and plans |
 
 No source or package tree exists by design.

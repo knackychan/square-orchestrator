@@ -59,6 +59,10 @@ candidate, trial, adopted, rejected, and deprecated states with owner-visible ra
 blueprint, guardrail, skill, check, or supporting tool. Adoption, installation, code changes, and
 rollout require separate packets and acceptance.
 
+**D-018 — Cold-start continuity lives in one root handover.**  `HANDOVER.md` records the manual
+operating loop, role boundaries, delegation prompt, `STOP:` procedure, diff review, and milestone
+handoff. It is required reading but never authority, so workflow guidance cannot activate work.
+
 ## Closed vocabulary for future task roles
 
 `RESEARCH`, `PLAN_CONTRIBUTION`, `DOCUMENT`, `IMPLEMENT`, `REVIEW`, `FIX`, `AMENDMENT`.

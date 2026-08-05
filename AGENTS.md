@@ -15,7 +15,8 @@ authority from a completed plan, an unblocked dependency, or the existence of a 
 2. The nearest `AGENTS.md` in the directory being changed.
 3. `SPEC.md`.
 4. `STATUS.md`.
-5. The active packet named by `STATUS.md`.
+5. `HANDOVER.md`.
+6. The active packet named by `STATUS.md`.
 
 `CLAUDE.md` files carry equivalent context for Claude-based sessions. If a context pair conflicts,
 stop and report the conflict rather than choosing one silently.
@@ -58,6 +59,7 @@ stop and report the conflict rather than choosing one silently.
 | `README.md` | Short project introduction and current boundary |
 | `SPEC.md` | Canonical planned product and safety contract |
 | `STATUS.md` | Current authority and milestone state |
+| `HANDOVER.md` | Cold-start operating workflow; never authority |
 | `docs/` | Project documentation, with its own context pair |
 | `docs/superpowers/` | Specs and execution plans, with its own context pair |
 | `docs/superpowers/specs/` | Design specifications |

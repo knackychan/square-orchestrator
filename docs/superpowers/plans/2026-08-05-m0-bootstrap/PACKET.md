@@ -13,6 +13,8 @@ authority model, minimal architecture, first implementation boundary, and cold-s
 - The spec covers project creation/adoption, responsibility graphs, clean-code guardrails, opt-in
   cross-project practice evidence, and proposal-only workflow/tool evolution.
 - This packet has a build guide, ordered task list, and state ledger.
+- Root `HANDOVER.md` lets a cold session operate the same packet/delegation/review workflow without
+  relying on chat history or describing planned automation as shipped.
 - Git is initialized on `main`, exact files are committed by task, and the final worktree is clean.
 - No implementation artifact exists.
 
@@ -25,7 +27,7 @@ authority model, minimal architecture, first implementation boundary, and cold-s
 ## Allowed changes
 
 - Files listed in the root and directory context maps.
-- Local Git initialization, exact-path staging, and the two commits named in `BUILD-TASKS.md`.
+- Local Git initialization, exact-path staging, and the four commits named in `BUILD-TASKS.md`.
 
 ## Forbidden changes
 
@@ -40,7 +42,7 @@ authority model, minimal architecture, first implementation boundary, and cold-s
 
 ## Ordered work
 
-Follow `BUILD-TASKS.md` T-M0-01 and T-M0-02 exactly.
+Follow `BUILD-TASKS.md` T-M0-01 through T-M0-04 exactly.
 
 ## Validation
 
@@ -56,10 +58,10 @@ rg --files
 if ((Test-Path src) -or (Test-Path tests) -or (Test-Path pyproject.toml)) {
   throw 'implementation artifact found'
 }
-git log --oneline --decorate -2
+git log --oneline --decorate -4
 ```
 
-Expected: all context pairs exist, no implementation artifacts exist, two matching commits are on
+Expected: all context pairs exist, no implementation artifacts exist, four matching commits are on
 `main`, and the worktree is clean.
 
 ## Stop conditions

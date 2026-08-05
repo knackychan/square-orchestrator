@@ -46,3 +46,40 @@ Stage only `STATUS.md` and `STATE.md`. Commit message:
 ```text
 docs: record m0 bootstrap completion
 ```
+
+## T-M0-03 — Add the cold-start workflow handover
+
+Create root `HANDOVER.md` with the exact reading order, authority precedence, role boundaries,
+planning/packet loop, manual visible-terminal delegation, test/document discipline, `STOP:` handling,
+diff review, state handoff, and planned-versus-shipped boundary. Add it to the root context maps and
+required reading order. Update the M0 packet and D-018 so the file has a recorded contract.
+
+Literal documentation assertions:
+
+```powershell
+assert (Test-Path HANDOVER.md)
+assert (Select-String -Path AGENTS.md -Pattern 'HANDOVER.md')
+assert (Select-String -Path CLAUDE.md -Pattern 'HANDOVER.md')
+assert (Select-String -Path HANDOVER.md -Pattern 'Cold-start reading order')
+assert (Select-String -Path HANDOVER.md -Pattern 'STOP:')
+assert (Select-String -Path HANDOVER.md -Pattern 'Boundary review')
+assert (Select-String -Path HANDOVER.md -Pattern 'Technical completion is not owner acceptance')
+```
+
+Stage only `HANDOVER.md`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `SPEC.md`, `PACKET.md`, `BUILD.md`,
+and `BUILD-TASKS.md`. Commit message:
+
+```text
+docs: add cold-start workflow handover
+```
+
+## T-M0-04 — Record the handover amendment
+
+Run the amended M0 packet validation. Update `STATE.md` with T-M0-03's commit, the new file count,
+and handover checks. Update `STATUS.md` with the amended technical result; M1 remains inactive.
+
+Stage only `STATUS.md` and `STATE.md`. Commit message:
+
+```text
+docs: record handover amendment
+```
