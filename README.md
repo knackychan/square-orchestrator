@@ -11,10 +11,11 @@ turn opted-in project outcomes and sourced engineering research into reviewable 
 
 ## Current state
 
-Planning only. The M1 dry-run foundation design and implementation packet are ready for owner
-review; no executable, package, dependency, background service, model call, or delegated worker
-launch is authorized. The canonical project contract is `SPEC.md`; `STATUS.md` is the only
-authority for active work.
+T-M1-01 is the first implemented M1 slice. The repository exposes a dependency-free
+`python -m sqorch [--json] [--state-db PATH] doctor` shell that reports local Python, Git,
+repository, and computed state-path information without creating runtime state. No package,
+dependency, background service, model call, or delegated worker launch is part of this slice. The
+canonical project contract is `SPEC.md`; `STATUS.md` is the only authority for active work.
 
 ## Intended shape
 

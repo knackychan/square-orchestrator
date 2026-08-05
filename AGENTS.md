@@ -66,8 +66,11 @@ stop and report the conflict rather than choosing one silently.
 | `docs/superpowers/` | Specs and execution plans, with its own context pair |
 | `docs/superpowers/specs/` | Design specifications |
 | `docs/superpowers/plans/` | Bounded execution packets |
+| `sqorch/` | Standard-library Python CLI source, with its own context pair |
+| `tests/` | Standard-library test suite, with its own context pair |
 
-There is deliberately no `src/`, `tests/`, extension, installer, or package configuration yet.
+There is deliberately no package metadata, dependency file, extension, installer, or runtime
+database in the repository.
 
 ## Work protocol
 

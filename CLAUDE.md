@@ -37,5 +37,7 @@ install a tool, or change global policy without recorded approval.
 | `HANDOVER.md` | Cold-start operating workflow |
 | `CLIENT-EXECUTION.md` | Client routes, launch profiles, and lifecycle reference |
 | `docs/` | Specifications and plans |
+| `sqorch/` | Standard-library Python CLI source |
+| `tests/` | Standard-library tests |
 
-No source or package tree exists by design.
+No package metadata, dependencies, extension, installer, or runtime database exists by design.
