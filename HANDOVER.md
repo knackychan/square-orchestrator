@@ -47,7 +47,27 @@ agent client is involved, and only the active packet.
 Inspect git status and recent history. Before editing, report the exact authority, active task,
 allowed paths, forbidden actions, budgets, selected route if any, starting HEAD, open STOP items,
 and acceptance authority. Do not infer implementation permission from planned work or STATE.md.
+For an activated implementation, fix, or delegated review task, do not edit inline: start the
+assigned cmdc, opencode run, claude, or codex exec worker in a separate visible foreground terminal
+using CLIENT-EXECUTION.md, unless STATUS.md records an exact owner exception.
 ```
+
+### Mandatory execution-session start
+
+For every activated implementation, fix, or delegated review task:
+
+1. Keep the current session as the primary orchestrator.
+2. Read the active route record and `CLIENT-EXECUTION.md`.
+3. Complete exact executable, model, authentication/allowance, fallback, terminal, starting-HEAD,
+   token, and budget preflight.
+4. Open a visible VS Code terminal or Windows Terminal tab/window.
+5. Run exactly one foreground worker command family: `cmdc`, `opencode run`, `claude`, or
+   `codex exec`, using the selected client's full profile from `CLIENT-EXECUTION.md`.
+6. Confirm the worker is visible and owns the terminal before it edits.
+
+Do not substitute an inline primary edit, internal sub-agent, hidden/background process, or another
+CLI. An exact owner exception must be recorded in `STATUS.md` before deviating. No visible surface
+or no verified route means `STOP:` or `ROUTE_UNAVAILABLE`.
 
 ## 3. Authority precedence
 

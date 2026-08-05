@@ -5,6 +5,33 @@ OpenCode (`opencode`), Claude Code (`claude`), and Codex CLI (`codex`). It is an
 not project authority. `STATUS.md` and the active target-repository packet must adopt an exact route
 before any launch.
 
+## Mandatory execution-session gate
+
+This playbook is required at the start of every activated implementation, fix, or delegated review
+task. The current conversation remains the primary orchestrating session. Before worker edits, the
+primary must select and record one exact route, complete preflight, and launch one separate worker
+as the foreground process in a visible VS Code terminal or Windows Terminal tab/window.
+
+Use the command family assigned by the active route:
+
+| Assigned client | Command type | Full profile |
+|---|---|---|
+| Command Code | `cmdc ... "<bounded-prompt>"` | Section 7.1 |
+| OpenCode | `opencode run ... "<bounded-prompt>"` | Section 7.2 |
+| Claude Code | `claude ... "<bounded-prompt>"` | Section 7.3 |
+| Codex CLI | `codex exec ... "<bounded-prompt>"` | Section 7.4 |
+
+Do not perform the assigned worker edits in the primary session and do not use an internal
+sub-agent, hidden/minimized process, background job, cloud executor, or different CLI. The only
+exception is an exact owner instruction recorded in `STATUS.md` for that task. Planning, packet
+authoring, ordinary read-only answers, and primary boundary review do not launch a worker unless
+their packet explicitly assigns one.
+
+Before the visible launch, the record must contain task ID, risk class, client, exact model ID,
+selection reason, catalogue and allowance evidence, disabled fallback, terminal surface, starting
+HEAD, token rotation, and budgets. If any item is absent or the visible surface cannot be opened,
+record `STOP:` or `ROUTE_UNAVAILABLE`; do not edit.
+
 ## 1. Scope and provenance
 
 The reference matrix and commands below were observed and accepted for Sticker Generator on

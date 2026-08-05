@@ -26,6 +26,27 @@ install a tool, or change global policy without recorded approval.
 5. `CLIENT-EXECUTION.md` for any agent-client selection, launch, monitoring, or review task.
 6. Only the active packet named there.
 
+## Mandatory visible client workflow
+
+At the start of every activated implementation, fix, or delegated review task, the primary session
+must read `CLIENT-EXECUTION.md`, record one exact client/model route, complete its preflight, and
+launch the assigned worker as the foreground process of a visible VS Code terminal or Windows
+Terminal tab/window before worker edits begin. The primary session does not implement the worker
+task inline unless `STATUS.md` records an explicit owner exception for that exact task.
+
+| Client | Required command type |
+|---|---|
+| Command Code | `cmdc ... "<bounded-prompt>"` |
+| OpenCode | `opencode run ... "<bounded-prompt>"` |
+| Claude Code | `claude ... "<bounded-prompt>"` |
+| Codex CLI | `codex exec ... "<bounded-prompt>"` |
+
+Use the exact flags in `CLIENT-EXECUTION.md`. Hidden, minimized, detached, background, cloud,
+internal sub-agent, or silent-fallback execution is prohibited. If the approved visible surface or
+exact route is unavailable, record `STOP:` or `ROUTE_UNAVAILABLE` and do not edit. Planning,
+packet authoring, ordinary read-only questions, and primary boundary review do not require a worker
+unless the active packet explicitly assigns one.
+
 ## Root file map
 
 | Path | Purpose |

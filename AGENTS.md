@@ -22,6 +22,27 @@ authority from a completed plan, an unblocked dependency, or the existence of a 
 `CLAUDE.md` files carry equivalent context for Claude-based sessions. If a context pair conflicts,
 stop and report the conflict rather than choosing one silently.
 
+## Mandatory visible client workflow
+
+At the start of every activated implementation, fix, or delegated review task, the primary session
+must read `CLIENT-EXECUTION.md`, record one exact client/model route, complete its preflight, and
+launch the assigned worker as the foreground process of a visible VS Code terminal or Windows
+Terminal tab/window before worker edits begin. The primary session does not implement the worker
+task inline unless `STATUS.md` records an explicit owner exception for that exact task.
+
+| Client | Required command type |
+|---|---|
+| Command Code | `cmdc ... "<bounded-prompt>"` |
+| OpenCode | `opencode run ... "<bounded-prompt>"` |
+| Claude Code | `claude ... "<bounded-prompt>"` |
+| Codex CLI | `codex exec ... "<bounded-prompt>"` |
+
+The exact flags and launch profiles live in `CLIENT-EXECUTION.md`. Hidden, minimized, detached,
+background, cloud, internal sub-agent, or silent-fallback execution is not an equivalent route. If
+the approved visible surface or exact route is unavailable, record `STOP:` or `ROUTE_UNAVAILABLE`
+and do not edit. Planning, packet authoring, ordinary read-only questions, and primary boundary
+review do not require launching a worker unless their active packet explicitly assigns one.
+
 ## Global invariants
 
 - A target repository remains the authority for its own scope, budgets, accepted results, and
