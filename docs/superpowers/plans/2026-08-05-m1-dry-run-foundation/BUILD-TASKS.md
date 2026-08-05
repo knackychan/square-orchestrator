@@ -1,9 +1,9 @@
 # M1 Build Tasks — Dry-Run Foundation
 
-These tasks are planned and inactive. Before each implementation task, the primary session replaces
-`ACTIVATION_REQUIRED` with the reviewed 40-character starting commit, records live route evidence,
-and obtains exact activation in root `STATUS.md`. The replacement is an authority amendment, not a
-worker action.
+These tasks are inactive unless root `STATUS.md` activates one exactly. Before each implementation
+task, the primary session replaces `ACTIVATION_REQUIRED` with the reviewed 40-character starting
+commit, records route evidence or an explicit owner exception, and obtains exact activation in
+root `STATUS.md`. The replacement is an authority amendment, not a worker action.
 
 ## T-M1-01 — Establish the CLI shell and output contract
 
@@ -20,7 +20,7 @@ schema = 1
 id = "T-M1-01"
 role = "IMPLEMENT"
 mode = "write"
-starting_commit = "ACTIVATION_REQUIRED"
+starting_commit = "574249cb5f0209a30d13a8190e416be02c5e4fc9"
 allowed_paths = ["AGENTS.md", "CLAUDE.md", "README.md", "sqorch/", "tests/"]
 forbidden_paths = [".git/", ".env", "HANDOVER.md", "CLIENT-EXECUTION.md"]
 validation = ["python -m unittest tests.test_cli -v", "python -m sqorch --json doctor"]
