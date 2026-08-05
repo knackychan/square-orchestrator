@@ -11,6 +11,7 @@
 - Delegated agent launch authorized: **no**
 - Dependency installation authorized: **no**
 - External or provider calls authorized: **none**
+- M0 status: **technically complete at `b5e7a85`; owner acceptance pending**
 
 ## Active authority
 
@@ -18,6 +19,9 @@ The owner authorized creation of an independent Square Orchestrator project and 
 M0 baseline on 2026-08-05. M0 may create and verify documentation, initialize local Git history,
 and record its own state. It may not create application code, package metadata, dependencies,
 installers, extensions, runtime databases, background services, or launch a worker client.
+
+The baseline contains 20 planning files, all five created documentation directories have matching
+context pairs, and no implementation artifact exists. This technical result does not activate M1.
 
 ## Planned but inactive
 
