@@ -14,3 +14,4 @@ packaging, or speculative abstraction code.
 | `cli.py` | Arguments and output envelopes |
 | `application.py` | Doctor environment inspection |
 | `authority.py` | Authority validation and manifest compilation |
+| `projects.py` | Project preview and repository audit |

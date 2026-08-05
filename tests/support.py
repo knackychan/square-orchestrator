@@ -1,5 +1,19 @@
+import hashlib
 import subprocess
 from pathlib import Path
+
+
+def tree_digest(path: Path) -> str:
+    digest = hashlib.sha256()
+    for file_path in sorted(path.rglob("*")):
+        if file_path.is_dir() or ".git" in file_path.parts:
+            continue
+        relative = file_path.relative_to(path).as_posix()
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(file_path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
 
 
 def init_git_repo(path: Path) -> str:

@@ -5,6 +5,7 @@ import platform
 import subprocess
 
 from .authority import AuthorityError, compile_manifest
+from .projects import ProjectError, audit as audit_domain, preview as preview_domain
 
 
 class ApplicationError(Exception):
@@ -43,6 +44,34 @@ def validate(project: str, task_id: str) -> dict[str, object]:
     except AuthorityError as error:
         raise ApplicationError(error.code, error.message, exit_code=3) from error
     return json.loads(manifest)
+
+
+def preview_projects(blueprint: str) -> dict[str, object]:
+    try:
+        return preview_domain(blueprint)
+    except ProjectError as error:
+        raise ApplicationError(error.code, error.message, exit_code=2) from error
+
+
+def audit_projects(repository: str) -> dict[str, object]:
+    try:
+        return audit_domain(repository)
+    except ProjectError as error:
+        raise ApplicationError(error.code, error.message, exit_code=2) from error
+
+
+def preview(blueprint: dict[str, object] | str | Path) -> dict[str, object]:
+    try:
+        return preview_domain(blueprint)
+    except ProjectError as error:
+        raise ApplicationError(error.code, error.message, exit_code=2) from error
+
+
+def audit(repository: str | Path) -> dict[str, object]:
+    try:
+        return audit_domain(repository)
+    except ProjectError as error:
+        raise ApplicationError(error.code, error.message, exit_code=2) from error
 
 
 def _state_path(override: str | None) -> Path:

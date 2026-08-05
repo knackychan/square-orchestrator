@@ -80,6 +80,39 @@ class DoctorCliTests(unittest.TestCase):
             self.assertTrue(result["ok"])
             self.assertEqual(result["data"]["task"]["id"], "T-M1-02-FIX-01")
 
+    def test_project_new_preview_requires_preview_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            input_path = Path(temporary_directory) / "blueprint.json"
+            input_path.write_text("{}", encoding="utf-8")
+            completed = self.run_cli(
+                "--json",
+                "project",
+                "new",
+                "--input",
+                str(input_path),
+                local_app_data=Path(temporary_directory),
+            )
+
+            self.assertEqual(completed.returncode, 2, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertEqual(result["error"]["code"], "INVALID_INPUT")
+
+    def test_project_adopt_requires_audit_only_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            target = Path(temporary_directory) / "repo"
+            target.mkdir()
+            completed = self.run_cli(
+                "--json",
+                "project",
+                "adopt",
+                str(target),
+                local_app_data=Path(temporary_directory),
+            )
+
+            self.assertEqual(completed.returncode, 2, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertEqual(result["error"]["code"], "INVALID_INPUT")
+
 
 if __name__ == "__main__":
     unittest.main()

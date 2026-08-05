@@ -14,3 +14,4 @@ from the M1 dry-run foundation.
 | `cli.py` | Arguments and human/JSON rendering |
 | `application.py` | Doctor use case and environment inspection |
 | `authority.py` | Fail-closed task authority validation and canonical manifest compilation |
+| `projects.py` | Responsibility-graph preview and read-only repository audit |

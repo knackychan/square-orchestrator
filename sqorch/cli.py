@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 
-from .application import ApplicationError, doctor, validate
+from .application import ApplicationError, audit_projects, doctor, preview_projects, validate
 
 
 class CommandError(Exception):
@@ -23,6 +23,14 @@ def _parser() -> ArgumentParser:
     validate_command = commands.add_parser("validate")
     validate_command.add_argument("--project", required=True)
     validate_command.add_argument("--task", required=True)
+    project_command = commands.add_parser("project")
+    project_subcommands = project_command.add_subparsers(dest="project_command", required=True)
+    new_command = project_subcommands.add_parser("new")
+    new_command.add_argument("--input", required=True)
+    new_command.add_argument("--preview", action="store_true")
+    adopt_command = project_subcommands.add_parser("adopt")
+    adopt_command.add_argument("path")
+    adopt_command.add_argument("--audit-only", action="store_true")
     return parser
 
 
@@ -48,7 +56,29 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     try:
-        data = doctor(options.state_db) if options.command == "doctor" else validate(options.project, options.task)
+        if options.command == "doctor":
+            data = doctor(options.state_db)
+        elif options.command == "validate":
+            data = validate(options.project, options.task)
+        elif options.command == "project":
+            if options.project_command == "new":
+                if not options.preview:
+                    raise ApplicationError(
+                        "INVALID_INPUT",
+                        "project new requires --preview.",
+                        exit_code=2,
+                    )
+                data = preview_projects(options.input)
+            else:
+                if not options.audit_only:
+                    raise ApplicationError(
+                        "INVALID_INPUT",
+                        "project adopt requires --audit-only.",
+                        exit_code=2,
+                    )
+                data = audit_projects(options.path)
+        else:
+            raise ApplicationError("INVALID_INPUT", f"Unknown command: {options.command}", exit_code=2)
     except ApplicationError as error:
         result = {
             "ok": False,
@@ -63,13 +93,27 @@ def main(argv: list[str] | None = None) -> int:
     if options.json_output:
         _write_json({"ok": True, "data": data})
     else:
-        for label, key in (
-            ("Python", "python"),
-            ("Git", "git"),
-            ("Repository", "repository"),
-            ("State DB", "state_db"),
-        ) if options.command == "doctor" else ():
-            print(f"{label}: {data[key]}")
-        if options.command == "validate":
+        if options.command == "doctor":
+            for label, key in (
+                ("Python", "python"),
+                ("Git", "git"),
+                ("Repository", "repository"),
+                ("State DB", "state_db"),
+            ):
+                print(f"{label}: {data[key]}")
+        elif options.command == "validate":
             print(json.dumps(data, sort_keys=True, separators=(",", ":")))
+        elif options.command == "project":
+            if options.project_command == "new":
+                print(f"Dependency order: {' -> '.join(data['dependency_order'])}")
+                print("Authority files:")
+                for name in data["authority_files"]:
+                    print(f"  {name}")
+                print("Context pairs:")
+                for name in data["context_pairs"]:
+                    print(f"  {name}")
+            else:
+                print(f"HEAD: {data['head']}")
+                print(f"Worktree clean: {data['worktree_clean']}")
+                print(f"Active packet exists: {data['active_packet_exists']}")
     return 0
