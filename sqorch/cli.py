@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 
-from .application import ApplicationError, doctor
+from .application import ApplicationError, doctor, validate
 
 
 class CommandError(Exception):
@@ -20,6 +20,9 @@ def _parser() -> ArgumentParser:
     parser.add_argument("--state-db")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("doctor")
+    validate_command = commands.add_parser("validate")
+    validate_command.add_argument("--project", required=True)
+    validate_command.add_argument("--task", required=True)
     return parser
 
 
@@ -45,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     try:
-        data = doctor(options.state_db)
+        data = doctor(options.state_db) if options.command == "doctor" else validate(options.project, options.task)
     except ApplicationError as error:
         result = {
             "ok": False,
@@ -65,6 +68,8 @@ def main(argv: list[str] | None = None) -> int:
             ("Git", "git"),
             ("Repository", "repository"),
             ("State DB", "state_db"),
-        ):
+        ) if options.command == "doctor" else ():
             print(f"{label}: {data[key]}")
+        if options.command == "validate":
+            print(json.dumps(data, sort_keys=True, separators=(",", ":")))
     return 0

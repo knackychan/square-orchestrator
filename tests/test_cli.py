@@ -63,6 +63,23 @@ class DoctorCliTests(unittest.TestCase):
 
             assert invalid_command.returncode == 2
 
+    def test_validate_json_returns_compiled_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            completed = self.run_cli(
+                "--json",
+                "validate",
+                "--project",
+                str(ROOT),
+                "--task",
+                "T-M1-02-FIX-01",
+                local_app_data=Path(temporary_directory),
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["data"]["task"]["id"], "T-M1-02-FIX-01")
+
 
 if __name__ == "__main__":
     unittest.main()

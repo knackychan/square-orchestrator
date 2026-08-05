@@ -13,3 +13,4 @@ from the M1 dry-run foundation.
 | `__main__.py` | `python -m sqorch` entry point |
 | `cli.py` | Arguments and human/JSON rendering |
 | `application.py` | Doctor use case and environment inspection |
+| `authority.py` | Fail-closed task authority validation and canonical manifest compilation |

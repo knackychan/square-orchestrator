@@ -13,16 +13,30 @@ def init_git_repo(path: Path) -> str:
     return result.stdout.strip()
 
 
-def write_status(path: Path, packet_rel: str, task_id: str | None = None) -> None:
+def write_status(
+    path: Path,
+    packet_rel: str,
+    task_id: str | None = None,
+    *,
+    worktree_state: str = "dirty",
+) -> None:
     content = f"# Status\n\nActive planning subplan: `{packet_rel}`\n"
     if task_id:
         content += f"\nApplication implementation authorized: **yes — {task_id} only**\n"
+    content += f"\nWorktree state: **{worktree_state}**\n"
     (path / "STATUS.md").write_text(content, encoding="utf-8")
 
 
 def write_packet(packet_dir: Path) -> None:
     (packet_dir / "PACKET.md").write_text("# Packet\n\nTest packet content.\n", encoding="utf-8")
     (packet_dir / "BUILD.md").write_text("# Build\n\nTest build content.\n", encoding="utf-8")
+
+
+def write_context_pairs(path: Path) -> None:
+    for directory in (path, path / "docs", path / "docs" / "superpowers", path / "docs" / "superpowers" / "plans"):
+        directory.mkdir(exist_ok=True)
+        (directory / "AGENTS.md").write_text("# Context\n", encoding="utf-8")
+        (directory / "CLAUDE.md").write_text("# Context\n", encoding="utf-8")
 
 
 def toml_task_block(head_sha: str, **overrides: object) -> str:

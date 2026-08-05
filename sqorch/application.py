@@ -1,7 +1,10 @@
+import json
 import os
 from pathlib import Path
 import platform
 import subprocess
+
+from .authority import AuthorityError, compile_manifest
 
 
 class ApplicationError(Exception):
@@ -32,6 +35,14 @@ def doctor(state_db: str | None = None) -> dict[str, str]:
         "repository": str(repository),
         "state_db": str(state_path),
     }
+
+
+def validate(project: str, task_id: str) -> dict[str, object]:
+    try:
+        manifest = compile_manifest(Path(project), task_id)
+    except AuthorityError as error:
+        raise ApplicationError(error.code, error.message, exit_code=3) from error
+    return json.loads(manifest)
 
 
 def _state_path(override: str | None) -> Path:

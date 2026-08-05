@@ -13,3 +13,4 @@ packaging, or speculative abstraction code.
 | `__main__.py` | Module entry point |
 | `cli.py` | Arguments and output envelopes |
 | `application.py` | Doctor environment inspection |
+| `authority.py` | Authority validation and manifest compilation |
