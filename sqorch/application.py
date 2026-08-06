@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from .authority import AuthorityError, compile_manifest
 from .practices import PracticeError, validate as validate_practice_domain
 from .projects import ProjectError, audit as audit_domain, preview as preview_domain
-from .state import acquire_lock, init_db, register_project, release_lock
+from .state import acquire_lock, init_db, lookup_project, register_project, release_lock
 
 
 class ApplicationError(Exception):
@@ -131,13 +131,15 @@ def run_dry_run(project_path: str, task_id: str, state_db: str | None = None) ->
     conn = init_db(state_path)
     holder = str(uuid.uuid4())
     try:
-        register_project(
-            conn,
-            project_path,
-            manifest_data["task"]["id"],
-            "default",
-            _utc_now(),
-        )
+        stored = lookup_project(conn, project_path)
+        if stored is None:
+            register_project(
+                conn,
+                project_path,
+                manifest_data["task"]["id"],
+                "default",
+                _utc_now(),
+            )
         acquire_lock(
             conn,
             project_path,

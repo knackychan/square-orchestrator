@@ -381,6 +381,105 @@ class DoctorCliTests(unittest.TestCase):
             self.assertEqual(result["error"]["code"], "AUTHORITY_DRIFT")
             self.assertEqual(completed.stderr, "")
 
+    def test_registered_project_located_during_dry_run(self) -> None:
+        from tests.support import make_authority_fixture
+        import sqlite3 as _sqlite3
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            local_app_data = Path(temporary_directory)
+            state_path = local_app_data / "SquareOrchestrator" / "state.db"
+            profile_path = Path(temporary_directory) / "profile.json"
+            profile_path.write_text("{}", encoding="utf-8")
+
+            fixture = make_authority_fixture(Path(temporary_directory) / "fixture")
+
+            add_result = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "project",
+                "add",
+                str(fixture),
+                "--name",
+                "Registered Fixture",
+                "--profile",
+                str(profile_path),
+                local_app_data=local_app_data,
+            )
+            self.assertEqual(add_result.returncode, 0, add_result.stderr)
+            add_data = json.loads(add_result.stdout)
+            stored_before = add_data["data"]
+
+            dry_run = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "run",
+                "--project",
+                str(fixture),
+                "--task",
+                "T-TEST-01",
+                "--dry-run",
+                local_app_data=local_app_data,
+            )
+            self.assertEqual(dry_run.returncode, 0, dry_run.stderr)
+            dry_run_data = json.loads(dry_run.stdout)
+            self.assertIs(dry_run_data["data"]["launch_performed"], False)
+            self.assertIs(dry_run_data["data"]["automatic_fallback"], False)
+
+            conn = _sqlite3.connect(str(state_path))
+            try:
+                cursor = conn.execute(
+                    "SELECT canonical_path, display_name, policy_profile, added_at_utc FROM projects WHERE canonical_path = ?",
+                    (stored_before["canonical_path"],),
+                )
+                row = cursor.fetchone()
+                self.assertIsNotNone(row)
+                self.assertEqual(row[0], stored_before["canonical_path"])
+                self.assertEqual(row[1], stored_before["display_name"])
+                self.assertEqual(row[2], stored_before["policy_profile"])
+                self.assertEqual(row[3], stored_before["added_at_utc"])
+
+                lock_count = conn.execute("SELECT COUNT(*) FROM locks").fetchone()[0]
+                self.assertEqual(lock_count, 0)
+            finally:
+                conn.close()
+
+            fresh_fixture = make_authority_fixture(
+                Path(temporary_directory) / "fixture2"
+            )
+            fresh_state = local_app_data / "SquareOrchestrator" / "state2.db"
+            fresh_dry_run = self.run_cli(
+                "--json",
+                "--state-db",
+                str(fresh_state),
+                "run",
+                "--project",
+                str(fresh_fixture),
+                "--task",
+                "T-TEST-01",
+                "--dry-run",
+                local_app_data=local_app_data,
+            )
+            self.assertEqual(fresh_dry_run.returncode, 0, fresh_dry_run.stderr)
+
+            drift = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "run",
+                "--project",
+                str(ROOT),
+                "--task",
+                "T-M1-05",
+                "--dry-run",
+                local_app_data=local_app_data,
+            )
+            self.assertEqual(drift.returncode, 3, drift.stderr)
+            drift_result = json.loads(drift.stdout)
+            self.assertEqual(drift_result["error"]["code"], "AUTHORITY_DRIFT")
+            self.assertEqual(drift.stderr, "")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -80,6 +80,25 @@ def register_project(
     }
 
 
+def lookup_project(
+    conn: sqlite3.Connection,
+    project_path: str,
+) -> dict[str, object] | None:
+    normalized = _normalize(project_path)
+    row = conn.execute(
+        "SELECT canonical_path, display_name, policy_profile, added_at_utc FROM projects WHERE canonical_path = ?",
+        (normalized,),
+    ).fetchone()
+    if row is None:
+        return None
+    return {
+        "canonical_path": row[0],
+        "display_name": row[1],
+        "policy_profile": row[2],
+        "added_at_utc": row[3],
+    }
+
+
 def acquire_lock(
     conn: sqlite3.Connection,
     project_path: str,
