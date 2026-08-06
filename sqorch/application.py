@@ -3,10 +3,13 @@ import os
 from pathlib import Path
 import platform
 import subprocess
+import time
+import uuid
 
 from .authority import AuthorityError, compile_manifest
 from .practices import PracticeError, validate as validate_practice_domain
 from .projects import ProjectError, audit as audit_domain, preview as preview_domain
+from .state import acquire_lock, init_db, register_project, release_lock
 
 
 class ApplicationError(Exception):
@@ -91,6 +94,61 @@ def validate_practices(path: str | Path) -> dict[str, object]:
     if result.error is not None:
         raise ApplicationError(result.error.code, result.error.message, exit_code=2)
     return record
+
+
+def project_add(project_path: str, profile_path: str | None = None, state_db: str | None = None) -> dict[str, object]:
+    state_path = _state_path(state_db)
+    conn = init_db(state_path)
+    try:
+        profile = _normalize_path(profile_path) if profile_path else "default"
+        result = register_project(
+            conn,
+            project_path,
+            profile,
+            time.time(),
+        )
+        return dict(result)
+    finally:
+        conn.close()
+
+
+def run_dry_run(project_path: str, task_id: str, state_db: str | None = None) -> dict[str, object]:
+    state_path = _state_path(state_db)
+    manifest = compile_manifest(Path(project_path), task_id)
+    manifest_data = json.loads(manifest)
+    conn = init_db(state_path)
+    holder = str(uuid.uuid4())
+    try:
+        register_project(
+            conn,
+            project_path,
+            "default",
+            time.time(),
+        )
+        acquire_lock(
+            conn,
+            project_path,
+            holder,
+            manifest_data["task"]["starting_commit"],
+            time.time(),
+        )
+        return {
+            "launch_performed": False,
+            "automatic_fallback": False,
+            "route": {
+                "client": manifest_data["task"]["client"],
+                "model": manifest_data["task"]["model"],
+            },
+            "task_id": task_id,
+            "project_path": _normalize_path(project_path),
+        }
+    finally:
+        release_lock(conn, project_path, holder)
+        conn.close()
+
+
+def _normalize_path(path: str) -> str:
+    return str(Path(path).resolve())
 
 
 def _state_path(override: str | None) -> Path:

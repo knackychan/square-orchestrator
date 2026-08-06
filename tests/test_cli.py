@@ -230,6 +230,48 @@ class DoctorCliTests(unittest.TestCase):
             self.assertEqual(result["error"]["code"], "INVALID_INPUT")
             self.assertEqual(completed.stderr, "")
 
+    def test_project_add_registers_project(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            local_app_data = Path(temporary_directory)
+            state_path = local_app_data / "SquareOrchestrator" / "state.db"
+            completed = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "project",
+                "add",
+                str(ROOT),
+                local_app_data=local_app_data,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["data"]["project_path"], str(ROOT.resolve()))
+
+    def test_run_dry_run_returns_launch_false_and_no_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            local_app_data = Path(temporary_directory)
+            state_path = local_app_data / "SquareOrchestrator" / "state.db"
+            completed = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "run",
+                "--project",
+                str(ROOT),
+                "--task",
+                "T-M1-05",
+                "--dry-run",
+                local_app_data=local_app_data,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertTrue(result["ok"])
+            self.assertIs(result["data"]["launch_performed"], False)
+            self.assertIs(result["data"]["automatic_fallback"], False)
+
 
 if __name__ == "__main__":
     unittest.main()

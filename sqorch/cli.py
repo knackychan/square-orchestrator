@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 
-from .application import ApplicationError, audit_projects, doctor, preview_projects, validate, validate_practices
+from .application import ApplicationError, audit_projects, doctor, preview_projects, project_add, run_dry_run, validate, validate_practices
 
 
 class CommandError(Exception):
@@ -31,10 +31,16 @@ def _parser() -> ArgumentParser:
     adopt_command = project_subcommands.add_parser("adopt")
     adopt_command.add_argument("path")
     adopt_command.add_argument("--audit-only", action="store_true")
+    add_command = project_subcommands.add_parser("add")
+    add_command.add_argument("path")
     practices_command = commands.add_parser("practices")
     practices_subcommands = practices_command.add_subparsers(dest="practices_command", required=True)
     validate_practices_command = practices_subcommands.add_parser("validate")
     validate_practices_command.add_argument("path")
+    run_command = commands.add_parser("run")
+    run_command.add_argument("--project", required=True)
+    run_command.add_argument("--task", required=True)
+    run_command.add_argument("--dry-run", action="store_true")
     return parser
 
 
@@ -73,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
                         exit_code=2,
                     )
                 data = preview_projects(options.input)
+            elif options.project_command == "add":
+                data = project_add(options.path, state_db=options.state_db)
             else:
                 if not options.audit_only:
                     raise ApplicationError(
@@ -83,6 +91,14 @@ def main(argv: list[str] | None = None) -> int:
                 data = audit_projects(options.path)
         elif options.command == "practices":
             data = validate_practices(options.path)
+        elif options.command == "run":
+            if not options.dry_run:
+                raise ApplicationError(
+                    "INVALID_INPUT",
+                    "run requires --dry-run in M1.",
+                    exit_code=2,
+                )
+            data = run_dry_run(options.project, options.task, state_db=options.state_db)
         else:
             raise ApplicationError("INVALID_INPUT", f"Unknown command: {options.command}", exit_code=2)
     except ApplicationError as error:
@@ -120,8 +136,17 @@ def main(argv: list[str] | None = None) -> int:
                 print("Context pairs:")
                 for name in data["context_pairs"]:
                     print(f"  {name}")
+            elif options.project_command == "add":
+                print(f"Registered: {data['project_path']}")
+                print(f"Profile: {data['profile_path']}")
             else:
                 print(f"HEAD: {data['head']}")
                 print(f"Worktree clean: {data['worktree_clean']}")
                 print(f"Active packet exists: {data['active_packet_exists']}")
+        elif options.command == "run":
+            print(f"Task: {data['task_id']}")
+            print(f"Project: {data['project_path']}")
+            print(f"Route: {data['route']['client']} / {data['route']['model']}")
+            print(f"Launch performed: {data['launch_performed']}")
+            print(f"Automatic fallback: {data['automatic_fallback']}")
     return 0

@@ -16,3 +16,4 @@ from the M1 dry-run foundation.
 | `authority.py` | Fail-closed task authority validation and canonical manifest compilation |
 | `projects.py` | Responsibility-graph preview and read-only repository audit |
 | `practices.py` | Practice-record JSON validation against closed lifecycle vocabulary |
+| `state.py` | SQLite project registry and holder-bound write locks |
