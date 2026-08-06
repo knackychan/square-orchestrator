@@ -3,8 +3,8 @@ import os
 from pathlib import Path
 import platform
 import subprocess
-import time
 import uuid
+from datetime import datetime, timezone
 
 from .authority import AuthorityError, compile_manifest
 from .practices import PracticeError, validate as validate_practice_domain
@@ -96,16 +96,25 @@ def validate_practices(path: str | Path) -> dict[str, object]:
     return record
 
 
-def project_add(project_path: str, profile_path: str | None = None, state_db: str | None = None) -> dict[str, object]:
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def project_add(
+    project_path: str,
+    display_name: str,
+    policy_profile: str,
+    state_db: str | None = None,
+) -> dict[str, object]:
     state_path = _state_path(state_db)
     conn = init_db(state_path)
     try:
-        profile = _normalize_path(profile_path) if profile_path else "default"
         result = register_project(
             conn,
             project_path,
-            profile,
-            time.time(),
+            display_name,
+            policy_profile,
+            _utc_now(),
         )
         return dict(result)
     finally:
@@ -114,7 +123,10 @@ def project_add(project_path: str, profile_path: str | None = None, state_db: st
 
 def run_dry_run(project_path: str, task_id: str, state_db: str | None = None) -> dict[str, object]:
     state_path = _state_path(state_db)
-    manifest = compile_manifest(Path(project_path), task_id)
+    try:
+        manifest = compile_manifest(Path(project_path), task_id)
+    except AuthorityError as error:
+        raise ApplicationError(error.code, error.message, exit_code=3) from error
     manifest_data = json.loads(manifest)
     conn = init_db(state_path)
     holder = str(uuid.uuid4())
@@ -122,15 +134,16 @@ def run_dry_run(project_path: str, task_id: str, state_db: str | None = None) ->
         register_project(
             conn,
             project_path,
+            manifest_data["task"]["id"],
             "default",
-            time.time(),
+            _utc_now(),
         )
         acquire_lock(
             conn,
             project_path,
             holder,
             manifest_data["task"]["starting_commit"],
-            time.time(),
+            _utc_now(),
         )
         return {
             "launch_performed": False,

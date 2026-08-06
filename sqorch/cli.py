@@ -33,6 +33,8 @@ def _parser() -> ArgumentParser:
     adopt_command.add_argument("--audit-only", action="store_true")
     add_command = project_subcommands.add_parser("add")
     add_command.add_argument("path")
+    add_command.add_argument("--name", required=True)
+    add_command.add_argument("--profile", required=True)
     practices_command = commands.add_parser("practices")
     practices_subcommands = practices_command.add_subparsers(dest="practices_command", required=True)
     validate_practices_command = practices_subcommands.add_parser("validate")
@@ -80,7 +82,7 @@ def main(argv: list[str] | None = None) -> int:
                     )
                 data = preview_projects(options.input)
             elif options.project_command == "add":
-                data = project_add(options.path, state_db=options.state_db)
+                data = project_add(options.path, options.name, options.profile, state_db=options.state_db)
             else:
                 if not options.audit_only:
                     raise ApplicationError(
@@ -137,8 +139,9 @@ def main(argv: list[str] | None = None) -> int:
                 for name in data["context_pairs"]:
                     print(f"  {name}")
             elif options.project_command == "add":
-                print(f"Registered: {data['project_path']}")
-                print(f"Profile: {data['profile_path']}")
+                print(f"Registered: {data['canonical_path']}")
+                print(f"Name: {data['display_name']}")
+                print(f"Profile: {data['policy_profile']}")
             else:
                 print(f"HEAD: {data['head']}")
                 print(f"Worktree clean: {data['worktree_clean']}")

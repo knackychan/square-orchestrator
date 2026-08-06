@@ -17,54 +17,100 @@ class StateRegistrationTests(unittest.TestCase):
             finally:
                 conn.close()
 
-    def test_idempotent_registration_returns_same_record(self) -> None:
+    def test_project_table_columns_match_design(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             db_path = Path(temporary_directory) / "state.db"
-            from sqorch.state import init_db, register_project
+            from sqorch.state import init_db
 
             conn = init_db(db_path)
             try:
-                project = {
-                    "project_path": "C:/projects/test",
-                    "profile_path": "C:/profiles/default",
-                    "registered_at_utc": 1700000000.0,
-                }
+                project_columns = [
+                    (row[1], row[2])
+                    for row in conn.execute("PRAGMA table_info('projects')").fetchall()
+                ]
+                self.assertEqual(
+                    project_columns,
+                    [
+                        ("canonical_path", "TEXT"),
+                        ("display_name", "TEXT"),
+                        ("policy_profile", "TEXT"),
+                        ("added_at_utc", "TEXT"),
+                    ],
+                )
+            finally:
+                conn.close()
+
+    def test_lock_table_acquired_at_is_text(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            db_path = Path(temporary_directory) / "state.db"
+            from sqorch.state import init_db
+
+            conn = init_db(db_path)
+            try:
+                lock_columns = [
+                    (row[1], row[2])
+                    for row in conn.execute("PRAGMA table_info('locks')").fetchall()
+                ]
+                self.assertEqual(lock_columns[-1], ("acquired_at_utc", "TEXT"))
+            finally:
+                conn.close()
+
+    def test_idempotent_registration_preserves_timestamp(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            db_path = Path(temporary_directory) / "state.db"
+            from sqorch.state import init_db, register_project
+            from datetime import datetime, timezone
+
+            timestamp = datetime(2025, 1, 1, tzinfo=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+            conn = init_db(db_path)
+            try:
                 first = register_project(
                     conn,
-                    project["project_path"],
-                    project["profile_path"],
-                    project["registered_at_utc"],
+                    "C:/projects/test",
+                    "Test Project",
+                    "C:/profiles/default",
+                    timestamp,
                 )
                 second = register_project(
                     conn,
-                    project["project_path"],
-                    project["profile_path"],
-                    project["registered_at_utc"],
+                    "C:/projects/test",
+                    "Test Project",
+                    "C:/profiles/default",
+                    timestamp,
                 )
                 self.assertEqual(first, second)
+                self.assertEqual(first["added_at_utc"], second["added_at_utc"])
             finally:
                 conn.close()
 
     def test_conflicting_registration_returns_state_conflict(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             db_path = Path(temporary_directory) / "state.db"
-            from sqorch.application import ApplicationError
             from sqorch.state import init_db, register_project
+            from sqorch.application import ApplicationError
+            from datetime import datetime, timezone
 
+            timestamp = datetime(2025, 1, 1, tzinfo=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
             conn = init_db(db_path)
             try:
                 register_project(
                     conn,
                     "C:/projects/test",
+                    "Test Project",
                     "C:/profiles/default",
-                    1700000000.0,
+                    timestamp,
                 )
                 with self.assertRaises(ApplicationError) as context:
                     register_project(
                         conn,
                         "C:/projects/test",
-                        "C:/profiles/different",
-                        1700000000.0,
+                        "Different Name",
+                        "C:/profiles/default",
+                        timestamp,
                     )
                 self.assertEqual(context.exception.code, "STATE_CONFLICT")
             finally:
@@ -74,16 +120,26 @@ class StateRegistrationTests(unittest.TestCase):
 class StateLockTests(unittest.TestCase):
     def _register_and_init(self, db_path: Path) -> "tuple":
         from sqorch.state import init_db, register_project
+        from datetime import datetime, timezone
 
+        timestamp = datetime(2025, 1, 1, tzinfo=timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
         conn = init_db(db_path)
-        register_project(conn, "C:/projects/test", "C:/profiles/default", 1700000000.0)
+        register_project(
+            conn, "C:/projects/test", "Test Project", "C:/profiles/default", timestamp
+        )
         return conn
 
     def test_holder_a_acquires_successfully(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             db_path = Path(temporary_directory) / "state.db"
             from sqorch.state import acquire_lock
+            from datetime import datetime, timezone
 
+            timestamp = datetime(2025, 1, 1, tzinfo=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
             conn = self._register_and_init(db_path)
             try:
                 result = acquire_lock(
@@ -91,7 +147,7 @@ class StateLockTests(unittest.TestCase):
                     "C:/projects/test",
                     "holder-a",
                     "abc123",
-                    1700000000.0,
+                    timestamp,
                 )
                 self.assertTrue(result)
             finally:
@@ -102,7 +158,14 @@ class StateLockTests(unittest.TestCase):
             db_path = Path(temporary_directory) / "state.db"
             from sqorch.application import ApplicationError
             from sqorch.state import acquire_lock
+            from datetime import datetime, timezone
 
+            timestamp_a = datetime(2025, 1, 1, tzinfo=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+            timestamp_b = datetime(2025, 1, 2, tzinfo=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
             conn_a = self._register_and_init(db_path)
             try:
                 acquire_lock(
@@ -110,7 +173,7 @@ class StateLockTests(unittest.TestCase):
                     "C:/projects/test",
                     "holder-a",
                     "abc123",
-                    1700000000.0,
+                    timestamp_a,
                 )
             except Exception:
                 conn_a.close()
@@ -124,7 +187,7 @@ class StateLockTests(unittest.TestCase):
                         "C:/projects/test",
                         "holder-b",
                         "def456",
-                        1700000001.0,
+                        timestamp_b,
                     )
                 self.assertEqual(context.exception.code, "LOCKED")
             finally:
@@ -135,7 +198,11 @@ class StateLockTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             db_path = Path(temporary_directory) / "state.db"
             from sqorch.state import acquire_lock, release_lock
+            from datetime import datetime, timezone
 
+            timestamp = datetime(2025, 1, 1, tzinfo=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
             conn_a = self._register_and_init(db_path)
             try:
                 acquire_lock(
@@ -143,7 +210,7 @@ class StateLockTests(unittest.TestCase):
                     "C:/projects/test",
                     "holder-a",
                     "abc123",
-                    1700000000.0,
+                    timestamp,
                 )
             except Exception:
                 conn_a.close()
@@ -161,7 +228,11 @@ class StateLockTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             db_path = Path(temporary_directory) / "state.db"
             from sqorch.state import acquire_lock, release_lock
+            from datetime import datetime, timezone
 
+            timestamp = datetime(2025, 1, 1, tzinfo=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
             conn = self._register_and_init(db_path)
             try:
                 acquire_lock(
@@ -169,7 +240,7 @@ class StateLockTests(unittest.TestCase):
                     "C:/projects/test",
                     "holder-a",
                     "abc123",
-                    1700000000.0,
+                    timestamp,
                 )
                 released = release_lock(conn, "C:/projects/test", "holder-a")
                 self.assertTrue(released)

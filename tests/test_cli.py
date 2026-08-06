@@ -230,7 +230,7 @@ class DoctorCliTests(unittest.TestCase):
             self.assertEqual(result["error"]["code"], "INVALID_INPUT")
             self.assertEqual(completed.stderr, "")
 
-    def test_project_add_registers_project(self) -> None:
+    def test_project_add_registers_with_name_and_profile(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             local_app_data = Path(temporary_directory)
             state_path = local_app_data / "SquareOrchestrator" / "state.db"
@@ -241,15 +241,125 @@ class DoctorCliTests(unittest.TestCase):
                 "project",
                 "add",
                 str(ROOT),
+                "--name",
+                "Test Project",
+                "--profile",
+                str(Path(temporary_directory) / "profile.json"),
                 local_app_data=local_app_data,
             )
 
             self.assertEqual(completed.returncode, 0, completed.stderr)
             result = json.loads(completed.stdout)
             self.assertTrue(result["ok"])
-            self.assertEqual(result["data"]["project_path"], str(ROOT.resolve()))
+            self.assertEqual(result["data"]["canonical_path"], str(ROOT.resolve()))
+            self.assertEqual(result["data"]["display_name"], "Test Project")
 
-    def test_run_dry_run_returns_launch_false_and_no_fallback(self) -> None:
+    def test_idempotent_project_add_returns_same_timestamp(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            local_app_data = Path(temporary_directory)
+            state_path = local_app_data / "SquareOrchestrator" / "state.db"
+            profile_path = Path(temporary_directory) / "profile.json"
+            first = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "project",
+                "add",
+                str(ROOT),
+                "--name",
+                "Test Project",
+                "--profile",
+                str(profile_path),
+                local_app_data=local_app_data,
+            )
+            second = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "project",
+                "add",
+                str(ROOT),
+                "--name",
+                "Test Project",
+                "--profile",
+                str(profile_path),
+                local_app_data=local_app_data,
+            )
+
+            self.assertEqual(first.returncode, 0, first.stderr)
+            self.assertEqual(second.returncode, 0, second.stderr)
+            first_data = json.loads(first.stdout)
+            second_data = json.loads(second.stdout)
+            self.assertEqual(first_data, second_data)
+            self.assertEqual(
+                first_data["data"]["added_at_utc"],
+                second_data["data"]["added_at_utc"],
+            )
+
+    def test_project_add_changed_name_returns_state_conflict(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            local_app_data = Path(temporary_directory)
+            state_path = local_app_data / "SquareOrchestrator" / "state.db"
+            profile_path = Path(temporary_directory) / "profile.json"
+            self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "project",
+                "add",
+                str(ROOT),
+                "--name",
+                "First Name",
+                "--profile",
+                str(profile_path),
+                local_app_data=local_app_data,
+            )
+
+            changed = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "project",
+                "add",
+                str(ROOT),
+                "--name",
+                "Different Name",
+                "--profile",
+                str(profile_path),
+                local_app_data=local_app_data,
+            )
+
+            self.assertEqual(changed.returncode, 4, changed.stderr)
+            result = json.loads(changed.stdout)
+            self.assertEqual(result["error"]["code"], "STATE_CONFLICT")
+
+    def test_run_dry_run_with_authority_fixture(self) -> None:
+        from tests.support import make_authority_fixture
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            fixture = make_authority_fixture(Path(temporary_directory) / "fixture")
+            local_app_data = Path(temporary_directory)
+            state_path = local_app_data / "SquareOrchestrator" / "state.db"
+            completed = self.run_cli(
+                "--json",
+                "--state-db",
+                str(state_path),
+                "run",
+                "--project",
+                str(fixture),
+                "--task",
+                "T-TEST-01",
+                "--dry-run",
+                local_app_data=local_app_data,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertTrue(result["ok"])
+            self.assertIs(result["data"]["launch_performed"], False)
+            self.assertIs(result["data"]["automatic_fallback"], False)
+
+    def test_run_dry_run_authority_drift_returns_exit_three(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             local_app_data = Path(temporary_directory)
             state_path = local_app_data / "SquareOrchestrator" / "state.db"
@@ -266,11 +376,10 @@ class DoctorCliTests(unittest.TestCase):
                 local_app_data=local_app_data,
             )
 
-            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertEqual(completed.returncode, 3, completed.stderr)
             result = json.loads(completed.stdout)
-            self.assertTrue(result["ok"])
-            self.assertIs(result["data"]["launch_performed"], False)
-            self.assertIs(result["data"]["automatic_fallback"], False)
+            self.assertEqual(result["error"]["code"], "AUTHORITY_DRIFT")
+            self.assertEqual(completed.stderr, "")
 
 
 if __name__ == "__main__":

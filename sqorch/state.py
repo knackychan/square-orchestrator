@@ -19,17 +19,18 @@ def init_db(db_path: str | Path) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute(
         "CREATE TABLE IF NOT EXISTS projects ("
-        "  project_path TEXT PRIMARY KEY,"
-        "  profile_path TEXT NOT NULL,"
-        "  registered_at_utc REAL NOT NULL"
+        "  canonical_path TEXT PRIMARY KEY,"
+        "  display_name TEXT NOT NULL,"
+        "  policy_profile TEXT NOT NULL,"
+        "  added_at_utc TEXT NOT NULL"
         ")"
     )
     conn.execute(
         "CREATE TABLE IF NOT EXISTS locks ("
-        "  project_path TEXT PRIMARY KEY REFERENCES projects(project_path),"
+        "  project_path TEXT PRIMARY KEY REFERENCES projects(canonical_path),"
         "  holder TEXT NOT NULL,"
         "  starting_commit TEXT NOT NULL,"
-        "  acquired_at_utc REAL NOT NULL"
+        "  acquired_at_utc TEXT NOT NULL"
         ")"
     )
     conn.execute("PRAGMA user_version = 1")
@@ -40,24 +41,26 @@ def init_db(db_path: str | Path) -> sqlite3.Connection:
 def register_project(
     conn: sqlite3.Connection,
     project_path: str,
-    profile_path: str,
-    registered_at_utc: float,
+    display_name: str,
+    policy_profile: str,
+    added_at_utc: str,
 ) -> dict[str, object]:
     normalized_project = _normalize(project_path)
-    normalized_profile = _normalize(profile_path)
+    normalized_profile = _normalize(policy_profile)
     existing = conn.execute(
-        "SELECT project_path, profile_path, registered_at_utc FROM projects WHERE project_path = ?",
+        "SELECT canonical_path, display_name, policy_profile, added_at_utc FROM projects WHERE canonical_path = ?",
         (normalized_project,),
     ).fetchone()
     if existing is not None:
         if (
-            existing[1] == normalized_profile
-            and existing[2] == registered_at_utc
+            existing[1] == display_name
+            and existing[2] == normalized_profile
         ):
             return {
-                "project_path": existing[0],
-                "profile_path": existing[1],
-                "registered_at_utc": existing[2],
+                "canonical_path": existing[0],
+                "display_name": existing[1],
+                "policy_profile": existing[2],
+                "added_at_utc": existing[3],
             }
         raise _app_error(
             "STATE_CONFLICT",
@@ -65,14 +68,15 @@ def register_project(
             exit_code=4,
         )
     conn.execute(
-        "INSERT INTO projects (project_path, profile_path, registered_at_utc) VALUES (?, ?, ?)",
-        (normalized_project, normalized_profile, registered_at_utc),
+        "INSERT INTO projects (canonical_path, display_name, policy_profile, added_at_utc) VALUES (?, ?, ?, ?)",
+        (normalized_project, display_name, normalized_profile, added_at_utc),
     )
     conn.commit()
     return {
-        "project_path": normalized_project,
-        "profile_path": normalized_profile,
-        "registered_at_utc": registered_at_utc,
+        "canonical_path": normalized_project,
+        "display_name": display_name,
+        "policy_profile": normalized_profile,
+        "added_at_utc": added_at_utc,
     }
 
 
@@ -81,7 +85,7 @@ def acquire_lock(
     project_path: str,
     holder: str,
     starting_commit: str,
-    acquired_at_utc: float,
+    acquired_at_utc: str,
 ) -> bool:
     normalized_project = _normalize(project_path)
     try:
