@@ -79,7 +79,7 @@ def validate_practices(path: str | Path) -> dict[str, object]:
     input_path = Path(path)
     try:
         raw = input_path.read_text(encoding="utf-8")
-    except OSError as error:
+    except (OSError, ValueError) as error:
         raise ApplicationError("INVALID_INPUT", f"Cannot read practice file: {error}", exit_code=2) from error
     try:
         record = json.loads(raw)

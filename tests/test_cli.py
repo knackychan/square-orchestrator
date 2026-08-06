@@ -212,6 +212,24 @@ class DoctorCliTests(unittest.TestCase):
             result = json.loads(completed.stdout)
             self.assertEqual(result["error"]["code"], "INVALID_INPUT")
 
+    def test_practices_validate_invalid_utf8(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            input_path = Path(temporary_directory) / "bad_encoding.json"
+            input_path.write_bytes(b"\xff")
+
+            completed = self.run_cli(
+                "--json",
+                "practices",
+                "validate",
+                str(input_path),
+                local_app_data=Path(temporary_directory),
+            )
+
+            self.assertEqual(completed.returncode, 2, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertEqual(result["error"]["code"], "INVALID_INPUT")
+            self.assertEqual(completed.stderr, "")
+
 
 if __name__ == "__main__":
     unittest.main()
