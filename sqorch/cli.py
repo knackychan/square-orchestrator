@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 
-from .application import ApplicationError, audit_projects, doctor, preview_projects, validate
+from .application import ApplicationError, audit_projects, doctor, preview_projects, validate, validate_practices
 
 
 class CommandError(Exception):
@@ -31,6 +31,10 @@ def _parser() -> ArgumentParser:
     adopt_command = project_subcommands.add_parser("adopt")
     adopt_command.add_argument("path")
     adopt_command.add_argument("--audit-only", action="store_true")
+    practices_command = commands.add_parser("practices")
+    practices_subcommands = practices_command.add_subparsers(dest="practices_command", required=True)
+    validate_practices_command = practices_subcommands.add_parser("validate")
+    validate_practices_command.add_argument("path")
     return parser
 
 
@@ -77,6 +81,8 @@ def main(argv: list[str] | None = None) -> int:
                         exit_code=2,
                     )
                 data = audit_projects(options.path)
+        elif options.command == "practices":
+            data = validate_practices(options.path)
         else:
             raise ApplicationError("INVALID_INPUT", f"Unknown command: {options.command}", exit_code=2)
     except ApplicationError as error:
@@ -102,6 +108,8 @@ def main(argv: list[str] | None = None) -> int:
             ):
                 print(f"{label}: {data[key]}")
         elif options.command == "validate":
+            print(json.dumps(data, sort_keys=True, separators=(",", ":")))
+        elif options.command == "practices":
             print(json.dumps(data, sort_keys=True, separators=(",", ":")))
         elif options.command == "project":
             if options.project_command == "new":

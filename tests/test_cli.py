@@ -116,6 +116,102 @@ class DoctorCliTests(unittest.TestCase):
             result = json.loads(completed.stdout)
             self.assertEqual(result["error"]["code"], "INVALID_INPUT")
 
+    def test_practices_validate_json_success(self) -> None:
+        from tests.support import tree_digest
+
+        repository = ROOT
+        unchanged_digest = tree_digest(repository)
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            input_path = Path(temporary_directory) / "practice.json"
+            canonical_record = {
+                "schema": "practice/v1",
+                "id": "P-001",
+                "category": "testing",
+                "statement": "Always write tests first",
+                "proposed_scope": "project",
+                "source_type": "observation",
+                "provenance_reference": "T-M1-04 review",
+                "observed_context": "Test project M1 dry run",
+                "trade_offs": ["slower initial velocity"],
+                "counterexamples": [],
+                "confidence": 0.9,
+                "review_date": "2026-08-06",
+                "state": "CANDIDATE",
+                "approving_authority": None,
+                "affected_profiles": [],
+            }
+            input_path.write_text(json.dumps(canonical_record), encoding="utf-8")
+
+            completed = self.run_cli(
+                "--json",
+                "practices",
+                "validate",
+                str(input_path),
+                local_app_data=Path(temporary_directory),
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertEqual(
+                result,
+                {"ok": True, "data": canonical_record},
+            )
+
+            assert tree_digest(repository) == unchanged_digest
+
+    def test_practices_validate_human_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            input_path = Path(temporary_directory) / "practice.json"
+            canonical_record = {
+                "schema": "practice/v1",
+                "id": "P-001",
+                "category": "testing",
+                "statement": "Always write tests first",
+                "proposed_scope": "project",
+                "source_type": "observation",
+                "provenance_reference": "T-M1-04 review",
+                "observed_context": "Test project M1 dry run",
+                "trade_offs": ["slower initial velocity"],
+                "counterexamples": [],
+                "confidence": 0.9,
+                "review_date": "2026-08-06",
+                "state": "CANDIDATE",
+                "approving_authority": None,
+                "affected_profiles": [],
+            }
+            input_path.write_text(json.dumps(canonical_record), encoding="utf-8")
+
+            completed = self.run_cli(
+                "practices",
+                "validate",
+                str(input_path),
+                local_app_data=Path(temporary_directory),
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertEqual(
+                json.loads(completed.stdout),
+                canonical_record,
+            )
+
+    def test_practices_validate_malformed_json(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            input_path = Path(temporary_directory) / "bad.json"
+            input_path.write_text("not json", encoding="utf-8")
+
+            completed = self.run_cli(
+                "--json",
+                "practices",
+                "validate",
+                str(input_path),
+                local_app_data=Path(temporary_directory),
+            )
+
+            self.assertEqual(completed.returncode, 2, completed.stderr)
+            result = json.loads(completed.stdout)
+            self.assertEqual(result["error"]["code"], "INVALID_INPUT")
+
 
 if __name__ == "__main__":
     unittest.main()

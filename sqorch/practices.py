@@ -3,32 +3,43 @@ from pathlib import Path
 
 _VALID_STATES = frozenset({"OBSERVED", "CANDIDATE", "TRIAL", "ADOPTED", "REJECTED", "DEPRECATED"})
 
+_DECISION_STATES = frozenset({"ADOPTED", "REJECTED", "DEPRECATED"})
+
 _REQUIRED_FIELDS = frozenset(
     {
+        "schema",
         "id",
         "category",
         "statement",
-        "scope",
+        "proposed_scope",
         "source_type",
-        "provenance",
-        "context",
-        "outcome",
+        "provenance_reference",
+        "observed_context",
         "trade_offs",
         "counterexamples",
         "confidence",
         "review_date",
         "state",
         "approving_authority",
-        "affected_versions",
-        "opted_in_projects",
+        "affected_profiles",
     }
 )
 
 _STRING_FIELDS = frozenset(
-    {"id", "category", "statement", "scope", "source_type", "context", "outcome", "review_date"}
+    {
+        "schema",
+        "id",
+        "category",
+        "statement",
+        "proposed_scope",
+        "source_type",
+        "provenance_reference",
+        "observed_context",
+        "review_date",
+    }
 )
 
-_LIST_FIELDS = frozenset({"trade_offs", "counterexamples", "affected_versions", "opted_in_projects"})
+_LIST_FIELDS = frozenset({"trade_offs", "counterexamples", "affected_profiles"})
 
 
 class PracticeError:
@@ -63,16 +74,6 @@ def validate(record: dict[str, object]) -> _ValidationResult:
         if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
             return _ValidationResult(error=PracticeError("INVALID_INPUT", f"Practice record has invalid {field}"))
 
-    provenance = record["provenance"]
-    if not isinstance(provenance, str) or not provenance:
-        return _ValidationResult(error=PracticeError("INVALID_INPUT", "Practice record must have a non-empty provenance"))
-
-    approving_authority = record["approving_authority"]
-    if approving_authority is not None and (
-        not isinstance(approving_authority, str) or not approving_authority
-    ):
-        return _ValidationResult(error=PracticeError("INVALID_INPUT", "Practice record has invalid approving_authority"))
-
     confidence = record["confidence"]
     if not isinstance(confidence, (int, float)) or isinstance(confidence, bool):
         return _ValidationResult(error=PracticeError("INVALID_INPUT", "Practice record has invalid confidence"))
@@ -83,7 +84,13 @@ def validate(record: dict[str, object]) -> _ValidationResult:
     if not isinstance(state, str) or state not in _VALID_STATES:
         return _ValidationResult(error=PracticeError("INVALID_INPUT", f"Practice state must be one of {sorted(_VALID_STATES)}"))
 
-    if state == "ADOPTED" and (approving_authority is None or not isinstance(approving_authority, str) or not approving_authority):
-        return _ValidationResult(error=PracticeError("INVALID_INPUT", "ADOPTED practice must have an approving_authority"))
+    approving_authority = record["approving_authority"]
+    if state in _DECISION_STATES:
+        if not isinstance(approving_authority, str) or not approving_authority:
+            return _ValidationResult(error=PracticeError("INVALID_INPUT", f"{state} practice must have an approving_authority"))
+    elif approving_authority is not None and (
+        not isinstance(approving_authority, str) or not approving_authority
+    ):
+        return _ValidationResult(error=PracticeError("INVALID_INPUT", "Practice record has invalid approving_authority"))
 
     return _ValidationResult(record=record)

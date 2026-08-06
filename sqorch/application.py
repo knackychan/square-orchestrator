@@ -5,6 +5,7 @@ import platform
 import subprocess
 
 from .authority import AuthorityError, compile_manifest
+from .practices import PracticeError, validate as validate_practice_domain
 from .projects import ProjectError, audit as audit_domain, preview as preview_domain
 
 
@@ -72,6 +73,24 @@ def audit(repository: str | Path) -> dict[str, object]:
         return audit_domain(repository)
     except ProjectError as error:
         raise ApplicationError(error.code, error.message, exit_code=2) from error
+
+
+def validate_practices(path: str | Path) -> dict[str, object]:
+    input_path = Path(path)
+    try:
+        raw = input_path.read_text(encoding="utf-8")
+    except OSError as error:
+        raise ApplicationError("INVALID_INPUT", f"Cannot read practice file: {error}", exit_code=2) from error
+    try:
+        record = json.loads(raw)
+    except json.JSONDecodeError as error:
+        raise ApplicationError("INVALID_INPUT", f"Invalid JSON: {error}", exit_code=2) from error
+    if not isinstance(record, dict):
+        raise ApplicationError("INVALID_INPUT", "Practice record must be a JSON object", exit_code=2)
+    result = validate_practice_domain(record)
+    if result.error is not None:
+        raise ApplicationError(result.error.code, result.error.message, exit_code=2)
+    return record
 
 
 def _state_path(override: str | None) -> Path:
