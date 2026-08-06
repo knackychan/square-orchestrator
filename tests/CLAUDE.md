@@ -12,3 +12,4 @@ temporary state, and make no network, provider, terminal, or agent-client calls.
 | `test_cli.py` | CLI argument and output-contract tests |
 | `test_authority.py` | Authority manifest tests |
 | `test_projects.py` | Project preview and audit tests |
+| `test_practices.py` | Practice record validation tests |

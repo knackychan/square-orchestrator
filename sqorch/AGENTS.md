@@ -15,3 +15,4 @@ from the M1 dry-run foundation.
 | `application.py` | Doctor use case and environment inspection |
 | `authority.py` | Fail-closed task authority validation and canonical manifest compilation |
 | `projects.py` | Responsibility-graph preview and read-only repository audit |
+| `practices.py` | Practice-record JSON validation against closed lifecycle vocabulary |

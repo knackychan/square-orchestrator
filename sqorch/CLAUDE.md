@@ -15,3 +15,4 @@ packaging, or speculative abstraction code.
 | `application.py` | Doctor environment inspection |
 | `authority.py` | Authority validation and manifest compilation |
 | `projects.py` | Project preview and repository audit |
+| `practices.py` | Practice-record lifecycle validation |
