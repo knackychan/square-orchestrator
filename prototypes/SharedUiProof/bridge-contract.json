@@ -1,0 +1,22 @@
+{
+  "protocol": "square.shared-ui-proof/1",
+  "unknownTypes": "reject",
+  "unknownFields": "reject",
+  "hostToUi": {
+    "proof.initialize": ["version", "type", "host", "fixture", "benchmark", "expectedFixtureSha256"],
+    "proof.setLayout": ["version", "type", "preset"],
+    "proof.setTheme": ["version", "type", "theme"],
+    "proof.setScale": ["version", "type", "scale"],
+    "proof.setController": ["version", "type", "terminalId", "mode"],
+    "proof.runBenchmark": ["version", "type", "runId"]
+  },
+  "uiToHost": {
+    "proof.ready": ["version", "type", "host"],
+    "proof.result": ["version", "type", "runId", "fixtureSha256", "result"],
+    "proof.error": ["version", "type", "code", "message"],
+    "proof.layoutChanged": ["version", "type", "preset", "selectedTerminalId"],
+    "proof.controllerRequested": ["version", "type", "terminalId"],
+    "terminal.input": ["version", "type", "terminalId", "leaseId", "data"],
+    "terminal.resize": ["version", "type", "terminalId", "leaseId", "columns", "rows"]
+  }
+}

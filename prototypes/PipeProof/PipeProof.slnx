@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Protocol/">
+    <Project Path="Square.PipeProof.Protocol/Square.PipeProof.Protocol.csproj" />
+    <Project Path="Square.PipeProof.Client/Square.PipeProof.Client.csproj" />
+    <Project Path="Square.PipeProof.ServerCore/Square.PipeProof.ServerCore.csproj" />
+  </Folder>
+  <Folder Name="/Windows/">
+    <Project Path="Square.PipeProof.Transport.Windows/Square.PipeProof.Transport.Windows.csproj" />
+    <Project Path="Square.PipeProof.Server/Square.PipeProof.Server.csproj" />
+    <Project Path="Square.PipeProof.DotNetClient/Square.PipeProof.DotNetClient.csproj" />
+    <Project Path="Square.PipeProof.Harness/Square.PipeProof.Harness.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Square.PipeProof.Tests/Square.PipeProof.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "task_id": "SP00-T03",
+  "scenarios": [
+    {
+      "id": "acl-security",
+      "title": "Explicit current-user and SYSTEM pipe DACL with negative anonymous access",
+      "required_in_quick_mode": true
+    },
+    {
+      "id": "cross-language-parity",
+      "title": ".NET and Node handshake, request, cancellation, subscription, and result parity",
+      "required_in_quick_mode": true
+    },
+    {
+      "id": "version-negotiation",
+      "title": "Typed incompatible protocol-version refusal in both clients",
+      "required_in_quick_mode": true
+    },
+    {
+      "id": "framing-failures",
+      "title": "Fragmented and coalesced frames plus malformed and oversized failure paths",
+      "required_in_quick_mode": true
+    },
+    {
+      "id": "disconnect-replay",
+      "title": "Durable cursor replay after client disconnect with .NET and Node parity",
+      "required_in_quick_mode": false
+    },
+    {
+      "id": "daemon-restart-reconnect",
+      "title": "Crash restart preserves sequence and a Node client reconnects to the same pipe",
+      "required_in_quick_mode": false
+    },
+    {
+      "id": "slow-subscriber",
+      "title": "Slow subscriber is disconnected without unbounded server queue growth",
+      "required_in_quick_mode": false
+    },
+    {
+      "id": "replay-window-refusal",
+      "title": "Cursor older than retained journal receives typed replay-truncated refusal",
+      "required_in_quick_mode": false
+    },
+    {
+      "id": "graceful-shutdown",
+      "title": "Server drains, emits final metrics, and exits cleanly",
+      "required_in_quick_mode": false
+    }
+  ]
+}

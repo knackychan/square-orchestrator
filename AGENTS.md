@@ -71,6 +71,13 @@ new worker surface before allowing edits.
 - `STOP:` is a first-class halted state. It is resolved only from repository authority or by the
   owner; another agent must not invent the answer.
 - No credential value may enter source control, prompts, manifests, logs, databases, or receipts.
+- `.commandcode/**` is an ignored Command Code runtime namespace. Its contents are never task input
+  or output and must not be read, staged, committed, or treated as an unexpected-path blocker.
+- `__pycache__/**` is ignored Python runtime state. It is never task input or output and must not be
+  read, staged, committed, or treated as an unexpected-path blocker.
+- `docs/**` is owner-authorized planning output. A worker may create or update documentation there
+  without an exact task-path claim, provided source and test changes still stay within the task's
+  explicit allowed paths.
 - The core launches installed clients; it does not call model-provider APIs directly.
 - Same-repository write concurrency defaults to one. Read-only work against immutable commits may
   run in parallel. Worktree concurrency is a later opt-in feature, not a default assumption.
@@ -89,15 +96,22 @@ new worker surface before allowing edits.
 | `STATUS.md` | Current authority and milestone state |
 | `HANDOVER.md` | Cold-start operating workflow; never authority |
 | `CLIENT-EXECUTION.md` | Dated client routes, launch profiles, and lifecycle reference |
+| `src/` | .NET 10 module source (domain, contracts, application, control plane, persistence, adapters, hosts) |
+| `ui/` | TypeScript shared UI packages (design system, workspace, terminal, host contract) |
+| `vscode/` | VS Code extension shell |
+| `prototypes/` | Isolated architecture proofs (TerminalProof, PipeProof, SharedUiProof), gated by G0 |
+| `contracts/` | Draft public contracts and schemas |
+| `build/` | Reproducible PowerShell/Node build, test, format, package scripts |
+| `tests/` | .NET test projects (and, until the M1 port completes, the retained Python test suite) |
 | `docs/` | Project documentation, with its own context pair |
 | `docs/superpowers/` | Specs and execution plans, with its own context pair |
 | `docs/superpowers/specs/` | Design specifications |
 | `docs/superpowers/plans/` | Bounded execution packets |
-| `sqorch/` | Standard-library Python CLI source, with its own context pair |
-| `tests/` | Standard-library test suite, with its own context pair |
+| `sqorch/` | Standard-library Python M1 CLI source, with its own context pair; being ported to .NET, then removed |
 
-There is deliberately no package metadata, dependency file, extension, installer, or runtime
-database in the repository.
+The repository carries pinned toolchain declarations (.NET SDK, Node, pnpm) and central package
+management. No external package dependency, extension, installer, or runtime database is admitted
+before an owner-approved task records its license/security/architectural review.
 
 ## Work protocol
 

@@ -1,0 +1,9 @@
+<Project>
+  <!--
+    Central package management is enabled before dependencies are admitted. This bootstrap intentionally
+    uses only framework/BCL references, so there is no NuGet package graph to lock yet. Add each external
+    dependency here only after its license, security, and architectural role are reviewed; that task must
+    also introduce and commit the applicable NuGet lock file for executable roots.
+  -->
+  <ItemGroup />
+</Project>

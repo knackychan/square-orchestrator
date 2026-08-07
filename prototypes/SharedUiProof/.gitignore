@@ -1,0 +1,7 @@
+dist/
+node_modules/
+evidence/*
+!evidence/.gitkeep
+webview2-host/**/bin/
+webview2-host/**/obj/
+.vscode-test/

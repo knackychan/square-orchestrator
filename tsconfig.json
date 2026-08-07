@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "ui/packages/design-system" },
+    { "path": "ui/packages/host-contract" },
+    { "path": "ui/packages/terminal" },
+    { "path": "ui/packages/workspace" },
+    { "path": "vscode/square-vscode" }
+  ]
+}

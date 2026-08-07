@@ -1,0 +1,176 @@
+Square Orchestrator host-neutral validation
+Date: 2026-08-07
+Node: v22.16.0
+TypeScript: Version 5.8.3
+Pinned Node/pnpm/TypeScript were not available in this creation environment.
+
+$ node build/verify-repository.mjs
+Repository verification passed: 15 production projects, 45 project references.
+
+$ tsc -b --pretty false
+TypeScript project build passed.
+
+$ node build/ui-lint.mjs
+UI source policy checks passed (4 source file(s)).
+
+$ node build/run-ui-tests.mjs
+TAP version 13
+# Subtest: every state presentation has text and a non-color symbol
+ok 1 - every state presentation has text and a non-color symbol
+  ---
+  duration_ms: 0.66407
+  type: 'test'
+  ...
+# Subtest: semantic tokens separate status from concrete colors
+ok 2 - semantic tokens separate status from concrete colors
+  ---
+  duration_ms: 0.213147
+  type: 'test'
+  ...
+# Subtest: known versioned messages validate
+ok 3 - known versioned messages validate
+  ---
+  duration_ms: 0.65786
+  type: 'test'
+  ...
+# Subtest: unknown fields and message types fail closed
+ok 4 - unknown fields and message types fail closed
+  ---
+  duration_ms: 0.334088
+  type: 'test'
+  ...
+# Subtest: incompatible versions and missing required fields are rejected
+ok 5 - incompatible versions and missing required fields are rejected
+  ---
+  duration_ms: 0.205756
+  type: 'test'
+  ...
+# Subtest: frames apply in order and duplicates are idempotent
+ok 6 - frames apply in order and duplicates are idempotent
+  ---
+  duration_ms: 0.686753
+  type: 'test'
+  ...
+# Subtest: unexplained sequence gaps are explicit and do not invent data
+ok 7 - unexplained sequence gaps are explicit and do not invent data
+  ---
+  duration_ms: 0.522158
+  type: 'test'
+  ...
+# Subtest: a server truncation marker permits a bounded replay snapshot
+ok 8 - a server truncation marker permits a bounded replay snapshot
+  ---
+  duration_ms: 0.910427
+  type: 'test'
+  ...
+# Subtest: retention is bounded and records truncation
+ok 9 - retention is bounded and records truncation
+  ---
+  duration_ms: 0.192887
+  type: 'test'
+  ...
+# Subtest: invalid sequence and truncation metadata fail closed
+ok 10 - invalid sequence and truncation metadata fail closed
+  ---
+  duration_ms: 0.399395
+  type: 'test'
+  ...
+# Subtest: all written-design presets are valid logical layouts
+ok 11 - all written-design presets are valid logical layouts
+  ---
+  duration_ms: 0.978198
+  type: 'test'
+  ...
+# Subtest: corrupt or incompatible layouts recover to Operations
+ok 12 - corrupt or incompatible layouts recover to Operations
+  ---
+  duration_ms: 0.770778
+  type: 'test'
+  ...
+# Subtest: unknown pane types restore as visible compatibility placeholders
+ok 13 - unknown pane types restore as visible compatibility placeholders
+  ---
+  duration_ms: 0.130685
+  type: 'test'
+  ...
+# Subtest: duplicate pane IDs are rejected
+ok 14 - duplicate pane IDs are rejected
+  ---
+  duration_ms: 0.098126
+  type: 'test'
+  ...
+# Subtest: sequence-numbered deltas apply without optimistic mutation
+ok 15 - sequence-numbered deltas apply without optimistic mutation
+  ---
+  duration_ms: 0.172407
+  type: 'test'
+  ...
+# Subtest: out-of-order deltas expose a gap and duplicates are idempotent
+ok 16 - out-of-order deltas expose a gap and duplicates are idempotent
+  ---
+  duration_ms: 0.121481
+  type: 'test'
+  ...
+# Subtest: invalid delta sequences fail closed
+ok 17 - invalid delta sequences fail closed
+  ---
+  duration_ms: 0.293307
+  type: 'test'
+  ...
+# Subtest: extension activates only when Square functionality is invoked
+ok 18 - extension activates only when Square functionality is invoked
+  ---
+  duration_ms: 3.53713
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 83.53955
+
+$ node --test prototypes/PipeProof/node-client/test/*.test.mjs
+TAP version 13
+# Subtest: fragmented frame reconstructs exactly one object
+ok 1 - fragmented frame reconstructs exactly one object
+  ---
+  duration_ms: 2.280287
+  type: 'test'
+  ...
+# Subtest: several frames can share one transport chunk
+ok 2 - several frames can share one transport chunk
+  ---
+  duration_ms: 0.228491
+  type: 'test'
+  ...
+# Subtest: oversized length is rejected before payload allocation
+ok 3 - oversized length is rejected before payload allocation
+  ---
+  duration_ms: 0.320738
+  type: 'test'
+  ...
+# Subtest: malformed JSON and truncated streams fail closed
+ok 4 - malformed JSON and truncated streams fail closed
+  ---
+  duration_ms: 0.226227
+  type: 'test'
+  ...
+# Subtest: invalid UTF-8 is rejected rather than replacement-decoded
+ok 5 - invalid UTF-8 is rejected rather than replacement-decoded
+  ---
+  duration_ms: 0.144665
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 47.177321

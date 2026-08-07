@@ -1,0 +1,9 @@
+{
+  "kind": "subscription_closed",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "subscription_id": "subscription-vector",
+  "code": "subscription.backpressure_exceeded",
+  "message": "bounded queue exceeded",
+  "resume_from_sequence": 1
+}

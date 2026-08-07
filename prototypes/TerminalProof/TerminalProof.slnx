@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/SP00-T02/">
+    <Project Path="Square.TerminalProof.Native/Square.TerminalProof.Native.csproj" />
+    <Project Path="Square.TerminalProof.Fixture/Square.TerminalProof.Fixture.csproj" />
+    <Project Path="Square.TerminalProof.CrashOwner/Square.TerminalProof.CrashOwner.csproj" />
+    <Project Path="Square.TerminalProof.Harness/Square.TerminalProof.Harness.csproj" />
+    <Project Path="Square.TerminalProof.Tests/Square.TerminalProof.Tests.csproj" />
+  </Folder>
+</Solution>

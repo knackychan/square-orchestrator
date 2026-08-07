@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "task_id": "SP00-T02",
+  "title": "Prove ConPTY and Job Object lifecycle",
+  "starting_commit": null,
+  "starting_commit_note": "The supplied bootstrap workspace is not a Git checkout; authority and source hashes are used as the immutable starting reference.",
+  "authority_documents": [
+    {
+      "path": "docs/authority/square-orchestrator-sliced-implementation-plan.md",
+      "sha256": "135fc5449998cea9b2bc3b9ddbc8bb8848e60c54ddb25dec34bc232016f0f65f"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-technical-architecture.md",
+      "sha256": "5f13c89330470104a1263ef7f371128c6ab5a41199a121c258785775aa448aad"
+    }
+  ],
+  "prerequisites": [
+    {
+      "task_id": "SP00-T01",
+      "required_output": "Repository skeleton, pinned toolchain, deterministic build settings, and isolated prototype paths"
+    }
+  ],
+  "allowed_read_paths": [
+    "docs/authority/",
+    "Directory.Build.props",
+    "Directory.Packages.props",
+    "global.json",
+    "tests/Square.TestKit/",
+    "prototypes/TerminalProof/"
+  ],
+  "allowed_write_paths": [
+    "prototypes/TerminalProof/",
+    "docs/proofs/conpty-job-object.md",
+    "docs/validation/sp00-t02-host-neutral-validation.txt",
+    "docs/receipts/SP00-T02.prototype-receipt.json",
+    "docs/IMPLEMENTATION_STATUS.md"
+  ],
+  "global_invariants": [
+    "Closing an observer must not be represented as process cancellation.",
+    "A lack of terminal output alone is not a failure or termination signal.",
+    "Known lifecycle scenarios use deterministic process, stream, and Job Object signals only.",
+    "Prototype code remains isolated and is not referenced by production projects.",
+    "Hard stop is explicit and separately exercised from graceful Ctrl+C cancellation."
+  ],
+  "acceptance": [
+    {
+      "id": "SP00-T02-AC01",
+      "result": "All eleven declared lifecycle scenarios pass 100 consecutive reliability repetitions.",
+      "verifier": "Square.TerminalProof.Harness",
+      "evidence": "runs.ndjson and summary.json"
+    },
+    {
+      "id": "SP00-T02-AC02",
+      "result": "Each scenario records one, four, and eight concurrent-session groups with CPU, working set, output latency, transfer bytes, and handle metrics.",
+      "verifier": "Square.TerminalProof.Harness",
+      "evidence": "summary.json scale_groups"
+    },
+    {
+      "id": "SP00-T02-AC03",
+      "result": "No observed root or descendant process remains after normal cleanup, hard stop, or owner crash.",
+      "verifier": "Process identity and Job Object reconciliation",
+      "evidence": "runs.ndjson leaked_process_ids and summary.json owner_crash_probe"
+    },
+    {
+      "id": "SP00-T02-AC04",
+      "result": "Harness handle growth remains within the predeclared tolerance after scenario and scale checkpoints.",
+      "verifier": "Process.HandleCount checkpoints after forced GC/finalizer stabilization",
+      "evidence": "summary.json handle_checkpoints"
+    },
+    {
+      "id": "SP00-T02-AC05",
+      "result": "The proof records the selected architecture boundary for live ConPTY reattachment after owner failure without claiming reattachment support.",
+      "verifier": "Owner-crash probe",
+      "evidence": "summary.json owner_crash_probe"
+    }
+  ],
+  "expected_outputs": [
+    "Narrow x64 Win32 interop for ConPTY, Job Objects, process launch, resize, input, output, metrics, and teardown",
+    "Deterministic fixture executable covering Unicode, ANSI, burst, quiet child, stdin, resize, exit, crash, graceful cancel, forced stop, and nested descendants",
+    "Manifest-driven reliability, scale, leak, owner-crash, and evidence harness",
+    "Source-contract validator, unit-style console tests, proof documentation, validation log, and completion receipt"
+  ],
+  "validation_commands": [
+    "node prototypes/TerminalProof/validate-source.mjs",
+    "dotnet build prototypes/TerminalProof/TerminalProof.slnx --configuration Release --runtime win-x64",
+    "prototypes/TerminalProof/Square.TerminalProof.Tests/bin/Release/net10.0-windows10.0.17763.0/win-x64/Square.TerminalProof.Tests.exe",
+    "./prototypes/TerminalProof/run-proof.ps1"
+  ],
+  "budgets": {
+    "reliability_repetitions_per_scenario": 100,
+    "scale_group_repetitions": 1,
+    "session_counts": [1, 4, 8],
+    "default_scenario_timeout_ms": 20000,
+    "cleanup_timeout_ms": 10000,
+    "automatic_retry_count": 0,
+    "maximum_captured_fixture_burst_bytes": 1048576
+  },
+  "discretion": [
+    "Internal helper class and file names may change without changing evidence semantics.",
+    "Sampling implementation may change if all declared metrics, freshness, and process-identity checks remain explicit.",
+    "No production API, protocol, schema, scheduler policy, or adapter contract may be introduced by this proof."
+  ],
+  "stop_conditions": [
+    "A target CLI cannot operate correctly through ConPTY.",
+    "A normal current-user process cannot contain its ordinary descendants in the proof Job Object.",
+    "The 100-run harness leaks a process tree or exceeds the predeclared handle-growth tolerance.",
+    "Evidence cannot distinguish graceful cancellation, hard stop, crash, and owner failure.",
+    "A required change would reference prototype code from a production project."
+  ],
+  "receipt_destination": "docs/receipts/SP00-T02.prototype-receipt.json"
+}

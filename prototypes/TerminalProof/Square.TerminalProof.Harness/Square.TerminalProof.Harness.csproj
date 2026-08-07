@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <PlatformTarget>x64</PlatformTarget>
+    <RootNamespace>Square.TerminalProof.Harness</RootNamespace>
+    <AssemblyName>Square.TerminalProof.Harness</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Square.TerminalProof.Native\Square.TerminalProof.Native.csproj" />
+    <ProjectReference Include="..\Square.TerminalProof.Fixture\Square.TerminalProof.Fixture.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Square.TerminalProof.CrashOwner\Square.TerminalProof.CrashOwner.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>

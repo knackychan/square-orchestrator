@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Square.PipeProof.Tests</RootNamespace>
+    <AssemblyName>Square.PipeProof.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Square.PipeProof.Protocol\Square.PipeProof.Protocol.csproj" />
+    <ProjectReference Include="..\Square.PipeProof.ServerCore\Square.PipeProof.ServerCore.csproj" />
+    <ProjectReference Include="..\..\..\tests\Square.TestKit\Square.TestKit.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\protocol-vectors.json" Link="protocol-vectors.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

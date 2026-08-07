@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Square.PipeProof.Protocol</RootNamespace>
+    <AssemblyName>Square.PipeProof.Protocol</AssemblyName>
+  </PropertyGroup>
+</Project>

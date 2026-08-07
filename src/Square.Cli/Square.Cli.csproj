@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Square.Cli</RootNamespace>
+    <AssemblyName>square</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Square.Domain\Square.Domain.csproj" />
+    <ProjectReference Include="..\Square.Contracts\Square.Contracts.csproj" />
+  </ItemGroup>
+</Project>

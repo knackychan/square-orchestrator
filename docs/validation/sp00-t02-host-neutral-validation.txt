@@ -1,0 +1,112 @@
+Square Orchestrator — SP00-T02 host-neutral validation
+Date: 2026-08-07
+Task: SP00-T02 — Prove ConPTY and Job Object lifecycle
+Repository: square-orchestrator-bootstrap
+
+RESULT
+Source implementation and host-neutral validation: PASS
+Windows x64 empirical architecture proof: NOT EXECUTED
+Architecture gate G0: BLOCKED pending qualifying Windows evidence
+
+CREATION / VALIDATION ENVIRONMENT
+- OS: Debian GNU/Linux 13 (trixie), Linux 6.18.35, x86_64
+- Node.js: 22.16.0
+- TypeScript: 5.8.3
+- Python: 3.13.5
+- .NET SDK: unavailable
+- PowerShell: unavailable
+- Windows kernel / ConPTY / Job Object runtime: unavailable
+- Pinned JavaScript toolchain (Node.js 24.19.0, pnpm 11.20.0, TypeScript 6.0.3): unavailable
+
+EXECUTED VALIDATIONS
+
+1. TerminalProof source and authority contract
+   Command: node prototypes/TerminalProof/validate-source.mjs
+   Result: PASS
+   Detail: 37 C# source files, 5 isolated projects, 11 canonical scenarios.
+   Covered checks include authority hashes, manifest/dispatch identities, project references,
+   production isolation, required Win32 entry points, direct HPCON startup attribute use,
+   suspended-create / Job-assign / resume ordering, inherited-standard-handle isolation,
+   dedicated output servicing, fixture markers, owner-crash process identity capture,
+   acceptance run-shape markers, and wrapper/evidence boundaries.
+
+2. Repository architecture dependency verification
+   Command: node build/verify-repository.mjs
+   Result: PASS
+   Detail: 15 production projects, 45 allowed project references.
+
+3. TypeScript project-reference build
+   Command: tsc -b --pretty false
+   Result: PASS
+   Toolchain caveat: executed with TypeScript 5.8.3, not the pinned TypeScript 6.0.3.
+
+4. UI source-policy validation
+   Command: node build/ui-lint.mjs
+   Result: PASS
+   Detail: 4 UI source files checked.
+
+5. Host-neutral UI / host-contract / workspace / extension tests
+   Command: node build/run-ui-tests.mjs
+   Result: PASS
+   Detail: 18 tests passed, 0 failed.
+
+6. PipeProof Node framing tests
+   Command: node --test prototypes/PipeProof/node-client/test/*.test.mjs
+   Result: PASS
+   Detail: 5 tests passed, 0 failed.
+
+7. Repository data and project-file structural audits
+   Result: PASS
+   Detail:
+   - JSON parse audit: 23 files.
+   - XML/MSBuild/XAML parse audit: 42 files.
+   - YAML parse audit: 3 files.
+   - TerminalProof evidence schema: valid Draft 2020-12 schema.
+
+8. TerminalProof C# lexical integrity audit
+   Result: PASS
+   Detail: balanced delimiters and terminated comments/string forms in 37 C# files.
+   Limitation: this is a damage/syntax-shape check, not a substitute for Roslyn compilation.
+
+9. Production reverse-reference isolation
+   Result: PASS
+   Detail: no C# or project file under src/ references TerminalProof or its prototype path.
+
+IMPLEMENTED PROOF BOUNDARY
+- Five isolated projects: Native, Fixture, CrashOwner, Harness, and Tests.
+- Root process is created suspended, assigned to a kill-on-close Job Object, verified as a
+  member, and only then resumed.
+- STARTUPINFOEX does not override hosted standard handles; the pseudoconsole attribute owns
+  the console path and CreateProcessW uses inheritHandles=false.
+- Synchronous ConPTY output is serviced by exactly one dedicated long-running blocking reader.
+- Eleven deterministic scenarios cover Unicode, ANSI, 1 MiB burst output, quiet child,
+  stdin question, resize, normal exit, crash, graceful Ctrl+C, ignored Ctrl+C plus hard stop,
+  and nested descendants.
+- Acceptance run shape is 100 repetitions per scenario plus one 1/4/8-session group per
+  scenario, with CPU, working-set, first-output latency, transfer-byte, handle, process-tree,
+  and leak evidence.
+- Owner-crash evidence records PID plus process-start ticks and verifies exact identities to
+  avoid PID-reuse false positives.
+- Acceptance is bound to checked-in scenario-manifest and dispatch-packet SHA-256 identities.
+- Quick, filtered, reduced, elevated, altered-source, or skipped-owner-crash runs can produce
+  diagnostic evidence only and cannot be reported as G0 acceptance.
+
+NOT EXECUTED / OPEN EVIDENCE
+- Exact .NET SDK 10.0.302 restore/build.
+- The 13 dependency-free TerminalProof console contract tests.
+- PowerShell wrapper execution.
+- Any ConPTY Create/resize/input/output/close operation.
+- Job Object assignment, accounting, descendant cleanup, or kill-on-close behavior.
+- The 100-run reliability matrix and all 1/4/8 concurrency measurements.
+- CPU, memory, latency, transfer-byte, handle-growth, and process-leak measurements on Windows.
+- Current-user, non-elevated Windows behavior and containing-job compatibility.
+- Empirical target-CLI compatibility through ConPTY.
+
+REQUIRED WINDOWS ACCEPTANCE COMMAND
+./prototypes/TerminalProof/run-proof.ps1
+
+A qualifying summary must be PASS from normal non-elevated Windows x64, with the checked-in
+manifest and dispatch hashes, all eleven scenarios, at least 100 repetitions per scenario,
+all 1/4/8 scale groups, the owner-crash probe, zero surviving observed processes, and handle
+growth inside the declared tolerance. Until that evidence is produced and reviewed, the source
+implementation is complete but SP00-T02 is not an accepted architecture proof.

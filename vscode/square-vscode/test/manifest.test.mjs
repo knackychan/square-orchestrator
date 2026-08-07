@@ -1,0 +1,2 @@
+import test from "node:test"; import assert from "node:assert/strict"; import { readFile } from "node:fs/promises";
+test("extension activates only when Square functionality is invoked", async () => { const manifest = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")); assert.deepEqual(manifest.activationEvents, ["onCommand:square.showStatus"]); assert.equal(manifest.contributes.commands[0].command, "square.showStatus"); });

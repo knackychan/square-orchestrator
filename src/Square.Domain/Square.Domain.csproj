@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Square.Domain</RootNamespace>
+    <AssemblyName>Square.Domain</AssemblyName>
+  </PropertyGroup>
+</Project>

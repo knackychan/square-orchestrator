@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "repeat_each": 100,
+  "scale_repeat_each": 1,
+  "session_counts": [1, 4, 8],
+  "scenarios": [
+    "unicode",
+    "ansi",
+    "large_burst",
+    "quiet_child",
+    "stdin_question",
+    "resize",
+    "normal_exit",
+    "crash",
+    "graceful_cancel",
+    "forced_termination",
+    "nested_children"
+  ],
+  "required_metrics": [
+    "cpu",
+    "working_set",
+    "output_latency_ms",
+    "bytes_written",
+    "handle_count",
+    "leaked_descendants"
+  ],
+  "settings": {
+    "initial_columns": 100,
+    "initial_rows": 30,
+    "resize_columns": 132,
+    "resize_rows": 43,
+    "default_timeout_ms": 20000,
+    "cleanup_timeout_ms": 10000,
+    "quiet_duration_ms": 700,
+    "quiet_observation_ms": 250,
+    "large_burst_bytes": 1048576,
+    "nested_child_count": 3,
+    "sample_interval_ms": 20,
+    "handle_growth_tolerance": 24,
+    "descendant_exit_timeout_ms": 5000
+  }
+}

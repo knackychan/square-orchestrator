@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "valid_messages": [
+    {
+      "name": "01-hello",
+      "json": "{\"kind\":\"hello\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"hello-vector\",\"client\":{\"kind\":\"vector-client\",\"version\":\"0.1.0\",\"instance_id\":\"vector-client-1\"},\"capabilities\":[\"request\",\"cancel\",\"subscribe\",\"replay\"]}"
+    },
+    {
+      "name": "02-hello-ack",
+      "json": "{\"kind\":\"hello_ack\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reply_to\":\"hello-vector\",\"server\":{\"kind\":\"pipe-proof-server\",\"version\":\"0.1.0\",\"instance_id\":\"server-vector\",\"epoch\":1},\"capabilities\":[\"request\",\"cancel\",\"subscribe\",\"replay\",\"bounded_backpressure\"],\"limits\":{\"maximum_payload_bytes\":1048576,\"control_queue_capacity\":16,\"event_queue_capacity\":16,\"subscription_queue_capacity\":32,\"maximum_replay_events\":32,\"maximum_in_flight_requests\":16,\"write_timeout_milliseconds\":750},\"minimum_available_sequence\":1,\"latest_sequence\":0}"
+    },
+    {
+      "name": "03-request",
+      "json": "{\"kind\":\"request\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"request-vector\",\"method\":\"proof.echo\",\"params\":{\"text\":\"café 🙂\"}}"
+    },
+    {
+      "name": "04-response-success",
+      "json": "{\"kind\":\"response\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reply_to\":\"request-vector\",\"result\":{\"text\":\"café 🙂\"}}"
+    },
+    {
+      "name": "05-response-error",
+      "json": "{\"kind\":\"response\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reply_to\":\"request-vector\",\"error\":{\"code\":\"request.cancelled\",\"message\":\"cancelled\"}}"
+    },
+    {
+      "name": "06-cancel",
+      "json": "{\"kind\":\"cancel\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"cancel-vector\",\"target_request_id\":\"request-vector\"}"
+    },
+    {
+      "name": "07-subscribe",
+      "json": "{\"kind\":\"subscribe\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"subscribe-vector\",\"topic\":\"proof.events\",\"from_sequence\":0}"
+    },
+    {
+      "name": "08-subscribed",
+      "json": "{\"kind\":\"subscribed\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reply_to\":\"subscribe-vector\",\"subscription_id\":\"subscription-vector\",\"topic\":\"proof.events\",\"from_sequence\":0,\"replayed_through_sequence\":0,\"live_from_sequence\":1,\"minimum_available_sequence\":1,\"latest_sequence\":0}"
+    },
+    {
+      "name": "09-unsubscribe",
+      "json": "{\"kind\":\"unsubscribe\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"unsubscribe-vector\",\"subscription_id\":\"subscription-vector\"}"
+    },
+    {
+      "name": "10-event",
+      "json": "{\"kind\":\"event\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"subscription_id\":\"subscription-vector\",\"topic\":\"proof.events\",\"sequence\":1,\"event_type\":\"proof.event\",\"payload\":{\"label\":\"vector\",\"ordinal\":1}}"
+    },
+    {
+      "name": "11-subscription-closed",
+      "json": "{\"kind\":\"subscription_closed\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"subscription_id\":\"subscription-vector\",\"code\":\"subscription.backpressure_exceeded\",\"message\":\"bounded queue exceeded\",\"resume_from_sequence\":1}"
+    },
+    {
+      "name": "12-protocol-error",
+      "json": "{\"kind\":\"protocol_error\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reply_to\":\"hello-vector\",\"error\":{\"code\":\"protocol.incompatible_protocol\",\"message\":\"unsupported protocol\"},\"supported_versions\":[\"1.0\"]}"
+    },
+    {
+      "name": "13-server-going-away",
+      "json": "{\"kind\":\"server_going_away\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reason\":\"restart\",\"reconnect_delay_milliseconds\":100}"
+    }
+  ],
+  "invalid_messages": [
+    {
+      "name": "missing-kind",
+      "json": "{\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"x\"}"
+    },
+    {
+      "name": "unknown-kind",
+      "json": "{\"kind\":\"unknown\",\"protocol\":\"square.rpc\",\"version\":\"1.0\"}"
+    },
+    {
+      "name": "unknown-field",
+      "json": "{\"kind\":\"request\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"x\",\"method\":\"proof.echo\",\"params\":{},\"surprise\":true}"
+    },
+    {
+      "name": "request-empty-id",
+      "json": "{\"kind\":\"request\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"\",\"method\":\"proof.echo\",\"params\":{}}"
+    },
+    {
+      "name": "request-empty-method",
+      "json": "{\"kind\":\"request\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"x\",\"method\":\"\",\"params\":{}}"
+    },
+    {
+      "name": "request-params-array",
+      "json": "{\"kind\":\"request\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"x\",\"method\":\"proof.echo\",\"params\":[]}"
+    },
+    {
+      "name": "response-both-result-error",
+      "json": "{\"kind\":\"response\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reply_to\":\"x\",\"result\":{},\"error\":{\"code\":\"x\",\"message\":\"x\"}}"
+    },
+    {
+      "name": "response-neither-result-error",
+      "json": "{\"kind\":\"response\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reply_to\":\"x\"}"
+    },
+    {
+      "name": "event-zero-sequence",
+      "json": "{\"kind\":\"event\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"subscription_id\":\"s\",\"topic\":\"t\",\"sequence\":0,\"event_type\":\"e\",\"payload\":{}}"
+    },
+    {
+      "name": "subscribe-negative-cursor",
+      "json": "{\"kind\":\"subscribe\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"s\",\"topic\":\"t\",\"from_sequence\":-1}"
+    },
+    {
+      "name": "hello-extra-client-field",
+      "json": "{\"kind\":\"hello\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"id\":\"h\",\"client\":{\"kind\":\"c\",\"version\":\"1\",\"instance_id\":\"i\",\"extra\":1},\"capabilities\":[]}"
+    },
+    {
+      "name": "protocol-error-empty-supported-version",
+      "json": "{\"kind\":\"protocol_error\",\"protocol\":\"square.rpc\",\"version\":\"1.0\",\"reply_to\":\"h\",\"error\":{\"code\":\"x\",\"message\":\"x\"},\"supported_versions\":[\"\"]}"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "kind": "response",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "reply_to": "request-vector",
+  "error": {
+    "code": "request.cancelled",
+    "message": "cancelled"
+  }
+}

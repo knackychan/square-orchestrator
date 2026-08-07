@@ -1,0 +1,11 @@
+{
+  "name": "@square/pipe-proof",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": "24.19.0" },
+  "scripts": {
+    "test": "node --test node-client/test/*.test.mjs",
+    "validate": "node validate-source.mjs"
+  }
+}

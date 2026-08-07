@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Square.PipeProof.Client</RootNamespace>
+    <AssemblyName>Square.PipeProof.Client</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Square.PipeProof.Protocol\Square.PipeProof.Protocol.csproj" />
+  </ItemGroup>
+</Project>

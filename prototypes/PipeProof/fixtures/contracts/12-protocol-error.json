@@ -1,0 +1,13 @@
+{
+  "kind": "protocol_error",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "reply_to": "hello-vector",
+  "error": {
+    "code": "protocol.incompatible_protocol",
+    "message": "unsupported protocol"
+  },
+  "supported_versions": [
+    "1.0"
+  ]
+}

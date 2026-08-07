@@ -1,34 +1,58 @@
 # Square Orchestrator
 
-Square Orchestrator is a planned, globally installed control plane for bounded work performed by
-terminal coding agents. It is intended to let a primary Claude, Codex, OpenCode, or Command Code
-session validate project authority, select an exact client/model route, launch visible worker
-terminals, track `STOP:` events, and review immutable diffs.
+Square Orchestrator is a terminal-first control plane for coordinating bounded work by existing
+coding-agent clients (Command Code, OpenCode, Claude Code, Codex CLI) across multiple repositories.
+A primary session or human operator supplies judgement and project authority; the application
+supplies deterministic validation, launch mechanics, scheduling, locks, state, and review evidence.
 
-It is also planned as a project foundry and practice lab: it can help create or adopt repositories
-with coherent planning documents, dependency graphs, guardrails, and clean-code conventions, then
-turn opted-in project outcomes and sourced engineering research into reviewable practice proposals.
+## Repository shape
 
-## Current state
+This repository is the merged redesign base derived from the 2026-08-07 sliced plan, Windows
+technical architecture draft, terminal workspace UI draft, and UI handover README (preserved under
+`docs/authority/` and `docs/superpowers/plans/2026-08-07-square-orchestrator-design/`).
 
-T-M1-01 is the first implemented M1 slice. The repository exposes a dependency-free
-`python -m sqorch [--json] [--state-db PATH] doctor` shell that reports local Python, Git,
-repository, and computed state-path information without creating runtime state. No package,
-dependency, background service, model call, or delegated worker launch is part of this slice. The
-canonical project contract is `SPEC.md`; `STATUS.md` is the only authority for active work.
+- **.NET 10 core** (`src/`): pure domain (strong IDs, content hashes, canonical UTC, schema
+  versions, result/problem primitives, terminal lifecycle reducer), versioned contracts and strict
+  JSON, application use cases, and host shells (`square` CLI, daemon, WPF desktop).
+- **TypeScript shared UI** (`ui/` + `vscode/`): host-neutral design tokens, dock layout presets,
+  sequence-aware terminal stream, strict host-bridge message validation, and a VS Code extension
+  shell.
+- **Architecture proofs** (`prototypes/`): isolated SP00 proofs for ConPTY/Job Objects
+  (TerminalProof), named-pipe framing/reconnect (PipeProof), and shared UI hosting (SharedUiProof).
+  These are source-complete; their Windows execution evidence is pending, and **G0 remains blocked**.
+- **M1 Python CLI** (`sqorch/` + retained Python `tests/`): the proven M1 dry-run foundation
+  (authority manifest compilation, practice-record validation, project preview/audit, SQLite
+  registry and locks). It is being ported to the .NET modules and will be removed once the ports
+  pass.
+- **Governance**: `SPEC.md`, `STATUS.md`, `HANDOVER.md`, `CLIENT-EXECUTION.md`, and the
+  `AGENTS.md`/`CLAUDE.md` context pairs remain authoritative.
 
-## Intended shape
+## Toolchain
 
-- one globally installed CLI, provisionally named `sqorch`;
-- repository-local, versioned policy and authority;
-- deterministic scheduling, routing validation, locks, and audit records;
-- installed-client adapters for Command Code, OpenCode, Claude Code, and Codex CLI;
-- visible foreground worker terminals;
-- an optional VS Code bridge and MCP interface only after the CLI core is proven.
-- a versioned project-blueprint and practice catalogue whose changes require review.
+- .NET SDK: `10.0.302` (pinned by `global.json`)
+- C#: `14.0`
+- Node.js: `24.19.0` (pinned by `.nvmrc` and package engines)
+- pnpm: `11.20.0`
+- TypeScript: `6.0.3`
 
-Sticker Generator is the first planned reference integration. Its project decisions remain local
-to that repository and do not grant authority here.
+## First commands on Windows
 
-A new session starts with `AGENTS.md`, `SPEC.md`, `STATUS.md`, and then `HANDOVER.md`. The handover
-contains the complete manual workflow used until the planned CLI begins to ship.
+```powershell
+./build.ps1
+./test.ps1 -Category Deterministic
+./test.ps1 -Category Architecture
+./test.ps1 -Category UI
+./test.ps1 -Category Prototype
+```
+
+Run `./dev.ps1 -Component Cli -- --help` to launch the current CLI shell.
+
+## Repository rule
+
+Dependencies point inward. `Square.Domain`, `Square.Contracts`, and `Square.Application` may not
+reference hosts, Windows/platform code, persistence, adapters, or UI packages. The daemon is the only
+future authoritative state mutation owner; current hosts are intentionally inert.
+
+See `docs/IMPLEMENTATION_STATUS.md` for task-level status,
+`docs/gates/G0-architecture-proof-review.md` for the fail-closed gate result, and `docs/authority/`
+for the exact source documents and hashes used for this bootstrap.

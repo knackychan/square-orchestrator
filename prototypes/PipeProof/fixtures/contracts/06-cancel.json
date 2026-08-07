@@ -1,0 +1,7 @@
+{
+  "kind": "cancel",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "id": "cancel-vector",
+  "target_request_id": "request-vector"
+}

@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0-draft",
+  "task_id": "SP00-T04",
+  "title": "Prove shared TypeScript terminal UI in WebView2 and VS Code",
+  "status": "prototype_implementation_complete_windows_execution_pending",
+  "started_at_utc": "2026-08-07T08:45:00Z",
+  "completed_at_utc": "2026-08-07T09:17:04Z",
+  "starting_commit": null,
+  "ending_commit": null,
+  "commit_note": "The supplied workspace is not a Git checkout; authority, baseline archive, source manifest, dispatch, scenario, fixture, and delivery hashes are used as immutable references.",
+  "baseline": {
+    "archive": "square-orchestrator-sp00-t03.zip",
+    "sha256": "8b2dbf90181b3eae29eea9bd5f40d42f2e45b38b4add170356b96fc23136645d"
+  },
+  "authority_documents": [
+    {
+      "path": "docs/authority/square-orchestrator-sliced-implementation-plan.md",
+      "sha256": "135fc5449998cea9b2bc3b9ddbc8bb8848e60c54ddb25dec34bc232016f0f65f"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-technical-architecture.md",
+      "sha256": "5f13c89330470104a1263ef7f371128c6ab5a41199a121c258785775aa448aad"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-ui-design.md",
+      "sha256": "b55546c1587bbc2fc1cb06524a8702a4f271bfe646bd5584d638f43ddf8650f9"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-ui-handover-readme.md",
+      "sha256": "24e23bff559624a10eb603d0d4d3518a91c78a6e98c07203237fb31f180d0021"
+    }
+  ],
+  "source_identities": {
+    "source_manifest_file_sha256": "aadf6fcc7b96c6831b328f5318a95c4ab6ec8aff7ce23119dff5ce818d5f30cb",
+    "dispatch_packet_sha256": "adf912a15aa1e60783d788bd85faac55eea7f1869058b72b40e9540ae18a6439",
+    "scenario_manifest_sha256": "5fef3b4cf97c2587a461346bc5ecdbdf5fadc0fcf3d0483a1588139b741d6c1f",
+    "canonical_fixture_sha256": "1d32269d4591883076aaa1d9f078146a0d3e0b35f0f480f39f19719ef46286ef",
+    "benchmark_file_sha256": "3127f18831ebb04cb9b40cdc095e88d31f058d3260f6ace2eb169852c0422666",
+    "proof_record_sha256": "bfad88cd9e4cb5fc23f8e5ca6aa41a4de34337c8b4c81ccb46c11219d79f53ef"
+  },
+  "changed_paths": [
+    "THIRD_PARTY.md",
+    "prototypes/SharedUiProof/",
+    "prototypes/SquareOrchestrator.Prototypes.slnx",
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml",
+    "build/clean-ui.mjs",
+    "docs/proofs/shared-ui.md",
+    "docs/validation/sp00-t04-host-neutral-validation.txt",
+    "docs/receipts/SP00-T04.prototype-receipt.json",
+    "docs/IMPLEMENTATION_STATUS.md",
+    "ui/packages/*/dist/ and vscode/square-vscode/dist/ (generated build output removed from delivery)"
+  ],
+  "implementation_summary": [
+    "Added one canonical eight-terminal state fixture, canonical semantic hash, benchmark manifest, scenario manifest, strict bridge catalogue, evidence schema, dispatch packet, and complete task-local source hash manifest.",
+    "Implemented one shared TypeScript workspace and xterm.js adapter used unchanged by WPF/WebView2 and VS Code webview hosts, with Operations, Focus Agent, Plan, Review, and Resources presentation presets.",
+    "Implemented a bounded sequence-preserving terminal presentation queue with explicit duplicate, gap, and overflow outcomes, animation-frame visible writes, slower hidden-pane writes, and catch-up without sequence loss.",
+    "Implemented deterministic ANSI/Unicode high-volume fixture output and a 27-cell one/four/eight-terminal by theme by scale benchmark with duration, byte, batch, sequence, accessibility, and available memory evidence.",
+    "Implemented controller-mode input gating, resize messages, keyboard focus movement, unique accessible terminal/output/controller labels, xterm screen-reader mode, and textual controller indicators.",
+    "Implemented strict unknown-type/unknown-field bridge parsing in TypeScript and C#, a nonce/local-only VS Code CSP, WebView2 local virtual-origin/navigation restrictions, and no arbitrary shell-command bridge operation.",
+    "Added a fail-closed Windows runner that verifies pinned toolchains and source identities, launches both hosts with isolated user-data directories, compares semantic evidence, and marks manual host evidence diagnostic only.",
+    "Removed generated production UI/extension dist artifacts that were present in the delivered SP00-T03 archive; no production source was removed."
+  ],
+  "validations_executed": [
+    "SharedUiProof host-neutral build — PASS with available TypeScript 5.8.3; vendor bytes deliberately omitted",
+    "SharedUiProof deterministic tests — PASS; 12 tests",
+    "SharedUiProof task-local source manifest — PASS; 48 files",
+    "SharedUiProof source validator — PASS; 25 source/project files, 8 terminals, 27 matrix cells, 2 hosts",
+    "TerminalProof source validator — PASS; 37 C# files, 5 projects, 11 scenarios",
+    "PipeProof source validator — PASS; 49 C# files, 8 projects, 13 contract fixtures, 9 Windows scenarios",
+    "Repository architecture validator — PASS; 15 production projects, 45 references",
+    "Production TypeScript project-reference build — PASS with available TypeScript 5.8.3",
+    "UI source-policy checks — PASS; 4 files",
+    "Production UI/extension tests — PASS; 18 tests",
+    "PipeProof Node tests — PASS; 12 tests",
+    "JSON/XML/YAML structural audits — PASS; 51/53/3 source files after receipt creation",
+    "SP00-T04 Draft 2020-12 evidence-schema audit — PASS",
+    "Repository C# lexical integrity audit — PASS; 144 source files",
+    "Production reverse-reference isolation — PASS"
+  ],
+  "validations_not_executed": [
+    "Pinned Node.js 24.19.0, pnpm 11.20.0, and TypeScript 6.0.3 install/build",
+    "Restored @xterm/xterm 6.0.0 and @xterm/addon-fit 0.11.0 browser execution",
+    "Pinned .NET SDK 10.0.302 restore/build and Roslyn/analyzer validation",
+    "PowerShell run-proof.ps1",
+    "WPF/WebView2 host initialization and local-only security behavior",
+    "VS Code extension-host and webview execution",
+    "Actual xterm.js rendering, input, resize, keyboard, screen-reader, high-contrast, and 100-200% scaling behavior",
+    "One/four/eight-terminal latency and memory measurements in both hosts",
+    "Cross-host semantic evidence comparison"
+  ],
+  "evidence_destinations": [
+    "docs/proofs/shared-ui.md",
+    "docs/validation/sp00-t04-host-neutral-validation.txt",
+    "prototypes/SharedUiProof/evidence.schema.json",
+    "prototypes/SharedUiProof/source-manifest.sha256",
+    "prototypes/SharedUiProof/dispatch.packet.json",
+    "prototypes/SharedUiProof/evidence/run-<timestamp>/"
+  ],
+  "remaining_risks": [
+    "C# and WPF/WebView2 source has not been compiled with the pinned SDK; any compiler, analyzer, runtime, or package issue is a proof failure.",
+    "Actual VS Code and WebView2 CSP/resource behavior has not been observed.",
+    "xterm.js rendering, focus, screen-reader mode, resize, memory, and high-volume performance remain empirical STOP conditions.",
+    "Browser heap memory may be unavailable; SP00-T05 must decide whether host and available heap measurements are sufficient rather than treating unavailable as zero.",
+    "The interactive HTML visual reference named by the handover was absent, so no pixel-parity conclusion is possible.",
+    "G0 cannot be accepted until SP00-T02, SP00-T03, and SP00-T04 measured evidence is reviewed in SP00-T05."
+  ],
+  "discretion_exercised": [
+    "Kept all renderer/host code isolated under prototypes/SharedUiProof and introduced no production reverse reference.",
+    "Used one shared HTML template, TypeScript module graph, fixture, benchmark, and bridge vocabulary instead of host-specific state models.",
+    "Used explicit gap/overflow failure rather than silently dropping terminal sequence data.",
+    "Separated visible animation-frame rendering from delayed hidden presentation while retaining every accepted frame.",
+    "Made manually launched host evidence diagnostic and reserved acceptance eligibility for the verified Windows runner.",
+    "Did not select the parked production docking library or VS Code Pseudoterminal strategy.",
+    "Used written UI contracts as authority because the named interactive HTML reference was not supplied."
+  ],
+  "stop_conditions_triggered": [],
+  "architecture_gate": "G0 remains blocked pending qualifying normal-user Windows x64 PASS evidence for SP00-T02, SP00-T03, and SP00-T04 plus SP00-T05 architecture review."
+}

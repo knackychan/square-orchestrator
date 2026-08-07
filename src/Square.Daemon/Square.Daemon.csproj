@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Square.Daemon</RootNamespace>
+    <AssemblyName>square-daemon</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Square.Domain\Square.Domain.csproj" />
+    <ProjectReference Include="..\Square.Contracts\Square.Contracts.csproj" />
+    <ProjectReference Include="..\Square.Application\Square.Application.csproj" />
+    <ProjectReference Include="..\Square.ControlPlane\Square.ControlPlane.csproj" />
+    <ProjectReference Include="..\Square.Persistence.Sqlite\Square.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\Square.Artifacts\Square.Artifacts.csproj" />
+    <ProjectReference Include="..\Square.Platform.Windows\Square.Platform.Windows.csproj" />
+    <ProjectReference Include="..\Square.Adapters.CommandCode\Square.Adapters.CommandCode.csproj" />
+    <ProjectReference Include="..\Square.Adapters.OpenCode\Square.Adapters.OpenCode.csproj" />
+    <ProjectReference Include="..\Square.Adapters.Claude\Square.Adapters.Claude.csproj" />
+    <ProjectReference Include="..\Square.Adapters.Codex\Square.Adapters.Codex.csproj" />
+  </ItemGroup>
+</Project>

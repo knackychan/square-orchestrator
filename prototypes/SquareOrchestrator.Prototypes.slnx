@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/PipeProof/">
+    <Project Path="PipeProof/Square.PipeProof.Protocol/Square.PipeProof.Protocol.csproj" />
+    <Project Path="PipeProof/Square.PipeProof.Client/Square.PipeProof.Client.csproj" />
+    <Project Path="PipeProof/Square.PipeProof.ServerCore/Square.PipeProof.ServerCore.csproj" />
+    <Project Path="PipeProof/Square.PipeProof.Transport.Windows/Square.PipeProof.Transport.Windows.csproj" />
+    <Project Path="PipeProof/Square.PipeProof.Server/Square.PipeProof.Server.csproj" />
+    <Project Path="PipeProof/Square.PipeProof.DotNetClient/Square.PipeProof.DotNetClient.csproj" />
+    <Project Path="PipeProof/Square.PipeProof.Harness/Square.PipeProof.Harness.csproj" />
+    <Project Path="PipeProof/Square.PipeProof.Tests/Square.PipeProof.Tests.csproj" />
+  </Folder>
+  <Folder Name="/SharedUiProof/">
+    <Project Path="SharedUiProof/webview2-host/Square.SharedUiProof.WebView2/Square.SharedUiProof.WebView2.csproj" />
+  </Folder>
+</Solution>

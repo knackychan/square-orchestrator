@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.0",
+  "task_id": "SP00-T04",
+  "title": "Prove shared TypeScript terminal UI in WebView2 and VS Code",
+  "starting_commit": null,
+  "starting_commit_note": "The supplied workspace is not a Git checkout; authority hashes and the SP00-T03 snapshot are the immutable starting references.",
+  "authority_documents": [
+    {
+      "path": "docs/authority/square-orchestrator-sliced-implementation-plan.md",
+      "sha256": "135fc5449998cea9b2bc3b9ddbc8bb8848e60c54ddb25dec34bc232016f0f65f"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-technical-architecture.md",
+      "sha256": "5f13c89330470104a1263ef7f371128c6ab5a41199a121c258785775aa448aad"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-ui-design.md",
+      "sha256": "b55546c1587bbc2fc1cb06524a8702a4f271bfe646bd5584d638f43ddf8650f9"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-ui-handover-readme.md",
+      "sha256": "24e23bff559624a10eb603d0d4d3518a91c78a6e98c07203237fb31f180d0021"
+    }
+  ],
+  "prerequisites": [
+    {
+      "task_id": "SP00-T01",
+      "required_output": "Repository skeleton, pinned Node/TypeScript/.NET toolchain, and isolated prototype paths"
+    }
+  ],
+  "allowed_read_paths": [
+    "docs/authority/",
+    "global.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    "tsconfig.base.json",
+    "prototypes/SharedUiProof/"
+  ],
+  "allowed_write_paths": [
+    "prototypes/SharedUiProof/",
+    "prototypes/SquareOrchestrator.Prototypes.slnx",
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml",
+    "build/clean-ui.mjs",
+    "docs/proofs/shared-ui.md",
+    "docs/validation/sp00-t04-host-neutral-validation.txt",
+    "docs/receipts/SP00-T04.prototype-receipt.json",
+    "docs/IMPLEMENTATION_STATUS.md",
+    "THIRD_PARTY.md",
+    "prototypes/SharedUiProof/source-manifest.sha256"
+  ],
+  "global_invariants": [
+    "The same compiled TypeScript renderer and canonical fixture are used by both hosts.",
+    "Closing either host owns no process, terminal, scheduler, or workflow state.",
+    "Terminal output is untrusted presentation data and cannot invoke host commands.",
+    "Only one controller mode is shown as CONTROL; observation remains distinct from input authority.",
+    "Hidden panes reduce presentation frequency without losing sequence correctness.",
+    "Prototype code remains isolated and is not referenced by production projects."
+  ],
+  "acceptance": [
+    {
+      "id": "SP00-T04-AC01",
+      "result": "WebView2 and VS Code report the same canonical fixture hash and equivalent semantic proof outcomes.",
+      "verifier": "scripts/compare-evidence.mjs",
+      "evidence": "webview2.json, vscode.json, comparison.json"
+    },
+    {
+      "id": "SP00-T04-AC02",
+      "result": "Both hosts record render duration and browser memory data for one, four, and eight active xterm.js terminals.",
+      "verifier": "shared benchmark matrix",
+      "evidence": "result.matrix"
+    },
+    {
+      "id": "SP00-T04-AC03",
+      "result": "Hidden terminal panes retain every accepted sequence while using the slower hidden render schedule, then catch up after reveal.",
+      "verifier": "shared benchmark hidden-pane check",
+      "evidence": "result.hiddenPaneThrottle"
+    },
+    {
+      "id": "SP00-T04-AC04",
+      "result": "Dark, light, high-contrast, 100%, 150%, and 200% fixture states retain accessible terminal and controller names.",
+      "verifier": "shared matrix and accessibility audit",
+      "evidence": "result.matrix and result.accessibility"
+    },
+    {
+      "id": "SP00-T04-AC05",
+      "result": "Both host bridges reject unknown types and fields; the VS Code webview and WebView2 shell expose no arbitrary command path and enforce local-only content policies.",
+      "verifier": "deterministic contract tests and source validator",
+      "evidence": "test output and source validation log"
+    }
+  ],
+  "validation_commands": [
+    "node prototypes/SharedUiProof/validate-source.mjs",
+    "node prototypes/SharedUiProof/scripts/build.mjs --skip-vendor",
+    "node --test prototypes/SharedUiProof/test/*.test.mjs",
+    "dotnet build prototypes/SharedUiProof/SharedUiProof.slnx --configuration Release",
+    "./prototypes/SharedUiProof/run-proof.ps1"
+  ],
+  "budgets": {
+    "terminal_counts": [
+      1,
+      4,
+      8
+    ],
+    "themes": [
+      "dark",
+      "light",
+      "high-contrast"
+    ],
+    "scales": [
+      1,
+      1.5,
+      2
+    ],
+    "bytes_per_terminal": 262144,
+    "maximum_pending_bytes_per_terminal": 4194304,
+    "hidden_render_delay_ms": 1000,
+    "host_deadline_minutes": 10,
+    "automatic_retry_count": 0
+  },
+  "discretion": [
+    "Fixture labels, local helper types, and evidence file names may change without changing proof semantics.",
+    "The host runner may use an installed VS Code stable or insiders executable, but its exact version must be recorded.",
+    "No production layout schema, daemon protocol, process ownership, or workflow authority may be introduced by this proof."
+  ],
+  "stop_conditions": [
+    "The two hosts require divergent state or terminal sequence models.",
+    "xterm.js cannot preserve bounded output, input focus, or accessible labels in either host.",
+    "A strict local-only host policy cannot load the same compiled UI assets.",
+    "Hidden-pane throttling requires dropping sequence data.",
+    "A required change would reference prototype code from a production project."
+  ],
+  "receipt_destination": "docs/receipts/SP00-T04.prototype-receipt.json",
+  "expected_outputs": [
+    "One shared TypeScript/xterm.js workspace loaded by WPF/WebView2 and a VS Code webview",
+    "Strict bridge schemas and local-only host policies",
+    "Canonical eight-terminal fixture and 27-cell render matrix",
+    "Cross-host evidence comparison and fail-closed Windows runner",
+    "Source manifest, proof record, validation log, and completion receipt"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "runId": "sp00-t04-canonical",
+  "terminalCounts": [1, 4, 8],
+  "themes": ["dark", "light", "high-contrast"],
+  "scales": [1, 1.5, 2],
+  "bytesPerTerminal": 262144,
+  "frameBytes": 8192,
+  "hiddenThrottleMs": 1000,
+  "maximumPendingBytes": 4194304,
+  "maximumDurationMs": 120000
+}

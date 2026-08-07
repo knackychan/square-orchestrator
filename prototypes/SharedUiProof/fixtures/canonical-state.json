@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0",
+  "fixtureId": "sp00-t04-canonical-workspace",
+  "selectedTerminalId": "terminal-01",
+  "layoutPreset": "Operations",
+  "terminals": [
+    {
+      "id": "terminal-01",
+      "taskId": "SP00-T04-F01",
+      "title": "Shared terminal renderer",
+      "role": "UI Engineer",
+      "route": "Fixture/xterm.js",
+      "state": "RUNNING",
+      "controllerMode": "control",
+      "ariaLabel": "SP00-T04-F01 UI Engineer Fixture/xterm.js RUNNING CONTROL terminal"
+    },
+    {
+      "id": "terminal-02",
+      "taskId": "SP00-T04-F02",
+      "title": "Host bridge security",
+      "role": "Security Reviewer",
+      "route": "Fixture/host bridge",
+      "state": "WAITING_FOR_APPROVAL",
+      "controllerMode": "controlled_elsewhere",
+      "ariaLabel": "SP00-T04-F02 Security Reviewer Fixture/host bridge WAITING_FOR_APPROVAL CONTROLLED ELSEWHERE terminal"
+    },
+    {
+      "id": "terminal-03",
+      "taskId": "SP00-T04-F03",
+      "title": "Layout restoration",
+      "role": "UI Engineer",
+      "route": "Fixture/workspace",
+      "state": "QUIET_ACTIVE",
+      "controllerMode": "view",
+      "ariaLabel": "SP00-T04-F03 UI Engineer Fixture/workspace QUIET_ACTIVE VIEW terminal"
+    },
+    {
+      "id": "terminal-04",
+      "taskId": "SP00-T04-F04",
+      "title": "Accessibility inspection",
+      "role": "Quality Reviewer",
+      "route": "Fixture/accessibility",
+      "state": "RUNNING",
+      "controllerMode": "view",
+      "ariaLabel": "SP00-T04-F04 Quality Reviewer Fixture/accessibility RUNNING VIEW terminal"
+    },
+    {
+      "id": "terminal-05",
+      "taskId": "SP00-T04-F05",
+      "title": "Output burst",
+      "role": "Performance Reviewer",
+      "route": "Fixture/output",
+      "state": "RUNNING",
+      "controllerMode": "view",
+      "ariaLabel": "SP00-T04-F05 Performance Reviewer Fixture/output RUNNING VIEW terminal"
+    },
+    {
+      "id": "terminal-06",
+      "taskId": "SP00-T04-F06",
+      "title": "Hidden pane throttle",
+      "role": "Performance Reviewer",
+      "route": "Fixture/throttle",
+      "state": "QUIET_ACTIVE",
+      "controllerMode": "view",
+      "ariaLabel": "SP00-T04-F06 Performance Reviewer Fixture/throttle QUIET_ACTIVE VIEW terminal"
+    },
+    {
+      "id": "terminal-07",
+      "taskId": "SP00-T04-F07",
+      "title": "Keyboard focus",
+      "role": "Quality Reviewer",
+      "route": "Fixture/keyboard",
+      "state": "WAITING_FOR_INPUT",
+      "controllerMode": "view",
+      "ariaLabel": "SP00-T04-F07 Quality Reviewer Fixture/keyboard WAITING_FOR_INPUT VIEW terminal"
+    },
+    {
+      "id": "terminal-08",
+      "taskId": "SP00-T04-F08",
+      "title": "Host parity",
+      "role": "Integration Reviewer",
+      "route": "Fixture/parity",
+      "state": "RUNNING",
+      "controllerMode": "view",
+      "ariaLabel": "SP00-T04-F08 Integration Reviewer Fixture/parity RUNNING VIEW terminal"
+    }
+  ]
+}

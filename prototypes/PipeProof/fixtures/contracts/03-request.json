@@ -1,0 +1,10 @@
+{
+  "kind": "request",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "id": "request-vector",
+  "method": "proof.echo",
+  "params": {
+    "text": "café 🙂"
+  }
+}

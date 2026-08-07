@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0",
+  "task_id": "SP00-T03",
+  "title": "Prove named-pipe framing and reconnect",
+  "starting_commit": null,
+  "starting_commit_note": "The supplied bootstrap workspace is not a Git checkout; authority, dispatch, manifest, source, and evidence hashes are used as immutable identities.",
+  "authority_documents": [
+    {
+      "path": "docs/authority/square-orchestrator-sliced-implementation-plan.md",
+      "sha256": "135fc5449998cea9b2bc3b9ddbc8bb8848e60c54ddb25dec34bc232016f0f65f"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-technical-architecture.md",
+      "sha256": "5f13c89330470104a1263ef7f371128c6ab5a41199a121c258785775aa448aad"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-ui-design.md",
+      "sha256": "b55546c1587bbc2fc1cb06524a8702a4f271bfe646bd5584d638f43ddf8650f9"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-ui-handover-readme.md",
+      "sha256": "24e23bff559624a10eb603d0d4d3518a91c78a6e98c07203237fb31f180d0021"
+    }
+  ],
+  "prerequisites": [
+    {
+      "task_id": "SP00-T01",
+      "required_output": "Repository skeleton, pinned .NET/Node toolchains, deterministic settings, and isolated prototype paths"
+    }
+  ],
+  "allowed_read_paths": [
+    "docs/authority/",
+    "Directory.Build.props",
+    "Directory.Packages.props",
+    "global.json",
+    "package.json",
+    "pnpm-workspace.yaml",
+    "tests/Square.TestKit/",
+    "prototypes/PipeProof/"
+  ],
+  "allowed_write_paths": [
+    "prototypes/PipeProof/",
+    "prototypes/SquareOrchestrator.Prototypes.slnx",
+    "docs/proofs/named-pipe-protocol.md",
+    "docs/validation/sp00-t03-host-neutral-validation.txt",
+    "docs/receipts/SP00-T03.prototype-receipt.json",
+    "docs/IMPLEMENTATION_STATUS.md"
+  ],
+  "global_invariants": [
+    "Only a local current-user client and the required Local System recovery identity may open the proof pipe.",
+    "Every frame has a four-byte big-endian length and strict UTF-8 JSON payload bounded before allocation.",
+    "One connection has one reader and one serialized writer; publisher work never blocks on an unbounded subscriber queue.",
+    "Durable event sequence is monotonic across server restart and replay is cursor-based with explicit truncation.",
+    "Node pipe access remains in a host process fixture and is not exposed to a webview package.",
+    "Prototype projects remain isolated and are not referenced by production projects."
+  ],
+  "acceptance": [
+    {
+      "id": "SP00-T03-AC01",
+      "result": "The live pipe security descriptor is protected and grants full access only to the current user SID and Local System; anonymous access is denied with ERROR_ACCESS_DENIED.",
+      "verifier": "Live-handle DACL inspection and anonymous-token negative probe",
+      "evidence": "servers/generation-*/ready.json and scenarios.ndjson"
+    },
+    {
+      "id": "SP00-T03-AC02",
+      "result": ".NET and Node clients produce semantically identical handshake, Unicode echo, cancellation, subscription, replay, and incompatible-version outcomes.",
+      "verifier": "Square.PipeProof.Harness",
+      "evidence": "scenarios.ndjson cross-language-parity, version-negotiation, and disconnect-replay"
+    },
+    {
+      "id": "SP00-T03-AC03",
+      "result": "Fragmented headers/bodies and coalesced frames are reconstructed; malformed JSON, invalid framing, and oversized lengths fail closed.",
+      "verifier": "Deterministic tests and Windows raw-pipe scenario",
+      "evidence": "test logs and scenarios.ndjson framing-failures"
+    },
+    {
+      "id": "SP00-T03-AC04",
+      "result": "The event cursor and journal survive a forced server restart and a Node subscriber reconnects without duplicate or non-increasing event delivery.",
+      "verifier": "Forced process restart with one persistent state directory",
+      "evidence": "scenarios.ndjson daemon-restart-reconnect and servers/generation-*"
+    },
+    {
+      "id": "SP00-T03-AC05",
+      "result": "A slow subscriber cannot exceed the declared subscription, event, or control queue capacities and is disconnected with a resume cursor.",
+      "verifier": "High-volume paused-reader scenario and final server metrics",
+      "evidence": "scenarios.ndjson slow-subscriber and servers/generation-*/final.json"
+    }
+  ],
+  "expected_outputs": [
+    "Strict transport-neutral protocol and framing libraries",
+    "Durable monotonic event journal, bounded server queues, subscriptions, cancellation, and replay",
+    "Explicit Win32 named-pipe creation, DACL readback, and negative identity probe",
+    ".NET and Node client fixtures plus reconnect support",
+    "Windows harness, scenario manifest, evidence schema, run script, proof document, source validator, and receipt"
+  ],
+  "validation_commands": [
+    "node prototypes/PipeProof/validate-source.mjs",
+    "node --test prototypes/PipeProof/node-client/test/*.test.mjs",
+    "dotnet run --project prototypes/PipeProof/Square.PipeProof.Tests/Square.PipeProof.Tests.csproj",
+    "./prototypes/PipeProof/run-proof.ps1"
+  ],
+  "budgets": {
+    "maximum_frame_payload_bytes": 1048576,
+    "control_queue_capacity": 8,
+    "event_queue_capacity": 8,
+    "subscription_queue_capacity": 8,
+    "journal_retention_events": 64,
+    "maximum_replay_events_per_subscribe": 8,
+    "scenario_timeout_ms": 45000,
+    "automatic_retry_count": 0
+  },
+  "discretion": [
+    "Internal helper class and file names may change while preserving protocol and evidence semantics.",
+    "Queue implementation may change only if all capacities remain declared, measured, and fail closed.",
+    "No production RPC, daemon, UI, scheduler, database, or adapter contract may be introduced by this proof."
+  ],
+  "stop_conditions": [
+    "Node named-pipe behavior cannot preserve framing, replay, reconnect, or strict schema semantics.",
+    "The explicit current-user DACL cannot be verified deterministically on the live pipe handle.",
+    "A slow client can cause unbounded retained memory or block durable event publication indefinitely.",
+    "Restart cannot preserve a monotonic durable event cursor.",
+    "A required change would reference prototype code from a production project."
+  ],
+  "receipt_destination": "docs/receipts/SP00-T03.prototype-receipt.json"
+}

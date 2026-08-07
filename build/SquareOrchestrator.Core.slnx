@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="../src/Square.Domain/Square.Domain.csproj" />
+    <Project Path="../src/Square.Contracts/Square.Contracts.csproj" />
+    <Project Path="../src/Square.Application/Square.Application.csproj" />
+    <Project Path="../src/Square.Adapters.Abstractions/Square.Adapters.Abstractions.csproj" />
+    <Project Path="../src/Square.ControlPlane/Square.ControlPlane.csproj" />
+    <Project Path="../src/Square.Persistence.Sqlite/Square.Persistence.Sqlite.csproj" />
+    <Project Path="../src/Square.Artifacts/Square.Artifacts.csproj" />
+    <Project Path="../src/Square.Platform.Windows/Square.Platform.Windows.csproj" />
+    <Project Path="../src/Square.Adapters.CommandCode/Square.Adapters.CommandCode.csproj" />
+    <Project Path="../src/Square.Adapters.OpenCode/Square.Adapters.OpenCode.csproj" />
+    <Project Path="../src/Square.Adapters.Claude/Square.Adapters.Claude.csproj" />
+    <Project Path="../src/Square.Adapters.Codex/Square.Adapters.Codex.csproj" />
+    <Project Path="../src/Square.Cli/Square.Cli.csproj" />
+    <Project Path="../src/Square.Daemon/Square.Daemon.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="../tests/Square.TestKit/Square.TestKit.csproj" />
+    <Project Path="../tests/Domain.Tests/Domain.Tests.csproj" />
+    <Project Path="../tests/Contract.Tests/Contract.Tests.csproj" />
+    <Project Path="../tests/Architecture.Tests/Architecture.Tests.csproj" />
+  </Folder>
+</Solution>

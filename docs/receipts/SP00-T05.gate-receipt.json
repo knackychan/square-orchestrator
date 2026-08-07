@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0-draft",
+  "task_id": "SP00-T05",
+  "title": "Architecture proof gate",
+  "status": "GATE_REVIEW_COMPLETE_REJECTED_FOR_PROMOTION",
+  "started_at_utc": "2026-08-07T10:12:16Z",
+  "completed_at_utc": "2026-08-07T10:16:57Z",
+  "starting_commit": null,
+  "ending_commit": null,
+  "commit_note": "The workspace is not a Git checkout. The exact SP00-T04 archive, authority documents, reviewed proof records, ADRs, and gate-record hashes are used as immutable references.",
+  "baseline": {
+    "archive": "square-orchestrator-sp00-t04.zip",
+    "sha256": "9455999f097565734630084596c9dfd5421c5c7d0b868ad67fbcdbe1706a3d85"
+  },
+  "gate_result": {
+    "gate_id": "G0",
+    "decision": "REJECTED_FOR_PROMOTION",
+    "state": "BLOCKED",
+    "production_promotion_allowed": false,
+    "sp01_dispatch_allowed": false,
+    "reason": "No acceptance-eligible Windows x64 evidence exists for SP00-T02, SP00-T03, or SP00-T04, and no measured performance thresholds can be accepted."
+  },
+  "reviewed_proofs": [
+    {
+      "task_id": "SP00-T02",
+      "source_implementation": "COMPLETE",
+      "host_neutral_validation": "PASS",
+      "acceptance_evidence": "MISSING",
+      "decision": "REJECTED_FOR_PROMOTION",
+      "proof_record_sha256": "0c0c24ce38d946de69d9badbc2ff61de24eb6bd1d094d8478e7db06b485db548"
+    },
+    {
+      "task_id": "SP00-T03",
+      "source_implementation": "COMPLETE",
+      "host_neutral_validation": "PASS",
+      "acceptance_evidence": "MISSING",
+      "decision": "REJECTED_FOR_PROMOTION",
+      "proof_record_sha256": "d03b04bd19e0fa84d07d4deb1601843c68ddd9aae0653d68fb9d7a97170ba80c"
+    },
+    {
+      "task_id": "SP00-T04",
+      "source_implementation": "COMPLETE",
+      "host_neutral_validation": "PASS",
+      "acceptance_evidence": "MISSING",
+      "decision": "REJECTED_FOR_PROMOTION",
+      "proof_record_sha256": "bfad88cd9e4cb5fc23f8e5ca6aa41a4de34337c8b4c81ccb46c11219d79f53ef"
+    }
+  ],
+  "architecture_decisions": [
+    {
+      "id": "ADR-0001",
+      "area": "terminal_hosting",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0001-terminal-hosting.md",
+      "sha256": "c9bad6860dcfc4e8e922c07d7f253c63738848fdcb006f12dc9123b6d2ce3b67"
+    },
+    {
+      "id": "ADR-0002",
+      "area": "local_ipc",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0002-local-ipc.md",
+      "sha256": "0c819cf95db679b5523e4251f18988472b90ef39e9f4f9f8a23e1f28b301a0b3"
+    },
+    {
+      "id": "ADR-0003",
+      "area": "shared_ui_hosts",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0003-shared-ui-hosts.md",
+      "sha256": "0825eb3f8c2b1bc63315a70481130ada7264796a79415eb37665b6ab7afa081b"
+    },
+    {
+      "id": "ADR-0004",
+      "area": "terminal_renderer",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0004-terminal-renderer.md",
+      "sha256": "df54dd9fb10618ef8f774e8c465ee595f09e79df947c541d83a9d744ac4dd7a6"
+    },
+    {
+      "id": "ADR-0005",
+      "area": "benchmark_thresholds",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0005-benchmark-thresholds.md",
+      "sha256": "0b92e27c133c2fae92b0757291541bb08a830a1a808f50b2914bf163e5b03582"
+    }
+  ],
+  "gate_records": {
+    "machine_readable": {
+      "path": "docs/gates/G0-architecture-proof.json",
+      "sha256": "d2f040fa8473b2d9e6cc365a54ebb5e8133265bc5259612beaf2e9b9a7b6322b"
+    },
+    "human_review": {
+      "path": "docs/gates/G0-architecture-proof-review.md",
+      "sha256": "d7ea9e9d520d4fa70eb5b65f4040e2eef83f66cc20ed3338128b47d5a0b73f84"
+    },
+    "validator": {
+      "path": "build/validate-g0.mjs",
+      "sha256": "c4ec23214dab140891ed9f3dacf0a389cfcd570663e35b00014fd3d76ed8ee26"
+    }
+  },
+  "changed_paths": [
+    "README.md",
+    "build/validate-g0.mjs",
+    "docs/IMPLEMENTATION_STATUS.md",
+    "docs/adr/",
+    "docs/gates/",
+    "docs/receipts/SP00-T05.gate-receipt.json",
+    "docs/validation/sp00-t05-gate-validation.txt"
+  ],
+  "prototype_changes": {
+    "files_added": 0,
+    "files_modified": 0,
+    "files_removed": 0,
+    "evidence_removed": false
+  },
+  "implementation_summary": [
+    "Reviewed the source proof records, receipts, host-neutral validation records, canonical inputs, and available proof evidence locations for SP00-T02 through SP00-T04.",
+    "Recorded a fail-closed G0 decision because every empirical Windows acceptance result is missing.",
+    "Added five ADRs covering terminal hosting, local IPC, shared UI hosts, terminal renderer, and benchmark thresholds; each rejects production promotion while retaining the current leaf candidate for canonical rerun.",
+    "Added a machine-readable gate record and a dependency-free Node validator that verifies authority/evidence/ADR hashes, the blocked flags, and the absence of unreviewed proof evidence.",
+    "Updated repository status and README without modifying or removing prototype source or evidence."
+  ],
+  "validations_executed": [
+    "node build/validate-g0.mjs — PASS; 3 proofs, 5 ADRs, 0 acceptance-eligible Windows evidence, G0 BLOCKED",
+    "node build/verify-repository.mjs — PASS; 15 production projects, 45 references",
+    "node prototypes/TerminalProof/validate-source.mjs — PASS; 37 C# source files, 5 projects, 11 scenarios",
+    "node prototypes/PipeProof/validate-source.mjs — PASS; 8 projects, 49 C# sources, 13 fixtures, 9 Windows scenarios",
+    "node prototypes/SharedUiProof/validate-source.mjs — PASS; 25 source/project files, 8 terminals, 27 matrix cells, 2 hosts",
+    "tsc -b --pretty false — PASS with available TypeScript 5.8.3, not the pinned 6.0.3",
+    "node build/ui-lint.mjs — PASS",
+    "node build/run-ui-tests.mjs — PASS; 18 tests",
+    "node --test prototypes/PipeProof/node-client/test/*.test.mjs — PASS; 12 tests",
+    "SharedUiProof host-neutral build and deterministic tests — PASS; 12 tests"
+  ],
+  "validations_not_executed": [
+    "Pinned .NET SDK 10.0.302 build and C# test executables",
+    "PowerShell proof runners",
+    "Windows ConPTY, Job Object, named-pipe, DACL, WebView2, or VS Code runtime behavior",
+    "Acceptance-eligible 100-run terminal lifecycle evidence",
+    "Live .NET/Node named-pipe reconnect and replay evidence",
+    "Cross-host xterm.js render, memory, accessibility, scaling, and benchmark evidence",
+    "Pinned Node.js 24.19.0, pnpm 11.20.0, and TypeScript 6.0.3 execution"
+  ],
+  "stop_conditions_triggered": [
+    "G0 cannot open because SP00-T02 Windows PASS evidence is missing.",
+    "G0 cannot open because SP00-T03 Windows PASS evidence is missing.",
+    "G0 cannot open because SP00-T04 cross-host Windows PASS evidence is missing.",
+    "Performance thresholds cannot be accepted without measured results."
+  ],
+  "remaining_risks": [
+    "All Windows lifecycle, security, host, accessibility, and performance risks identified by the three proofs remain empirical.",
+    "The current leaf technologies may still fail and require a plan amendment after canonical execution.",
+    "Existing SP01 source is draft only and must not be treated as accepted contract work."
+  ],
+  "next_controlled_action": "Execute the three canonical proof runners on a clean normal-user Windows x64 host, preserve raw evidence, then create a superseding gate review and ADR set."
+}

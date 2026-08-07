@@ -1,0 +1,16 @@
+{
+  "name": "square-vscode",
+  "displayName": "Square Orchestrator",
+  "description": "Bootstrap shell for the Square daemon client.",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "vscode": "^1.108.0", "node": "24.19.0" },
+  "activationEvents": ["onCommand:square.showStatus"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      { "command": "square.showStatus", "title": "Square: Show Bootstrap Status", "category": "Square" }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "kind": "subscribe",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "id": "subscribe-vector",
+  "topic": "proof.events",
+  "from_sequence": 0
+}

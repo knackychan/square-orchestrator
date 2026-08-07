@@ -1,0 +1,7 @@
+{
+  "kind": "unsubscribe",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "id": "unsubscribe-vector",
+  "subscription_id": "subscription-vector"
+}

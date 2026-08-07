@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Architecture_Tests</RootNamespace>
+    <AssemblyName>Architecture.Tests</AssemblyName>
+    <IsTestProject>true</IsTestProject>
+    <SquareTestCategory>Architecture</SquareTestCategory>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Square.TestKit\Square.TestKit.csproj" />
+  </ItemGroup>
+</Project>

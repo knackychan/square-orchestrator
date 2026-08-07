@@ -1,0 +1,20 @@
+{
+  "name": "square-orchestrator-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": "24.19.0",
+    "pnpm": "11.20.0"
+  },
+  "scripts": {
+    "clean": "node build/clean-ui.mjs",
+    "build": "tsc -b --pretty false",
+    "lint": "node build/ui-lint.mjs",
+    "test": "node build/run-ui-tests.mjs",
+    "check": "pnpm clean && pnpm build && pnpm lint && pnpm test"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}

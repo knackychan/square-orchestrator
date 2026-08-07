@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://square-orchestrator.local/schemas/sp00-t04-host-evidence.schema.json",
+  "title": "SP00-T04 host evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "hostKind",
+    "status",
+    "acceptanceEligible",
+    "startedAtUtc",
+    "completedAtUtc",
+    "fixtureSha256",
+    "benchmarkSha256",
+    "environment",
+    "bridgeEvents",
+    "result",
+    "failures",
+    "passed"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "taskId": { "const": "SP00-T04" },
+    "hostKind": { "enum": ["webview2", "vscode"] },
+    "status": { "enum": ["PASS", "FAIL"] },
+    "acceptanceEligible": { "type": "boolean" },
+    "startedAtUtc": { "type": "string", "format": "date-time" },
+    "completedAtUtc": { "type": "string", "format": "date-time" },
+    "fixtureSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+    "benchmarkSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+    "environment": { "type": "object", "additionalProperties": true },
+    "bridgeEvents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["terminalResizeMessages", "terminalInputMessages", "layoutMessages", "controllerRequests"],
+      "properties": {
+        "terminalResizeMessages": { "type": "integer", "minimum": 0 },
+        "terminalInputMessages": { "type": "integer", "minimum": 0 },
+        "layoutMessages": { "type": "integer", "minimum": 0 },
+        "controllerRequests": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "result": { "type": ["object", "null"] },
+    "failures": { "type": "array", "items": { "type": "string" } },
+    "passed": { "type": "boolean" }
+  }
+}

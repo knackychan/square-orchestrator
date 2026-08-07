@@ -1,0 +1,13 @@
+{
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "id": "cor_01JZ9H6Y8N4T2C3V5B7M9Q1WXE",
+  "method": "daemon.status",
+  "idempotency_key": "idem-example-only",
+  "params": {},
+  "client": {
+    "kind": "cli",
+    "version": "0.1.0",
+    "instance_id": "example"
+  }
+}

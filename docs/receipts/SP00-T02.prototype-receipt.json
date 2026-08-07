@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0-draft",
+  "task_id": "SP00-T02",
+  "title": "Prove ConPTY and Job Object lifecycle",
+  "status": "prototype_implementation_complete_windows_execution_pending",
+  "started_at_utc": "2026-08-07T05:12:32Z",
+  "completed_at_utc": "2026-08-07T06:07:47Z",
+  "starting_commit": null,
+  "ending_commit": null,
+  "commit_note": "The supplied bootstrap workspace is not a Git checkout; authority, manifest, dispatch, and archive hashes are used as immutable references.",
+  "authority_documents": [
+    {
+      "path": "docs/authority/square-orchestrator-sliced-implementation-plan.md",
+      "sha256": "135fc5449998cea9b2bc3b9ddbc8bb8848e60c54ddb25dec34bc232016f0f65f"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-technical-architecture.md",
+      "sha256": "5f13c89330470104a1263ef7f371128c6ab5a41199a121c258785775aa448aad"
+    }
+  ],
+  "source_identities": {
+    "scenario_manifest_sha256": "f206d7899c2c5e2eef374f7f7016970afa7653333e82d966f985fa95dd15a405",
+    "dispatch_packet_sha256": "4e5b73b4384f1a1346d50648d180b9b198834b8f37e1c94608a032a4a0a9fcd1"
+  },
+  "changed_paths": [
+    "prototypes/TerminalProof/",
+    "docs/proofs/conpty-job-object.md",
+    "docs/validation/sp00-t02-host-neutral-validation.txt",
+    "docs/receipts/SP00-T02.prototype-receipt.json",
+    "docs/IMPLEMENTATION_STATUS.md"
+  ],
+  "implementation_summary": [
+    "Added an isolated five-project Windows x64 proof solution for native ConPTY/Job Object hosting, deterministic fixtures, owner-crash containment, a manifest-driven harness, and dependency-free contract tests.",
+    "Implemented suspended root creation, Job Object assignment and membership verification before resume, synchronous ConPTY channels, one dedicated blocking output reader, UTF-8 input/output, resize, graceful Ctrl+C, explicit hard stop, accounting, bounded teardown, and exact process-identity leak checks.",
+    "Added eleven canonical lifecycle scenarios, 100-run reliability defaults, per-scenario 1/4/8-session scale groups, resource/process/handle evidence, strict JSON evidence, source/dispatch identity binding, and fail-closed diagnostic-versus-acceptance status rules.",
+    "Documented the selected reattachment boundary: this leaf design has no surviving broker or transferable ConPTY/Job handles and therefore does not claim live PTY reattachment after owner failure."
+  ],
+  "validations_executed": [
+    "node prototypes/TerminalProof/validate-source.mjs — PASS; 37 C# source files, 5 projects, 11 scenarios",
+    "node build/verify-repository.mjs — PASS; 15 production projects, 45 project references",
+    "tsc -b --pretty false — PASS with available TypeScript 5.8.3",
+    "node build/ui-lint.mjs — PASS",
+    "node build/run-ui-tests.mjs — PASS; 18 tests",
+    "node --test prototypes/PipeProof/node-client/test/*.test.mjs — PASS; 5 tests",
+    "JSON/XML/YAML structural parse audits — PASS; 22/42/3 files",
+    "Draft 2020-12 evidence-schema meta-validation — PASS",
+    "TerminalProof C# lexical delimiter audit — PASS; 37 source files",
+    "Production reverse-reference isolation — PASS"
+  ],
+  "validations_not_executed": [
+    "Pinned .NET SDK 10.0.302 restore, build, and Roslyn analysis",
+    "Square.TerminalProof.Tests executable (13 contract tests)",
+    "PowerShell run-proof.ps1 wrapper",
+    "Windows ConPTY and Job Object execution",
+    "100 repetitions for all scenarios and 1/4/8-session scale measurements",
+    "Owner-crash kill-on-close behavior and empirical process/handle leak checks",
+    "Real target CLI compatibility through ConPTY"
+  ],
+  "evidence_destinations": [
+    "docs/proofs/conpty-job-object.md",
+    "docs/validation/sp00-t02-host-neutral-validation.txt",
+    "prototypes/TerminalProof/evidence.schema.json",
+    "prototypes/TerminalProof/dispatch.packet.json",
+    "prototypes/TerminalProof/evidence/"
+  ],
+  "remaining_risks": [
+    "C# has not been compiled with the pinned SDK in this environment.",
+    "No Windows lifecycle or performance measurement has been produced.",
+    "Job Object nesting and current-user behavior depend on the actual Windows validation host.",
+    "Target CLI behavior through ConPTY remains an empirical STOP condition.",
+    "G0 cannot be accepted until SP00-T02, SP00-T03, and SP00-T04 measured evidence is reviewed."
+  ],
+  "discretion_exercised": [
+    "Kept all code under prototypes/TerminalProof and introduced no production references or public product contract.",
+    "Used a dependency-free executable test harness to avoid admitting an unreviewed test package.",
+    "Recorded PID plus UTC start ticks for survivor checks to distinguish process reuse.",
+    "Made all reduced, filtered, elevated, altered-source, or owner-crash-skipped runs diagnostic-only.",
+    "Left STARTF_USESTDHANDLES unset so the pseudoconsole startup attribute remains authoritative for hosted standard handles."
+  ],
+  "stop_conditions_triggered": [],
+  "architecture_gate": "G0 remains blocked pending a qualifying normal-user Windows x64 PASS and completion of SP00-T03/SP00-T04 evidence."
+}

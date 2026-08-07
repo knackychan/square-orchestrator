@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0-draft",
+  "task_id": "SP00-T01",
+  "title": "Bootstrap solution, tooling, and dependency rules",
+  "starting_commit": null,
+  "ending_commit": null,
+  "changed_paths": [
+    "src/",
+    "tests/",
+    "ui/",
+    "vscode/",
+    "build/",
+    "prototypes/",
+    "docs/"
+  ],
+  "validations_executed": [
+    "node build/verify-repository.mjs (Node.js 22.16.0)",
+    "tsc -b --pretty false (TypeScript 5.8.3)",
+    "node build/ui-lint.mjs",
+    "node build/run-ui-tests.mjs (18 passing)",
+    "node --test prototypes/PipeProof/node-client/test/*.test.mjs (5 passing)"
+  ],
+  "validations_not_executed": [
+    "pinned Node.js 24.19.0 / pnpm 11.20.0 / TypeScript 6.0.3 install and check",
+    ".NET build/test with SDK 10.0.302",
+    "PowerShell scripts",
+    "Windows-only proof suites"
+  ],
+  "remaining_risks": [
+    "G0 proofs are not complete",
+    "C# source requires clean Windows/.NET 10 validation",
+    "interactive HTML reference was not supplied"
+  ],
+  "discretion_exercised": "Used dependency-free console test harnesses so deterministic CI does not depend on external test packages before dependency review."
+}

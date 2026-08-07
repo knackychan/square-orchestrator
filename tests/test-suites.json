@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "categories": {
+    "Deterministic": {
+      "implemented": true,
+      "commands": [
+        "dotnet run --project tests/Domain.Tests/Domain.Tests.csproj",
+        "dotnet run --project tests/Contract.Tests/Contract.Tests.csproj"
+      ]
+    },
+    "Architecture": {
+      "implemented": true,
+      "commands": [
+        "dotnet run --project tests/Architecture.Tests/Architecture.Tests.csproj",
+        "node build/verify-repository.mjs"
+      ]
+    },
+    "UI": {
+      "implemented": true,
+      "commands": ["pnpm run check"]
+    },
+    "Prototype": {
+      "implemented": true,
+      "commands": [
+        "dotnet run --project prototypes/PipeProof/Square.PipeProof.Tests/Square.PipeProof.Tests.csproj",
+        "node --test prototypes/PipeProof/node-client/test/*.test.mjs"
+      ]
+    },
+    "Windows": { "implemented": false },
+    "Provider": { "implemented": false },
+    "Recovery": { "implemented": false },
+    "EndToEnd": { "implemented": false }
+  }
+}

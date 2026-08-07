@@ -1,0 +1,335 @@
+SP00-T05 host-neutral gate validation
+Recorded: 2026-08-07
+Environment: Linux creation host; Node v22.16.0; TypeScript 5.8.3
+Pinned Windows/.NET/WebView2 execution: not available and not claimed
+
+$ node build/validate-g0.mjs
+SP00-T05 G0 gate validation: PASS
+  reviewed proofs: 3
+  architecture decisions: 5
+  acceptance-eligible Windows evidence: 0
+  gate decision: REJECTED_FOR_PROMOTION
+  gate state: BLOCKED
+
+$ node build/verify-repository.mjs
+Repository verification passed: 15 production projects, 45 project references.
+
+$ node prototypes/TerminalProof/validate-source.mjs
+TerminalProof source-contract validation passed: 37 C# source files, 5 projects, 11 scenarios.
+
+$ node prototypes/PipeProof/validate-source.mjs
+PipeProof source-contract validation passed: 8 projects, 49 C# sources, 13 contract fixtures, 9 Windows scenarios; dispatch aa959c46c51d…
+
+$ node prototypes/SharedUiProof/validate-source.mjs
+SharedUiProof source contract passed: 25 source/project files, 8 terminals, 27 render matrix cells, 2 isolated hosts.
+
+$ tsc -b --pretty false
+Production TypeScript build: PASS with available TypeScript 5.8.3 (not pinned 6.0.3)
+
+$ node build/ui-lint.mjs
+UI source policy checks passed (4 source file(s)).
+
+$ node build/run-ui-tests.mjs
+TAP version 13
+# Subtest: every state presentation has text and a non-color symbol
+ok 1 - every state presentation has text and a non-color symbol
+  ---
+  duration_ms: 2.477467
+  type: 'test'
+  ...
+# Subtest: semantic tokens separate status from concrete colors
+ok 2 - semantic tokens separate status from concrete colors
+  ---
+  duration_ms: 0.780439
+  type: 'test'
+  ...
+# Subtest: known versioned messages validate
+ok 3 - known versioned messages validate
+  ---
+  duration_ms: 2.361484
+  type: 'test'
+  ...
+# Subtest: unknown fields and message types fail closed
+ok 4 - unknown fields and message types fail closed
+  ---
+  duration_ms: 1.165152
+  type: 'test'
+  ...
+# Subtest: incompatible versions and missing required fields are rejected
+ok 5 - incompatible versions and missing required fields are rejected
+  ---
+  duration_ms: 4.196736
+  type: 'test'
+  ...
+# Subtest: frames apply in order and duplicates are idempotent
+ok 6 - frames apply in order and duplicates are idempotent
+  ---
+  duration_ms: 1.843917
+  type: 'test'
+  ...
+# Subtest: unexplained sequence gaps are explicit and do not invent data
+ok 7 - unexplained sequence gaps are explicit and do not invent data
+  ---
+  duration_ms: 1.427056
+  type: 'test'
+  ...
+# Subtest: a server truncation marker permits a bounded replay snapshot
+ok 8 - a server truncation marker permits a bounded replay snapshot
+  ---
+  duration_ms: 4.599027
+  type: 'test'
+  ...
+# Subtest: retention is bounded and records truncation
+ok 9 - retention is bounded and records truncation
+  ---
+  duration_ms: 0.619952
+  type: 'test'
+  ...
+# Subtest: invalid sequence and truncation metadata fail closed
+ok 10 - invalid sequence and truncation metadata fail closed
+  ---
+  duration_ms: 1.041835
+  type: 'test'
+  ...
+# Subtest: all written-design presets are valid logical layouts
+ok 11 - all written-design presets are valid logical layouts
+  ---
+  duration_ms: 3.744014
+  type: 'test'
+  ...
+# Subtest: corrupt or incompatible layouts recover to Operations
+ok 12 - corrupt or incompatible layouts recover to Operations
+  ---
+  duration_ms: 4.271668
+  type: 'test'
+  ...
+# Subtest: unknown pane types restore as visible compatibility placeholders
+ok 13 - unknown pane types restore as visible compatibility placeholders
+  ---
+  duration_ms: 0.516975
+  type: 'test'
+  ...
+# Subtest: duplicate pane IDs are rejected
+ok 14 - duplicate pane IDs are rejected
+  ---
+  duration_ms: 0.429308
+  type: 'test'
+  ...
+# Subtest: sequence-numbered deltas apply without optimistic mutation
+ok 15 - sequence-numbered deltas apply without optimistic mutation
+  ---
+  duration_ms: 0.569553
+  type: 'test'
+  ...
+# Subtest: out-of-order deltas expose a gap and duplicates are idempotent
+ok 16 - out-of-order deltas expose a gap and duplicates are idempotent
+  ---
+  duration_ms: 0.439738
+  type: 'test'
+  ...
+# Subtest: invalid delta sequences fail closed
+ok 17 - invalid delta sequences fail closed
+  ---
+  duration_ms: 0.890503
+  type: 'test'
+  ...
+# Subtest: extension activates only when Square functionality is invoked
+ok 18 - extension activates only when Square functionality is invoked
+  ---
+  duration_ms: 21.690186
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 507.44238
+
+$ node --test prototypes/PipeProof/node-client/test/*.test.mjs
+TAP version 13
+# Subtest: fragmented frame is reconstructed
+ok 1 - fragmented frame is reconstructed
+  ---
+  duration_ms: 6.680191
+  type: 'test'
+  ...
+# Subtest: coalesced frames are separated
+ok 2 - coalesced frames are separated
+  ---
+  duration_ms: 0.722273
+  type: 'test'
+  ...
+# Subtest: oversized frame is rejected before allocation
+ok 3 - oversized frame is rejected before allocation
+  ---
+  duration_ms: 0.973966
+  type: 'test'
+  ...
+# Subtest: invalid UTF-8 is rejected
+ok 4 - invalid UTF-8 is rejected
+  ---
+  duration_ms: 0.826156
+  type: 'test'
+  ...
+# Subtest: truncated frame is rejected at end of stream
+ok 5 - truncated frame is rejected at end of stream
+  ---
+  duration_ms: 0.427264
+  type: 'test'
+  ...
+# Subtest: zero-length frame is rejected before allocation
+ok 6 - zero-length frame is rejected before allocation
+  ---
+  duration_ms: 0.301474
+  type: 'test'
+  ...
+# Subtest: all golden contract fixtures validate
+ok 7 - all golden contract fixtures validate
+  ---
+  duration_ms: 84.947335
+  type: 'test'
+  ...
+# Subtest: shared .NET and Node protocol vectors agree
+ok 8 - shared .NET and Node protocol vectors agree
+  ---
+  duration_ms: 12.443874
+  type: 'test'
+  ...
+# Subtest: malformed JSON is rejected
+ok 9 - malformed JSON is rejected
+  ---
+  duration_ms: 0.579574
+  type: 'test'
+  ...
+# Subtest: unknown fields are rejected
+ok 10 - unknown fields are rejected
+  ---
+  duration_ms: 0.298603
+  type: 'test'
+  ...
+# Subtest: response requires exactly one result or error
+ok 11 - response requires exactly one result or error
+  ---
+  duration_ms: 0.451676
+  type: 'test'
+  ...
+# Subtest: sequence tracker reports gaps and regressions
+ok 12 - sequence tracker reports gaps and regressions
+  ---
+  duration_ms: 1.234726
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 330.579618
+
+$ node prototypes/SharedUiProof/scripts/build.mjs --skip-vendor
+SharedUiProof build completed (host-neutral; vendor omitted).
+
+$ node --test prototypes/SharedUiProof/test/*.test.mjs
+TAP version 13
+# Subtest: canonical fixture has eight unique, fully labelled terminals
+ok 1 - canonical fixture has eight unique, fully labelled terminals
+  ---
+  duration_ms: 16.877413
+  type: 'test'
+  ...
+# Subtest: synthetic output is deterministic, bounded, Unicode, and ANSI-bearing
+ok 2 - synthetic output is deterministic, bounded, Unicode, and ANSI-bearing
+  ---
+  duration_ms: 10.593239
+  type: 'test'
+  ...
+# Subtest: canonical JSON is independent of insertion order
+ok 3 - canonical JSON is independent of insertion order
+  ---
+  duration_ms: 1.612932
+  type: 'test'
+  ...
+# Subtest: both production host kinds consume the same strict initialization state
+ok 4 - both production host kinds consume the same strict initialization state
+  ---
+  duration_ms: 0.88264
+  type: 'test'
+  ...
+# Subtest: unknown types, fields, and incompatible versions fail closed
+ok 5 - unknown types, fields, and incompatible versions fail closed
+  ---
+  duration_ms: 1.257709
+  type: 'test'
+  ...
+# Subtest: terminal input has no arbitrary command field
+ok 6 - terminal input has no arbitrary command field
+  ---
+  duration_ms: 0.462859
+  type: 'test'
+  ...
+# Subtest: visible frames batch immediately and preserve sequence
+ok 7 - visible frames batch immediately and preserve sequence
+  ---
+  duration_ms: 4.346954
+  type: 'test'
+  ...
+# Subtest: hidden panes delay presentation without losing frames
+ok 8 - hidden panes delay presentation without losing frames
+  ---
+  duration_ms: 0.677487
+  type: 'test'
+  ...
+# Subtest: gaps and overflow are explicit and do not advance accepted sequence
+ok 9 - gaps and overflow are explicit and do not advance accepted sequence
+  ---
+  duration_ms: 5.449503
+  type: 'test'
+  ...
+# Subtest: the shared HTML template carries a nonce CSP and local-only import map
+ok 10 - the shared HTML template carries a nonce CSP and local-only import map
+  ---
+  duration_ms: 2.24555
+  type: 'test'
+  ...
+# Subtest: the extension host validates messages and never executes terminal data as a command
+ok 11 - the extension host validates messages and never executes terminal data as a command
+  ---
+  duration_ms: 0.509092
+  type: 'test'
+  ...
+# Subtest: the bridge catalogue has no arbitrary shell message
+ok 12 - the bridge catalogue has no arbitrary shell message
+  ---
+  duration_ms: 0.429499
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 522.921014
+
+Final structural and change-scope audit
+JSON parse audit: PASS; 53 files
+Baseline comparison: PASS; 357 unchanged, 10 added, 2 modified, 0 removed
+Prototype subtree comparison: PASS; 0 added, 0 modified, 0 removed
+Generated-output audit: PASS; no dist/bin/obj/node_modules/.cache files
+SP00-T05 receipt identity audit: PASS; 5 ADRs and 3 gate records
+Gate review link audit: PASS
+SP00-T05 G0 gate validation: PASS
+  reviewed proofs: 3
+  architecture decisions: 5
+  acceptance-eligible Windows evidence: 0
+  gate decision: REJECTED_FOR_PROMOTION
+  gate state: BLOCKED

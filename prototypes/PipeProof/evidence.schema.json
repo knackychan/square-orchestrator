@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://square.local/schemas/sp00-t03-summary-1.0.json",
+  "title": "SP00-T03 PipeProof summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "status",
+    "acceptance_eligible",
+    "ineligibility_reasons",
+    "started_at_utc",
+    "completed_at_utc",
+    "scenario_count",
+    "passed_scenario_count",
+    "failed_scenario_count",
+    "dispatch_sha256",
+    "scenario_manifest_sha256",
+    "evidence_manifest_file",
+    "scenario_ids",
+    "conclusion"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "task_id": { "const": "SP00-T03" },
+    "status": { "enum": ["PASS", "DIAGNOSTIC_PASS", "FAIL"] },
+    "acceptance_eligible": { "type": "boolean" },
+    "ineligibility_reasons": { "type": "array", "items": { "type": "string" } },
+    "started_at_utc": { "type": "string", "format": "date-time" },
+    "completed_at_utc": { "type": "string", "format": "date-time" },
+    "scenario_count": { "type": "integer", "minimum": 0 },
+    "passed_scenario_count": { "type": "integer", "minimum": 0 },
+    "failed_scenario_count": { "type": "integer", "minimum": 0 },
+    "dispatch_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "scenario_manifest_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "evidence_manifest_file": { "const": "evidence-manifest.sha256" },
+    "scenario_ids": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "conclusion": { "type": "string", "minLength": 1 }
+  }
+}

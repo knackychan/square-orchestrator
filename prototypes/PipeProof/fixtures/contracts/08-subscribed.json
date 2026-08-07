@@ -1,0 +1,13 @@
+{
+  "kind": "subscribed",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "reply_to": "subscribe-vector",
+  "subscription_id": "subscription-vector",
+  "topic": "proof.events",
+  "from_sequence": 0,
+  "replayed_through_sequence": 0,
+  "live_from_sequence": 1,
+  "minimum_available_sequence": 1,
+  "latest_sequence": 0
+}

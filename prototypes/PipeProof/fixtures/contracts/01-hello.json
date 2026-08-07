@@ -1,0 +1,17 @@
+{
+  "kind": "hello",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "id": "hello-vector",
+  "client": {
+    "kind": "vector-client",
+    "version": "0.1.0",
+    "instance_id": "vector-client-1"
+  },
+  "capabilities": [
+    "request",
+    "cancel",
+    "subscribe",
+    "replay"
+  ]
+}

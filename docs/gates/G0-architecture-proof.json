@@ -1,0 +1,201 @@
+{
+  "schema_version": "1.0-draft",
+  "gate_id": "G0",
+  "task_id": "SP00-T05",
+  "recorded_at_utc": "2026-08-07T10:12:16Z",
+  "decision": "REJECTED_FOR_PROMOTION",
+  "gate_state": "BLOCKED",
+  "production_promotion_allowed": false,
+  "sp01_dispatch_allowed": false,
+  "existing_sp01_drafts_authoritative": false,
+  "authority_documents": [
+    {
+      "path": "docs/authority/square-orchestrator-sliced-implementation-plan.md",
+      "sha256": "135fc5449998cea9b2bc3b9ddbc8bb8848e60c54ddb25dec34bc232016f0f65f"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-technical-architecture.md",
+      "sha256": "5f13c89330470104a1263ef7f371128c6ab5a41199a121c258785775aa448aad"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-ui-design.md",
+      "sha256": "b55546c1587bbc2fc1cb06524a8702a4f271bfe646bd5584d638f43ddf8650f9"
+    },
+    {
+      "path": "docs/authority/square-orchestrator-ui-handover-readme.md",
+      "sha256": "24e23bff559624a10eb603d0d4d3518a91c78a6e98c07203237fb31f180d0021"
+    }
+  ],
+  "proofs": [
+    {
+      "task_id": "SP00-T02",
+      "area": "terminal_hosting",
+      "source_status": "IMPLEMENTED",
+      "host_neutral_validation": "PASS",
+      "empirical_windows_status": "MISSING",
+      "acceptance_evidence_found": false,
+      "acceptance_command": "./prototypes/TerminalProof/run-proof.ps1",
+      "proof_record": {
+        "path": "docs/proofs/conpty-job-object.md",
+        "sha256": "0c0c24ce38d946de69d9badbc2ff61de24eb6bd1d094d8478e7db06b485db548"
+      },
+      "receipt": {
+        "path": "docs/receipts/SP00-T02.prototype-receipt.json",
+        "sha256": "44bcd4c13ed77a1071bc5a681553fcc727d4e855e51c513a6dd47b3a0127d31c"
+      },
+      "host_neutral_record": {
+        "path": "docs/validation/sp00-t02-host-neutral-validation.txt",
+        "sha256": "dca78dc10484107a8b25f5b838dafbdce2ac326a0838880a99c1a7d0c8448910"
+      },
+      "canonical_inputs": [
+        {
+          "path": "prototypes/TerminalProof/dispatch.packet.json",
+          "sha256": "4e5b73b4384f1a1346d50648d180b9b198834b8f37e1c94608a032a4a0a9fcd1"
+        },
+        {
+          "path": "prototypes/TerminalProof/scenarios.json",
+          "sha256": "f206d7899c2c5e2eef374f7f7016970afa7653333e82d966f985fa95dd15a405"
+        }
+      ],
+      "decision_id": "ADR-0001",
+      "decision": "REJECTED_FOR_PROMOTION"
+    },
+    {
+      "task_id": "SP00-T03",
+      "area": "local_ipc",
+      "source_status": "IMPLEMENTED",
+      "host_neutral_validation": "PASS",
+      "empirical_windows_status": "MISSING",
+      "acceptance_evidence_found": false,
+      "acceptance_command": "./prototypes/PipeProof/run-proof.ps1",
+      "proof_record": {
+        "path": "docs/proofs/named-pipe-protocol.md",
+        "sha256": "d03b04bd19e0fa84d07d4deb1601843c68ddd9aae0653d68fb9d7a97170ba80c"
+      },
+      "receipt": {
+        "path": "docs/receipts/SP00-T03.prototype-receipt.json",
+        "sha256": "85c3c0cdd86c5b854add20a9b0f9659c8852a2972a962af8051920dc7489bf37"
+      },
+      "host_neutral_record": {
+        "path": "docs/validation/sp00-t03-host-neutral-validation.txt",
+        "sha256": "be7c0c431940b09871a2ee1058d45007736820a1fb0c868489d79ccbb842d32d"
+      },
+      "canonical_inputs": [
+        {
+          "path": "prototypes/PipeProof/dispatch.packet.json",
+          "sha256": "aa959c46c51d669f9677c0155876a2ff102316c856150ac6904cbdf01e2d171d"
+        },
+        {
+          "path": "prototypes/PipeProof/scenario-manifest.json",
+          "sha256": "5479ad46d8502d6ebe365de3386e558e4029bea03e724d2f19aa2c3102d1b355"
+        }
+      ],
+      "decision_id": "ADR-0002",
+      "decision": "REJECTED_FOR_PROMOTION"
+    },
+    {
+      "task_id": "SP00-T04",
+      "area": "shared_ui_hosts_and_terminal_renderer",
+      "source_status": "IMPLEMENTED",
+      "host_neutral_validation": "PASS",
+      "empirical_windows_status": "MISSING",
+      "acceptance_evidence_found": false,
+      "acceptance_command": "./prototypes/SharedUiProof/run-proof.ps1",
+      "proof_record": {
+        "path": "docs/proofs/shared-ui.md",
+        "sha256": "bfad88cd9e4cb5fc23f8e5ca6aa41a4de34337c8b4c81ccb46c11219d79f53ef"
+      },
+      "receipt": {
+        "path": "docs/receipts/SP00-T04.prototype-receipt.json",
+        "sha256": "e0b9fb7e37b0705cdfb729a461753ea91cb9d71ac5a2b45534c27033e9f9c2fb"
+      },
+      "host_neutral_record": {
+        "path": "docs/validation/sp00-t04-host-neutral-validation.txt",
+        "sha256": "7fcad78404d3251a668d9ba7cfeeb8a6cf0e1dbb1b1655ffb9868dd52535b4a6"
+      },
+      "canonical_inputs": [
+        {
+          "path": "prototypes/SharedUiProof/dispatch.packet.json",
+          "sha256": "adf912a15aa1e60783d788bd85faac55eea7f1869058b72b40e9540ae18a6439"
+        },
+        {
+          "path": "prototypes/SharedUiProof/scenario-manifest.json",
+          "sha256": "5fef3b4cf97c2587a461346bc5ecdbdf5fadc0fcf3d0483a1588139b741d6c1f"
+        },
+        {
+          "path": "prototypes/SharedUiProof/fixtures/benchmark-manifest.json",
+          "sha256": "3127f18831ebb04cb9b40cdc095e88d31f058d3260f6ace2eb169852c0422666"
+        }
+      ],
+      "decision_ids": [
+        "ADR-0003",
+        "ADR-0004",
+        "ADR-0005"
+      ],
+      "decision": "REJECTED_FOR_PROMOTION"
+    }
+  ],
+  "architecture_decisions": [
+    {
+      "id": "ADR-0001",
+      "area": "terminal_hosting",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0001-terminal-hosting.md",
+      "sha256": "c9bad6860dcfc4e8e922c07d7f253c63738848fdcb006f12dc9123b6d2ce3b67"
+    },
+    {
+      "id": "ADR-0002",
+      "area": "local_ipc",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0002-local-ipc.md",
+      "sha256": "0c819cf95db679b5523e4251f18988472b90ef39e9f4f9f8a23e1f28b301a0b3"
+    },
+    {
+      "id": "ADR-0003",
+      "area": "shared_ui_hosts",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0003-shared-ui-hosts.md",
+      "sha256": "0825eb3f8c2b1bc63315a70481130ada7264796a79415eb37665b6ab7afa081b"
+    },
+    {
+      "id": "ADR-0004",
+      "area": "terminal_renderer",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0004-terminal-renderer.md",
+      "sha256": "df54dd9fb10618ef8f774e8c465ee595f09e79df947c541d83a9d744ac4dd7a6"
+    },
+    {
+      "id": "ADR-0005",
+      "area": "benchmark_thresholds",
+      "status": "REJECTED_FOR_PROMOTION",
+      "path": "docs/adr/ADR-0005-benchmark-thresholds.md",
+      "sha256": "0b92e27c133c2fae92b0757291541bb08a830a1a808f50b2914bf163e5b03582"
+    }
+  ],
+  "acceptance_evidence_inventory": {
+    "reviewed_files": [],
+    "unreviewed_acceptance_evidence_found": false,
+    "ignored_placeholders": [
+      "prototypes/SharedUiProof/evidence/.gitkeep"
+    ]
+  },
+  "benchmark_decision": {
+    "performance_thresholds_accepted": false,
+    "correctness_prerequisites_retained": true,
+    "proof_values_are_production_budgets": false,
+    "reason": "No acceptance-eligible Windows measurements exist; proof constants and provisional limits cannot establish production CPU, memory, latency, throughput, or write-volume budgets."
+  },
+  "reason_codes": [
+    "SP00_T02_WINDOWS_PASS_MISSING",
+    "SP00_T03_WINDOWS_PASS_MISSING",
+    "SP00_T04_CROSS_HOST_PASS_MISSING",
+    "PERFORMANCE_THRESHOLDS_UNMEASURED"
+  ],
+  "prototype_evidence_retained": true,
+  "next_actions": [
+    "Run ./prototypes/TerminalProof/run-proof.ps1 on a clean normal-user Windows x64 host.",
+    "Run ./prototypes/PipeProof/run-proof.ps1 on the same class of host.",
+    "Run ./prototypes/SharedUiProof/run-proof.ps1 with both target hosts available.",
+    "Review raw evidence and create superseding ADRs before opening G0 or dispatching SP01."
+  ]
+}

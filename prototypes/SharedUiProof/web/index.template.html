@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+  <title>Square Orchestrator — Shared UI Proof</title>
+  <link rel="stylesheet" href="{{XTERM_CSS_URI}}">
+  <link rel="stylesheet" href="{{STYLES_URI}}">
+  <script nonce="{{NONCE}}" type="importmap">
+    {"imports":{"@xterm/xterm":"{{XTERM_MODULE_URI}}","@xterm/addon-fit":"{{FIT_MODULE_URI}}"}}
+  </script>
+  <script nonce="{{NONCE}}" type="module" src="{{APP_MODULE_URI}}"></script>
+</head>
+<body>
+  <div id="app" aria-busy="true"></div>
+  <noscript>JavaScript is required to run the shared terminal UI proof.</noscript>
+</body>
+</html>

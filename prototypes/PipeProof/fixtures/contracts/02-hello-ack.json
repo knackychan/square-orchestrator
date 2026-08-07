@@ -1,0 +1,30 @@
+{
+  "kind": "hello_ack",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "reply_to": "hello-vector",
+  "server": {
+    "kind": "pipe-proof-server",
+    "version": "0.1.0",
+    "instance_id": "server-vector",
+    "epoch": 1
+  },
+  "capabilities": [
+    "request",
+    "cancel",
+    "subscribe",
+    "replay",
+    "bounded_backpressure"
+  ],
+  "limits": {
+    "maximum_payload_bytes": 1048576,
+    "control_queue_capacity": 16,
+    "event_queue_capacity": 16,
+    "subscription_queue_capacity": 32,
+    "maximum_replay_events": 32,
+    "maximum_in_flight_requests": 16,
+    "write_timeout_milliseconds": 750
+  },
+  "minimum_available_sequence": 1,
+  "latest_sequence": 0
+}

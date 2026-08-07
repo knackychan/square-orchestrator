@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://square.local/schemas/sp00-t02-summary-1.0.json",
+  "title": "Square Orchestrator SP00-T02 proof summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "run_id",
+    "started_at_utc",
+    "completed_at_utc",
+    "status",
+    "acceptance_eligible",
+    "mode",
+    "effective_repeat_each",
+    "effective_scale_repeat_each",
+    "session_counts",
+    "scenarios",
+    "warmup_runs",
+    "reliability_runs",
+    "scale_session_runs",
+    "failed_runs",
+    "scenario_summaries",
+    "scale_groups",
+    "handle_checkpoints",
+    "owner_crash_probe",
+    "global_failures",
+    "limitations",
+    "evidence_directory"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "task_id": { "const": "SP00-T02" },
+    "run_id": { "type": "string", "pattern": "^sp00-t02-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{32}$" },
+    "started_at_utc": { "type": "string", "format": "date-time" },
+    "completed_at_utc": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["PASS", "DIAGNOSTIC_PASS", "FAIL"] },
+    "acceptance_eligible": { "type": "boolean" },
+    "mode": { "enum": ["quick", "full", "scenario"] },
+    "effective_repeat_each": { "type": "integer", "minimum": 1 },
+    "effective_scale_repeat_each": { "type": "integer", "minimum": 0 },
+    "session_counts": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": { "type": "integer", "minimum": 1 },
+      "allOf": [
+        { "contains": { "const": 1 } },
+        { "contains": { "const": 4 } },
+        { "contains": { "const": 8 } }
+      ]
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "warmup_runs": { "type": "integer", "minimum": 0 },
+    "reliability_runs": { "type": "integer", "minimum": 0 },
+    "scale_session_runs": { "type": "integer", "minimum": 0 },
+    "failed_runs": { "type": "integer", "minimum": 0 },
+    "scenario_summaries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/scenario_summary" }
+    },
+    "scale_groups": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/scale_group" }
+    },
+    "handle_checkpoints": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/handle_checkpoint" }
+    },
+    "owner_crash_probe": { "$ref": "#/$defs/owner_crash_probe" },
+    "global_failures": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "evidence_directory": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "PASS" } }, "required": ["status"] },
+      "then": {
+        "properties": {
+          "acceptance_eligible": { "const": true },
+          "failed_runs": { "const": 0 },
+          "global_failures": { "maxItems": 0 },
+          "limitations": { "maxItems": 0 },
+          "owner_crash_probe": {
+            "allOf": [
+              { "properties": { "executed": { "const": true }, "passed": { "const": true } } }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "DIAGNOSTIC_PASS" } }, "required": ["status"] },
+      "then": {
+        "properties": {
+          "acceptance_eligible": { "const": false },
+          "failed_runs": { "const": 0 },
+          "global_failures": { "maxItems": 0 },
+          "limitations": { "minItems": 1 }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nullable_number": {
+      "type": ["number", "null"]
+    },
+    "scenario_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario",
+        "required_repetitions",
+        "executed",
+        "passed",
+        "failed",
+        "total_output_bytes",
+        "total_job_write_transfer_bytes",
+        "average_duration_milliseconds",
+        "p95_first_output_latency_milliseconds",
+        "maximum_peak_working_set_bytes",
+        "maximum_peak_process_count",
+        "maximum_peak_process_handle_count",
+        "leaked_process_count"
+      ],
+      "properties": {
+        "scenario": { "type": "string", "minLength": 1 },
+        "required_repetitions": { "type": "integer", "minimum": 1 },
+        "executed": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "total_output_bytes": { "type": "integer", "minimum": 0 },
+        "total_job_write_transfer_bytes": { "type": "integer", "minimum": 0 },
+        "average_duration_milliseconds": { "type": "number", "minimum": 0 },
+        "p95_first_output_latency_milliseconds": { "$ref": "#/$defs/nullable_number" },
+        "maximum_peak_working_set_bytes": { "type": "integer", "minimum": 0 },
+        "maximum_peak_process_count": { "type": "integer", "minimum": 0 },
+        "maximum_peak_process_handle_count": { "type": "integer", "minimum": 0 },
+        "leaked_process_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "scale_group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario",
+        "concurrency",
+        "iteration",
+        "sessions",
+        "passed",
+        "failed",
+        "wall_clock_milliseconds",
+        "output_bytes",
+        "job_read_transfer_bytes",
+        "job_write_transfer_bytes",
+        "total_cpu_milliseconds",
+        "sum_peak_working_set_bytes",
+        "maximum_peak_working_set_bytes",
+        "maximum_peak_process_count",
+        "maximum_peak_process_handle_count",
+        "median_first_output_latency_milliseconds",
+        "p95_first_output_latency_milliseconds",
+        "harness_handle_count_before",
+        "harness_handle_count_after",
+        "harness_handle_growth"
+      ],
+      "properties": {
+        "scenario": { "type": "string", "minLength": 1 },
+        "concurrency": { "type": "integer", "minimum": 1 },
+        "iteration": { "type": "integer", "minimum": 1 },
+        "sessions": { "type": "integer", "minimum": 1 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "wall_clock_milliseconds": { "type": "number", "minimum": 0 },
+        "output_bytes": { "type": "integer", "minimum": 0 },
+        "job_read_transfer_bytes": { "type": "integer", "minimum": 0 },
+        "job_write_transfer_bytes": { "type": "integer", "minimum": 0 },
+        "total_cpu_milliseconds": { "type": "number", "minimum": 0 },
+        "sum_peak_working_set_bytes": { "type": "integer", "minimum": 0 },
+        "maximum_peak_working_set_bytes": { "type": "integer", "minimum": 0 },
+        "maximum_peak_process_count": { "type": "integer", "minimum": 0 },
+        "maximum_peak_process_handle_count": { "type": "integer", "minimum": 0 },
+        "median_first_output_latency_milliseconds": { "$ref": "#/$defs/nullable_number" },
+        "p95_first_output_latency_milliseconds": { "$ref": "#/$defs/nullable_number" },
+        "harness_handle_count_before": { "type": "integer", "minimum": 0 },
+        "harness_handle_count_after": { "type": "integer", "minimum": 0 },
+        "harness_handle_growth": { "type": "integer" }
+      }
+    },
+    "handle_checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "handle_count",
+        "growth_from_baseline",
+        "captured_at_utc",
+        "within_tolerance"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "handle_count": { "type": "integer", "minimum": 0 },
+        "growth_from_baseline": { "type": "integer" },
+        "captured_at_utc": { "type": "string", "format": "date-time" },
+        "within_tolerance": { "type": "boolean" }
+      }
+    },
+    "owner_crash_probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executed",
+        "passed",
+        "failure",
+        "owner_process_id",
+        "owner_exit_code",
+        "root_process_id",
+        "job_process_ids",
+        "surviving_process_ids",
+        "live_pty_reattach_supported",
+        "reattach_conclusion"
+      ],
+      "properties": {
+        "executed": { "type": "boolean" },
+        "passed": { "type": "boolean" },
+        "failure": { "type": ["string", "null"] },
+        "owner_process_id": { "type": ["integer", "null"] },
+        "owner_exit_code": { "type": ["integer", "null"] },
+        "root_process_id": { "type": ["integer", "null"] },
+        "job_process_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "surviving_process_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "live_pty_reattach_supported": { "type": "boolean" },
+        "reattach_conclusion": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

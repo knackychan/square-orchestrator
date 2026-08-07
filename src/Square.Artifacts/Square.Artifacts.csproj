@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Square.Artifacts</RootNamespace>
+    <AssemblyName>Square.Artifacts</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Square.Domain\Square.Domain.csproj" />
+    <ProjectReference Include="..\Square.Contracts\Square.Contracts.csproj" />
+    <ProjectReference Include="..\Square.Application\Square.Application.csproj" />
+  </ItemGroup>
+</Project>

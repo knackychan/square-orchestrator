@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Square.Adapters.Abstractions</RootNamespace>
+    <AssemblyName>Square.Adapters.Abstractions</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Square.Domain\Square.Domain.csproj" />
+    <ProjectReference Include="..\Square.Contracts\Square.Contracts.csproj" />
+  </ItemGroup>
+</Project>

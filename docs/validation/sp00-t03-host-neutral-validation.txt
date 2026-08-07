@@ -1,0 +1,135 @@
+SP00-T03 PipeProof host-neutral validation
+==========================================
+Date: 2026-08-07
+Repository: square-orchestrator-bootstrap
+Task: SP00-T03 — Prove named-pipe framing and reconnect
+
+RESULT
+------
+Host-neutral source/contract validation: PASS
+Empirical Windows architecture proof: NOT EXECUTED IN THIS ENVIRONMENT
+Acceptance status: NOT ACCEPTED; G0 remains blocked
+
+CREATION ENVIRONMENT
+--------------------
+OS: Linux x86_64, kernel 6.18.35
+Python: 3.13.5
+Node.js: v22.16.0
+TypeScript: 5.8.3
+.NET SDK: unavailable
+PowerShell: unavailable
+Windows kernel / named-pipe ACL APIs: unavailable
+Pinned acceptance toolchains: Node v24.19.0, TypeScript 6.0.3, pnpm 11.20.0, .NET SDK 10.0.302 were not available.
+
+SOURCE IDENTITIES
+-----------------
+dispatch.packet.json:
+  aa959c46c51d669f9677c0155876a2ff102316c856150ac6904cbdf01e2d171d
+scenario-manifest.json:
+  5479ad46d8502d6ebe365de3386e558e4029bea03e724d2f19aa2c3102d1b355
+protocol-vectors.json:
+  d2e1710fa686448fa5c3ddd95e3a0abc41208a3c859158c1b03512c0f14bdd22
+PipeProof.slnx:
+  38d6e416be56b35e9d925999cf8df5cd59bd26d0ded2e354d18b3317977592df
+validate-source.mjs:
+  43be1dd344b596aa56110ffe1ca60e94d998e4ff3397005bbeeb022da2cd32d7
+source-manifest.sha256 (89 declared prototype files):
+  521d179427a12f89003eed12df0f18360b19e792517e77bfe2352dd22b4f5e97
+
+PIPEPROOF SOURCE CONTRACT
+-------------------------
+Command:
+  node prototypes/PipeProof/validate-source.mjs
+
+Result:
+  PASS — 8 isolated projects, 49 C# sources, 13 contract fixtures,
+  9 canonical Windows scenarios, matching authority hashes, bounded queue markers,
+  strict framing/schema markers, durable journal/replay markers, live DACL inspection,
+  anonymous negative probe, transactional subscription activation, Node host isolation,
+  canonical source identities, and no production reference to PipeProof.
+
+NODE CONTRACT TESTS
+-------------------
+Command:
+  node --test prototypes/PipeProof/node-client/test/*.test.mjs
+
+Result:
+  PASS — 12 tests, 0 failures.
+
+Covered cases:
+  - fragmented frame reconstruction
+  - coalesced frame separation
+  - oversized prefix rejection before allocation
+  - invalid UTF-8 rejection
+  - truncated frame rejection
+  - zero-length rejection
+  - validation of all 13 golden contract fixtures
+  - shared .NET/Node valid and invalid protocol vectors
+  - malformed JSON rejection
+  - unknown-field rejection
+  - exactly-one-of result/error response invariant
+  - monotonic sequence, gap, and regression handling
+
+JAVASCRIPT SYNTAX
+-----------------
+Command:
+  node --check <every prototypes/PipeProof/**/*.mjs file>
+
+Result:
+  PASS — all PipeProof ES modules parsed successfully.
+
+REPOSITORY REGRESSION CHECKS
+----------------------------
+Commands and results:
+  node prototypes/TerminalProof/validate-source.mjs
+    PASS — 5 projects, 37 C# sources, 11 scenarios.
+
+  node build/verify-repository.mjs
+    PASS — 15 production projects, 45 allowed project references.
+
+  tsc -b --pretty false
+    PASS with available TypeScript 5.8.3.
+
+  node build/ui-lint.mjs
+    PASS — 4 UI source files checked.
+
+  node build/run-ui-tests.mjs
+    PASS — 18 tests, 0 failures.
+
+STRUCTURAL PARSING
+------------------
+  JSON: PASS — 42 files.
+  XML/MSBuild/XAML/SLNX: PASS — 49 files.
+  YAML: PASS — 3 files.
+
+IMPLEMENTED BUT NOT EXECUTED HERE
+---------------------------------
+The following code paths require a normal-user Windows x64 environment and are not claimed as tested:
+
+  - compilation and deterministic execution of all 49 PipeProof C# sources;
+  - CreateNamedPipeW with PIPE_REJECT_REMOTE_CLIENTS;
+  - live protected-DACL inspection for exactly current user SID plus LocalSystem;
+  - anonymous impersonation negative open returning ERROR_ACCESS_DENIED;
+  - .NET server/client traffic over a real Windows named pipe;
+  - .NET/Node live parity scenario;
+  - fragmented/coalesced raw pipe traffic in both directions;
+  - live incompatible-version error and clean close;
+  - request cancellation over the pipe;
+  - disconnect replay and replay-window refusal;
+  - forced daemon termination, durable restart, Node reconnect, and monotonic replay;
+  - slow-subscriber queue depth/drop/disconnect evidence;
+  - graceful server-going-away notification, drain, and final zero-active-connection evidence;
+  - PowerShell run-proof orchestration and summary-schema evidence generation;
+  - acceptance execution with the exact pinned .NET and Node toolchains.
+
+WINDOWS ACCEPTANCE COMMAND
+--------------------------
+From a clean, normal, non-elevated Windows x64 checkout:
+
+  ./prototypes/PipeProof/run-proof.ps1
+
+A quick run is diagnostic only:
+
+  ./prototypes/PipeProof/run-proof.ps1 -Quick
+
+Only a complete full-mode PASS with canonical inputs and pinned toolchains is acceptance-eligible.

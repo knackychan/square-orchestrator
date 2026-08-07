@@ -1,0 +1,7 @@
+{
+  "kind": "server_going_away",
+  "protocol": "square.rpc",
+  "version": "1.0",
+  "reason": "restart",
+  "reconnect_delay_milliseconds": 100
+}

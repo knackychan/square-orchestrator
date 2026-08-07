@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0",
+  "taskId": "SP00-T04",
+  "protocol": "square.shared-ui-proof/1",
+  "fixture": "fixtures/canonical-state.json",
+  "benchmark": "fixtures/benchmark-manifest.json",
+  "requiredHosts": ["webview2", "vscode"],
+  "requiredTerminalCounts": [1, 4, 8],
+  "requiredThemes": ["dark", "light", "high-contrast"],
+  "requiredScales": [1, 1.5, 2],
+  "acceptanceChecks": [
+    "fixture_hash_parity",
+    "render_matrix",
+    "hidden_pane_throttle_without_sequence_loss",
+    "layout_state_preservation",
+    "keyboard_focus",
+    "controller_lease_indicator",
+    "screen_reader_labels",
+    "strict_bridge_rejection",
+    "strict_host_csp"
+  ]
+}

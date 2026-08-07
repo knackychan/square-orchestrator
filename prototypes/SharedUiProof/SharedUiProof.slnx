@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/WebView2/">
+    <Project Path="webview2-host/Square.SharedUiProof.WebView2/Square.SharedUiProof.WebView2.csproj" />
+  </Folder>
+</Solution>

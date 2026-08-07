@@ -1,0 +1,31 @@
+name: windows-ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  deterministic:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Enable Corepack
+        shell: pwsh
+        run: corepack enable
+      - name: Repository and core build
+        shell: pwsh
+        run: ./build.ps1
+      - name: Deterministic tests
+        shell: pwsh
+        run: ./test.ps1 -Category Deterministic
+      - name: Architecture tests
+        shell: pwsh
+        run: ./test.ps1 -Category Architecture
+      - name: Prototype framing tests
+        shell: pwsh
+        run: ./test.ps1 -Category Prototype

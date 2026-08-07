@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "task_id": "SP00-T03",
+  "title": "Prove named-pipe framing and reconnect",
+  "recorded_at_utc": "2026-08-07T07:55:30Z",
+  "implementation_status": "SOURCE_IMPLEMENTED_WINDOWS_EXECUTION_PENDING",
+  "architecture_proof_accepted": false,
+  "g0_satisfied": false,
+  "dispatch_sha256": "aa959c46c51d669f9677c0155876a2ff102316c856150ac6904cbdf01e2d171d",
+  "scenario_manifest_sha256": "5479ad46d8502d6ebe365de3386e558e4029bea03e724d2f19aa2c3102d1b355",
+  "protocol_vectors_sha256": "d2e1710fa686448fa5c3ddd95e3a0abc41208a3c859158c1b03512c0f14bdd22",
+  "solution_sha256": "38d6e416be56b35e9d925999cf8df5cd59bd26d0ded2e354d18b3317977592df",
+  "source_validator_sha256": "43be1dd344b596aa56110ffe1ca60e94d998e4ff3397005bbeeb022da2cd32d7",
+  "source_manifest_sha256": "521d179427a12f89003eed12df0f18360b19e792517e77bfe2352dd22b4f5e97",
+  "source_manifest_file_count": 89,
+  "implemented_outputs": {
+    "dotnet_projects": 8,
+    "csharp_source_files": 49,
+    "golden_contract_fixtures": 13,
+    "shared_protocol_valid_vectors": 13,
+    "shared_protocol_invalid_vectors": 12,
+    "node_test_cases": 12,
+    "windows_scenarios": 9,
+    "features": [
+      "four-byte unsigned big-endian bounded framing",
+      "strict UTF-8 and strict unknown-field JSON schemas",
+      "mandatory version handshake and incompatible-version errors",
+      "request/response and explicit cancellation",
+      "bounded subscriptions with monotonic event sequence",
+      "transactional acknowledgement/replay/live activation",
+      "durable NDJSON event journal and cursor replay",
+      "daemon restart and Node reconnect fixture",
+      "separate bounded control and event-presentation queues",
+      "current-user plus LocalSystem protected DACL",
+      "live DACL readback and anonymous ERROR_ACCESS_DENIED probe",
+      "fail-closed evidence source identities"
+    ]
+  },
+  "host_neutral_validation": {
+    "status": "PASS",
+    "pipeproof_source_contract": "PASS",
+    "terminalproof_regression": "PASS",
+    "repository_architecture": "PASS",
+    "typescript_build": "PASS_WITH_AVAILABLE_5_8_3_NOT_PINNED_6_0_3",
+    "ui_source_policy": "PASS",
+    "ui_tests": {
+      "passed": 18,
+      "failed": 0
+    },
+    "node_pipeproof_tests": {
+      "passed": 12,
+      "failed": 0
+    },
+    "javascript_syntax": "PASS",
+    "json_files_parsed": 42,
+    "xml_msbuild_xaml_slnx_files_parsed": 49,
+    "yaml_files_parsed": 3
+  },
+  "not_executed_in_creation_environment": [
+    ".NET SDK 10.0.302 build and C# deterministic tests",
+    "PowerShell run-proof orchestration",
+    "CreateNamedPipeW and live Windows named-pipe traffic",
+    "live protected-DACL and anonymous-token denial behavior",
+    ".NET/Node live contract parity",
+    "forced daemon restart and reconnect replay",
+    "slow-subscriber bounded queue measurements",
+    "graceful shutdown and final process evidence",
+    "acceptance run with pinned Node v24.19.0 and Windows x64"
+  ],
+  "limitations": [
+    "The creation host is Linux and has no .NET SDK, PowerShell, or Windows kernel.",
+    "Source implementation is not empirical proof acceptance.",
+    "SP00-T03 cannot satisfy G0 until a complete Windows full-mode PASS is reviewed."
+  ],
+  "acceptance_command": "./prototypes/PipeProof/run-proof.ps1",
+  "proof_document": "docs/proofs/named-pipe-protocol.md",
+  "validation_record": "docs/validation/sp00-t03-host-neutral-validation.txt",
+  "next_controlled_task": "SP00-T04"
+}

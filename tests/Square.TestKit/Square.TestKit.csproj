@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><RootNamespace>Square.TestKit</RootNamespace><AssemblyName>Square.TestKit</AssemblyName></PropertyGroup>
+</Project>

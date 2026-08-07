@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Domain_Tests</RootNamespace>
+    <AssemblyName>Domain.Tests</AssemblyName>
+    <IsTestProject>true</IsTestProject>
+    <SquareTestCategory>Deterministic</SquareTestCategory>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Square.Domain\Square.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Square.Application\Square.Application.csproj" />
+    <ProjectReference Include="..\Square.TestKit\Square.TestKit.csproj" />
+  </ItemGroup>
+</Project>

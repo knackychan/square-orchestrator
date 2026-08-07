@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0-draft",
+  "task_id": "SP00-HF01",
+  "title": "Repair first Windows proof-run blockers",
+  "recorded_at_utc": "2026-08-07T11:00:46Z",
+  "baseline": {
+    "archive": "square-orchestrator-sp00-t05.zip",
+    "sha256": "f164c8daaea07e05e6cfdc2d297eb703f10cfcaec9400d1adbf145462b28bea3"
+  },
+  "reported_environment": {
+    "dotnet_sdk": "10.0.302",
+    "node": "v26.2.0",
+    "pnpm": "11.20.0",
+    "vscode": "1.132.0 x64",
+    "powershell_family": "Windows PowerShell behavior observed"
+  },
+  "resolved_failures": [
+    {
+      "proof": "SP00-T02",
+      "code": "NETSDK1134",
+      "resolution": "Removed the unsupported solution-level RuntimeIdentifier and resolved framework output paths."
+    },
+    {
+      "proof": "SP00-T03",
+      "code": "CS0509",
+      "resolution": "Moved three typed transport exceptions from sealed InvalidDataException to IOException and tightened the oversized-frame test."
+    },
+    {
+      "proof": "SP00-T04",
+      "code": "VariableIsUndefined:IsWindows",
+      "resolution": "Made the runner compatible with Windows PowerShell 5.1, UTF-8 no-BOM output, environment restoration, and paths containing spaces."
+    }
+  ],
+  "changed_file_hashes": {
+    "docs/IMPLEMENTATION_STATUS.md": "147c5df0a7b3a904d8d8d96f5d741d6155c185f4b964cb64e745ec3acc2a0ac4",
+    "docs/validation/sp00-first-windows-run-hotfix.md": "c3dd5537b3a4c0b6bc7e1fc9f36d9dd78e884837246544288e5f08349f62110a",
+    "prototypes/check-proof-toolchain.ps1": "4612b30d87c0e0490fe9db106a9757f679b821edaa2ff5d3a5d61ca7c7a90fc5",
+    "prototypes/TerminalProof/run-proof.ps1": "6f76f2562e89bd73e20f81b82eeb3ee490fe89c92b3133386fc09dd4376cf7cd",
+    "prototypes/PipeProof/Square.PipeProof.Protocol/LengthFramedJsonCodec.cs": "e805577d6dd205f9c83412ac76250bf1de5a507705b902aaa95ea97a458da769",
+    "prototypes/PipeProof/Square.PipeProof.ServerCore/ConnectionSession.cs": "580d3b6fe62bf79ebad463c767b3b679e814685cee49072135260c6a6285b702",
+    "prototypes/PipeProof/Square.PipeProof.Tests/Program.cs": "da924c03cfd1ca44778b6bd6354badfd75b0b4cb91ca1b09ece7d6f62da29f5c",
+    "prototypes/PipeProof/source-manifest.sha256": "ab18c87c49eab929d0ec89bf8f7d430d2ed0a74c46d1b105e8318edf7486892c",
+    "prototypes/SharedUiProof/run-proof.ps1": "1aff69a2cd8a450da43f140408f8c2a86ce956b762d5a4b4d0028015eef35d34",
+    "prototypes/SharedUiProof/source-manifest.sha256": "46f8ab02085abf321f549016f78829b21d2c053ef124f6da2db5dffea0c28371"
+  },
+  "validation": {
+    "terminalproof_source_contract": "PASS",
+    "pipeproof_source_contract": "PASS",
+    "shareduiproof_source_contract": "PASS",
+    "pipeproof_node_tests": "12 PASS",
+    "shareduiproof_deterministic_tests": "12 PASS after host-neutral build",
+    "production_ui_tests": "18 PASS",
+    "repository_architecture": "PASS",
+    "g0_fail_closed_validator": "PASS",
+    "json_parse": "54 files",
+    "xml_msbuild_xaml_slnx_parse": "53 files",
+    "reported_defect_pattern_scan": "PASS",
+    "powershell_lexical_balance": "PASS",
+    "dotnet_compile": "NOT EXECUTED in creation environment",
+    "windows_runtime": "NOT EXECUTED in creation environment"
+  },
+  "toolchain_note": "Acceptance evidence remains pinned to Node.js v24.19.0. The reported v26.2.0 must not be silently treated as equivalent.",
+  "gate_state": "G0 remains BLOCKED until corrected Windows proofs produce reviewable acceptance evidence."
+}
