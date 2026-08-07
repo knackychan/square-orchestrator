@@ -19,9 +19,9 @@ const allowed = new Map([
   ["Square.Adapters.OpenCode", new Set(["Square.Domain", "Square.Contracts", "Square.Adapters.Abstractions"])],
   ["Square.Adapters.Claude", new Set(["Square.Domain", "Square.Contracts", "Square.Adapters.Abstractions"])],
   ["Square.Adapters.Codex", new Set(["Square.Domain", "Square.Contracts", "Square.Adapters.Abstractions"])],
-  // The M1 single-process CLI invokes application use cases and SQLite state directly.
-  // The SP02 daemon split restores a thin RPC-only CLI boundary.
-  ["Square.Cli", new Set(["Square.Domain", "Square.Contracts", "Square.Application", "Square.Persistence.Sqlite"])],
+  // The M1 CLI is a non-persistent dry-run slice invoking application use cases only.
+  // Persistence admission belongs to SP02-T01; the SP02 daemon split restores a thin RPC-only CLI boundary.
+  ["Square.Cli", new Set(["Square.Domain", "Square.Contracts", "Square.Application"])],
   ["Square.Desktop", new Set(["Square.Contracts"])],
   ["Square.Daemon", new Set([
     "Square.Domain", "Square.Contracts", "Square.Application", "Square.ControlPlane",

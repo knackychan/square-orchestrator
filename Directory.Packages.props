@@ -5,11 +5,14 @@
     dependency here only after its license, security, and architectural role are reviewed; that task must
     also introduce and commit the applicable NuGet lock file for executable roots.
 
-    Review note (2026-08-07): Microsoft.Data.Sqlite 10.0.10 was evaluated for the M1 registry/lock port
-    but rejected because its transitive SQLitePCLRaw.lib.e_sqlite3 <= 2.1.11 carries the known high-severity
-    CVE-2025-6965 (SQLite < 3.50.2, GHSA-2m69-gcr7-jv3q) with no patched release. The M1 state store is
-    therefore implemented dependency-free (BCL only); SQLite remains the locked SP02 persistence decision,
-    pending a patched provider.
+    Blocker/evidence note (2026-08-07): SQLite admission is blocked pending the SP02-T01 dependency-
+    admission proof. The Microsoft.Data.Sqlite meta-package was rejected for the M1 registry/lock port
+    because its transitive SQLitePCLRaw.lib.e_sqlite3 <= 2.1.11 carries the known high-severity
+    CVE-2025-6965 (SQLite < 3.50.2, GHSA-2m69-gcr7-jv3q) with no patched release. The candidate combination
+    (Microsoft.Data.Sqlite.Core 10.0.10, MIT; plus SQLitePCLRaw.bundle_e_sqlite3 3.0.5, Apache-2.0,
+    referenced directly and centrally versioned) is a candidate, not an accepted decision: it passes only
+    after the exhaustive SP02-T01 proof in dependency-securityfork-resolution.md succeeds. No dependency-
+    free or other fallback persistence mechanism substitutes for the locked SQLite technology.
   -->
   <ItemGroup />
 </Project>
