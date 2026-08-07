@@ -79,7 +79,7 @@ public static partial class ManifestCompiler
         if (!File.Exists(tasksPath))
             throw new AuthorityValidationException("AUTHORITY_MISSING", "BUILD-TASKS.md is missing");
 
-        string content = File.ReadAllText(tasksPath, Encoding.UTF8);
+        string content = File.ReadAllText(tasksPath, Encoding.UTF8).Replace("\r\n", "\n");
         var blocks = new List<IReadOnlyDictionary<string, object?>>();
         int position = 0;
         while (true)
@@ -127,10 +127,12 @@ public static partial class ManifestCompiler
     private static void ValidateContextPairs(string repo)
     {
         var ignored = new HashSet<string>(StringComparer.Ordinal) { ".git", "__pycache__" };
-        foreach (string directory in Directory.EnumerateDirectories(repo, "*", SearchOption.AllDirectories))
+        var directories = new List<string> { repo };
+        directories.AddRange(Directory.EnumerateDirectories(repo, "*", SearchOption.AllDirectories));
+        foreach (string directory in directories)
         {
-            string relative = Path.GetRelativePath(repo, directory).Replace(Path.DirectorySeparatorChar, '/');
-            if (relative.Split('/').Any(part => ignored.Contains(part) || part.StartsWith('.')))
+            string relative = directory == repo ? "." : Path.GetRelativePath(repo, directory).Replace(Path.DirectorySeparatorChar, '/');
+            if (relative != "." && relative.Split('/').Any(part => ignored.Contains(part) || part.StartsWith('.')))
                 continue;
             if (!File.Exists(Path.Combine(directory, "AGENTS.md")) || !File.Exists(Path.Combine(directory, "CLAUDE.md")))
                 throw new AuthorityValidationException("AUTHORITY_DRIFT", $"Context pair is incomplete at {relative}");

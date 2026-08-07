@@ -104,13 +104,16 @@ public static class StateStore
         }
     }
 
-    /// <summary>Releases a holder-bound lock; returns false when the holder does not own it.</summary>
+    /// <summary>Releases a holder-bound lock; returns false when the caller does not own it.</summary>
     public static bool ReleaseLock(string dbPath, string projectPath, string holder)
     {
         string normalized = Path.GetFullPath(projectPath);
         lock (LockLock)
         {
-            return HeldLocks.Remove(normalized) && (HeldLocks.TryGetValue(normalized, out _) == false || true);
+            if (!HeldLocks.TryGetValue(normalized, out string? currentHolder) || currentHolder != holder)
+                return false;
+            HeldLocks.Remove(normalized);
+            return true;
         }
     }
 
