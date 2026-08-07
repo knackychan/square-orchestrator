@@ -1,0 +1,17 @@
+# Taste
+- Reads repository authority/context documents in a prescribed order before implementing: AGENTS.md and CLAUDE.md first, then SPEC.md, STATUS.md, HANDOVER.md, CLIENT-EXECUTION.md, and the active plan packet (PACKET.md, BUILD.md, BUILD-TASKS.md, STATE.md). Confidence: 0.8
+- Respects ownership boundaries: does not modify, stage, or commit records owned by another session (e.g., primary-owned activation records in STATUS.md, BUILD-TASKS.md, STATE.md) even when they are already dirty. Confidence: 0.8
+- Requires hermetic execution: no added dependencies (standard library only) and no network, provider, terminal, or background-process calls. Confidence: 0.8
+- Prefers tests that are self-contained: use the smallest temporary fixture rather than depending on live repository state, active tasks, or current HEAD. Confidence: 0.6
+- Keeps changes strictly within authorized paths: never modifies production code or out-of-scope files during a test-only fix, and verifies the final diff touches only allowed paths. Confidence: 0.6
+- Prefers an exact model route with automatic fallback disabled, rather than allowing implicit fallback. Confidence: 0.6
+- Makes exactly one commit per task, using the exact specified commit message. Confidence: 0.6
+- Treats `.commandcode` and `__pycache__` as runtime state that must not be read, staged, committed, or used as task input/output; `.commandcode/taste/taste.md` is the sole accepted Command Code runtime artifact, and any other `.commandcode/` artifact is a STOP condition. Confidence: 0.8
+- Completion reports must include: task and route, starting and resulting HEAD, reported input tokens, changed paths, validation results, budget use, and any STOP items. Confidence: 0.7
+- Does not self-accept completed work; technical review and owner acceptance are deferred to the primary session and owner. Confidence: 0.8
+- Follows test-first (red-green) discipline: writes assertions for the intended missing behavior first, observes the tests fail, then implements only enough to make them pass. Confidence: 0.8
+- Stages only exact changed paths with explicit `git add <path> ...`; never uses bulk staging (`git add -A`, `git add .`, `git add -u`) or `git commit -a`. Confidence: 0.8
+- Keeps per-directory context-pair files (AGENTS.md + CLAUDE.md) in sync: when a new module is added to a directory, both context files must be updated to register it. Confidence: 0.7
+- Treats all documentation and status artifacts (STATUS.md, HANDOVER.md, CLIENT-EXECUTION.md, PACKET.md, BUILD.md, BUILD-TASKS.md, STATE.md, and existing docs) as immutable during implementation tasks — they are never modified, staged, or committed. Confidence: 0.7
+- Verifies disputed claims against source-of-truth documents (e.g., Directory.Packages.props, SPEC.md, plan files) and actual repo state (git log/status) before rendering an opinion on who is right in a disagreement. Confidence: 0.7
+- Treats locked plan decisions as binding: a worker may not substitute a different architecture (e.g., replace a locked SQLite persistence decision with a dependency-free file store) to resolve a security issue; instead preserve the locked decision by pinning patched versions and running a narrow dependency-admission proof, failing rather than deviating. Confidence: 0.6

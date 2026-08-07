@@ -52,12 +52,17 @@ Lower inputs cannot widen higher authority. `STATE.md` records evidence only.
 - This packet's `STATE.md` as the evidence ledger.
 
 The packet, build guide, task list, design specs, root handover, and client playbook are read-only
-during implementation unless a separate amendment task is activated.
+during implementation unless a separate amendment task is activated. `docs/**` remains an
+owner-authorized planning-output exception that does not widen source or test path claims.
 
 ## Forbidden changes and actions
 
-- `pyproject.toml`, dependency files, installers, executables, virtual environments, or caches.
+- `pyproject.toml`, dependency files, installers, executables, virtual environments, or persistent
+  caches. `__pycache__/**` is ignored Python runtime state and is never task input or output.
 - Any source directory beyond root `sqorch/` and `tests/`.
+- Except for the root workflow's ignored runtime namespaces: `.commandcode/**` and
+  `__pycache__/**` may exist untracked during a worker attempt, but are never task input or output
+  and must not be read, staged, or committed.
 - Real target-project creation, adoption mutation, task execution, Git commit automation, client
   launch, terminal launch, provider call, network call, or background process.
 - Direct model-provider APIs, credentials, credential reads, raw prompts, or secret persistence.
@@ -127,7 +132,8 @@ Record `STOP:` and make no invented decision when:
 - a command would need a dependency, network call, client launch, hidden terminal, or credential;
 - the selected route cannot be verified exactly;
 - a supposedly failing assertion passes before implementation;
-- unexpected files or concurrent edits appear; or
+- unexpected files or concurrent edits appear, excluding `.commandcode/**`, `__pycache__/**`, and
+  owner-authorized documentation under `docs/**`; or
 - acceptance would require describing planned behavior as shipped.
 
 ## Evidence destination

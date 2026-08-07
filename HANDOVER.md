@@ -174,6 +174,11 @@ manually:
 2. Launch the worker as the foreground command of an approved visible terminal. Do not use a
    hidden/minimized runner, background job, detached process, service, scheduler, terminal
    multiplexer, or silent client fallback.
+   Ignore `.commandcode/**` as Command Code runtime state. Do not read, stage, commit, or use it as
+   task input or output, and never stop merely because it exists.
+   Ignore `__pycache__/**` as Python runtime state under the same boundary.
+   Treat `docs/**` as owner-authorized planning output. It does not widen the task's source or test
+   path boundary.
 3. Run one write milestone per repository at a time. Other repositories and read-only reviews of an
    immutable commit may run in parallel when their packets permit it.
 4. Let the worker finish or raise `STOP:`. Do not edit concurrently in its claimed paths.

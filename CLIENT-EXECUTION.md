@@ -248,6 +248,9 @@ resolved npm `cmdc.ps1` shim. It does not widen packet authority or replace any 
 permission flag. If `Get-Command cmdc` resolves a different executable type, record and review the
 wrapper change before launch.
 
+Ignore `.commandcode/**` as Command Code runtime state. Its contents are not task input or output,
+must not be read, staged, or committed, and never block a worker merely because they exist.
+
 Do not place a semicolon anywhere in a bounded prompt passed through `wt.exe`. Windows Terminal
 parses semicolons as action separators even when the prompt is a single array element; one prompt
 can otherwise become multiple tabs or attempted commands. Use periods, commas, or line breaks

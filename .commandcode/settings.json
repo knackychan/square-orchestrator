@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(:PYTHONPATH:*)",
+      "Shell(Resolve-Path:*)",
+      "Shell(python -m unittest tests.test_cli -v 2 >& 1)",
+      "Shell(Select-Object:*)",
+      "Shell(python --version)",
+      "Shell(python -m unittest tests.test_cli -v)",
+      "powershell",
+      "Shell(git commit -F - <<'EOF' feat: preview and audit projects Co-authored-by: CommandCodeBot <noreply@commandcode.ai> EOF)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}
