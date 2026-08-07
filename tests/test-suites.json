@@ -5,7 +5,8 @@
       "implemented": true,
       "commands": [
         "dotnet run --project tests/Domain.Tests/Domain.Tests.csproj",
-        "dotnet run --project tests/Contract.Tests/Contract.Tests.csproj"
+        "dotnet run --project tests/Contract.Tests/Contract.Tests.csproj",
+        "dotnet run --project tests/Persistence.Tests/Persistence.Tests.csproj"
       ]
     },
     "Architecture": {

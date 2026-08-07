@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Persistence_Tests</RootNamespace>
     <AssemblyName>Persistence.Tests</AssemblyName>
@@ -7,4 +8,8 @@
     <IsPackable>false</IsPackable>
     <SquareTestCategory>Deterministic</SquareTestCategory>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Square.Persistence.Sqlite\Square.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\Square.TestKit\Square.TestKit.csproj" />
+  </ItemGroup>
 </Project>

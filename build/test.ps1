@@ -12,6 +12,8 @@ try {
             & dotnet run --project tests/Domain.Tests/Domain.Tests.csproj
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             & dotnet run --project tests/Contract.Tests/Contract.Tests.csproj
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & dotnet run --project tests/Persistence.Tests/Persistence.Tests.csproj
             exit $LASTEXITCODE
         }
         'Architecture' {

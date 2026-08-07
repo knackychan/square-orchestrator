@@ -17,4 +17,3 @@ planned behavior only unless the canonical specification records it as shipped.
 | `validation/` | Host-neutral and Windows validation records |
 | `reference/` | Preserved interactive UI reference (square-orchestrator-interactive-reference.html) |
 | `IMPLEMENTATION_STATUS.md` | Bootstrap task-level implementation status |
-

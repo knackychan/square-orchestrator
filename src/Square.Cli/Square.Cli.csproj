@@ -7,5 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Square.Domain\Square.Domain.csproj" />
     <ProjectReference Include="..\Square.Contracts\Square.Contracts.csproj" />
+    <ProjectReference Include="..\Square.Application\Square.Application.csproj" />
+    <ProjectReference Include="..\Square.Persistence.Sqlite\Square.Persistence.Sqlite.csproj" />
   </ItemGroup>
 </Project>

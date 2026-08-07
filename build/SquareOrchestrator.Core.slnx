@@ -20,5 +20,6 @@
     <Project Path="../tests/Domain.Tests/Domain.Tests.csproj" />
     <Project Path="../tests/Contract.Tests/Contract.Tests.csproj" />
     <Project Path="../tests/Architecture.Tests/Architecture.Tests.csproj" />
+    <Project Path="../tests/Persistence.Tests/Persistence.Tests.csproj" />
   </Folder>
 </Solution>
