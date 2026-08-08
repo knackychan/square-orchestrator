@@ -50,6 +50,8 @@ internal sealed class ProofEvidenceWriter : IAsyncDisposable
         try
         {
             await _runsWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
+            await _runsWriter.DisposeAsync().ConfigureAwait(false);
+            await _runsStream.DisposeAsync().ConfigureAwait(false);
         }
         finally
         {
@@ -77,9 +79,9 @@ internal sealed class ProofEvidenceWriter : IAsyncDisposable
         await _gate.WaitAsync().ConfigureAwait(false);
         try
         {
-            await _runsWriter.FlushAsync().ConfigureAwait(false);
-            await _runsWriter.DisposeAsync().ConfigureAwait(false);
-            await _runsStream.DisposeAsync().ConfigureAwait(false);
+            try { await _runsWriter.FlushAsync().ConfigureAwait(false); } catch (ObjectDisposedException) { }
+            try { await _runsWriter.DisposeAsync().ConfigureAwait(false); } catch (ObjectDisposedException) { }
+            try { await _runsStream.DisposeAsync().ConfigureAwait(false); } catch (ObjectDisposedException) { }
         }
         finally
         {

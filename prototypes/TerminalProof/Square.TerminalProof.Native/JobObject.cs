@@ -23,13 +23,13 @@ internal sealed class JobObject : IDisposable
             Win32Error.ThrowLastError("CreateJobObject");
         }
 
-        NativeMethods.JobObjectExtendedLimitInformation limits = new();
+        NativeMethods.JobObjectExtendedLimitInfo limits = new();
         limits.BasicLimitInformation.LimitFlags = NativeMethods.JobObjectLimitKillOnJobClose;
         if (!NativeMethods.SetInformationJobObject(
                 handle,
                 NativeMethods.JobObjectExtendedLimitInformation,
                 ref limits,
-                checked((uint)Marshal.SizeOf<NativeMethods.JobObjectExtendedLimitInformation>())))
+                checked((uint)Marshal.SizeOf<NativeMethods.JobObjectExtendedLimitInfo>())))
         {
             handle.Dispose();
             Win32Error.ThrowLastError("SetInformationJobObject(KILL_ON_JOB_CLOSE)");
@@ -66,7 +66,7 @@ internal sealed class JobObject : IDisposable
 
     internal TerminalAccountingSnapshot GetAccounting()
     {
-        int size = Marshal.SizeOf<NativeMethods.JobObjectBasicAndIoAccountingInformation>();
+        int size = Marshal.SizeOf<NativeMethods.JobObjectBasicAndIoAccountingInfo>();
         nint buffer = Marshal.AllocHGlobal(size);
         try
         {
@@ -80,8 +80,8 @@ internal sealed class JobObject : IDisposable
                 Win32Error.ThrowLastError("QueryInformationJobObject(BasicAndIoAccounting)");
             }
 
-            NativeMethods.JobObjectBasicAndIoAccountingInformation native =
-                Marshal.PtrToStructure<NativeMethods.JobObjectBasicAndIoAccountingInformation>(buffer);
+            NativeMethods.JobObjectBasicAndIoAccountingInfo native =
+                Marshal.PtrToStructure<NativeMethods.JobObjectBasicAndIoAccountingInfo>(buffer);
             return new TerminalAccountingSnapshot(
                 TimeSpan.FromTicks(native.BasicInfo.TotalUserTime),
                 TimeSpan.FromTicks(native.BasicInfo.TotalKernelTime),

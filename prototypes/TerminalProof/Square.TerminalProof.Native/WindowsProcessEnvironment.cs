@@ -1,13 +1,11 @@
-using System.Diagnostics;
-
 namespace Square.TerminalProof.Native;
 
 public static class WindowsProcessEnvironment
 {
     public static bool IsCurrentProcessInJob()
     {
-        using Process current = Process.GetCurrentProcess();
-        if (!NativeMethods.IsProcessInJob(current.SafeHandle, null, out bool result))
+        nint hCurrentProcess = unchecked((nint)(-1)); // GetCurrentProcess pseudo-handle
+        if (!NativeMethods.IsProcessInJobRaw(hCurrentProcess, nint.Zero, out bool result))
         {
             Win32Error.ThrowLastError("IsProcessInJob(current process)");
         }

@@ -1,10 +1,35 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Square.TerminalProof.Fixture;
 
 internal static class FixtureProgram
 {
+    private const uint StdOutputHandle = unchecked((uint)(-11));
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Coord { internal short X; internal short Y; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct SmallRect { internal short Left; internal short Top; internal short Right; internal short Bottom; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct ConsoleScreenBufferInfo
+    {
+        internal Coord Size;
+        internal Coord CursorPosition;
+        internal ushort Attributes;
+        internal SmallRect Window;
+        internal Coord MaximumWindowSize;
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern nint GetStdHandle(uint nStdHandle);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetConsoleScreenBufferInfo(nint hConsoleOutput, out ConsoleScreenBufferInfo info);
     private const string UnicodeMarker = "UNICODE:café|漢字|Ελληνικά|😀";
     private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
@@ -115,14 +140,46 @@ internal static class FixtureProgram
 
     private static async Task<int> RunResizeAsync()
     {
-        Console.WriteLine($"SIZE-BEFORE:{Console.WindowWidth}x{Console.WindowHeight}");
+        string sizeBefore = GetConsoleSize();
+        if (sizeBefore == "unknown")
+        {
+            Console.Error.WriteLine($"RESIZE-FAILED:before-size-unknown");
+            return 43;
+        }
+
+        Console.WriteLine($"SIZE-BEFORE:{sizeBefore}");
         Console.WriteLine("RESIZE-READY");
         Console.Out.Flush();
         string? command = Console.ReadLine();
         await Task.Delay(TimeSpan.FromMilliseconds(50)).ConfigureAwait(false);
-        Console.WriteLine($"SIZE-AFTER:{Console.WindowWidth}x{Console.WindowHeight};command={command}");
+        string sizeAfter = GetConsoleSize();
+        if (sizeAfter == "unknown")
+        {
+            Console.Error.WriteLine($"RESIZE-FAILED:after-size-unknown");
+            return 43;
+        }
+
+        Console.WriteLine($"SIZE-AFTER:{sizeAfter};command={command}");
         Console.Out.Flush();
         return string.Equals(command, "continue", StringComparison.Ordinal) ? 0 : 43;
+    }
+
+    private static string GetConsoleSize()
+    {
+        nint hStdOut = GetStdHandle(StdOutputHandle);
+        if (hStdOut == nint.Zero || hStdOut == unchecked((nint)(-1)))
+        {
+            return "unknown";
+        }
+
+        if (!GetConsoleScreenBufferInfo(hStdOut, out ConsoleScreenBufferInfo info))
+        {
+            return "unknown";
+        }
+
+        int width = info.Window.Right - info.Window.Left + 1;
+        int height = info.Window.Bottom - info.Window.Top + 1;
+        return $"{width}x{height}";
     }
 
     private static int RunNormalExit()

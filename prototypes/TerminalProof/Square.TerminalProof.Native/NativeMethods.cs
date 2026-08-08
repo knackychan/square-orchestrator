@@ -7,6 +7,7 @@ namespace Square.TerminalProof.Native;
 internal static class NativeMethods
 {
     internal const uint ExtendedStartupInfoPresent = 0x00080000;
+    internal const uint StartFUseStdHandles = 0x00000100;
     internal const uint CreateUnicodeEnvironment = 0x00000400;
     internal const uint CreateSuspended = 0x00000004;
     internal const uint JobObjectLimitKillOnJobClose = 0x00002000;
@@ -20,6 +21,33 @@ internal static class NativeMethods
     internal const uint WaitFailed = 0xFFFFFFFF;
     internal const uint StillActive = 259;
     internal const int ErrorMoreData = 234;
+    internal const uint StdOutputHandle = unchecked((uint)(-11));
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct SmallRect
+    {
+        internal short Left;
+        internal short Top;
+        internal short Right;
+        internal short Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct ConsoleScreenBufferInfo
+    {
+        internal Coord Size;
+        internal Coord CursorPosition;
+        internal ushort Attributes;
+        internal SmallRect Window;
+        internal Coord MaximumWindowSize;
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern nint GetStdHandle(uint nStdHandle);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool GetConsoleScreenBufferInfo(nint hConsoleOutput, out ConsoleScreenBufferInfo info);
 
     [StructLayout(LayoutKind.Sequential)]
     internal readonly struct Coord
@@ -52,9 +80,9 @@ internal static class NativeMethods
         internal ushort ShowWindow;
         internal ushort Reserved2Count;
         internal nint Reserved2;
-        internal nint StandardInput;
-        internal nint StandardOutput;
-        internal nint StandardError;
+        internal nint hStdInput;
+        internal nint hStdOutput;
+        internal nint hStdError;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -99,7 +127,7 @@ internal static class NativeMethods
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct JobObjectExtendedLimitInformation
+    internal struct JobObjectExtendedLimitInfo
     {
         internal JobObjectBasicLimitInformation BasicLimitInformation;
         internal IoCounters IoInfo;
@@ -110,7 +138,7 @@ internal static class NativeMethods
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct JobObjectBasicAccountingInformation
+    internal struct JobObjectBasicAccountingInfo
     {
         internal long TotalUserTime;
         internal long TotalKernelTime;
@@ -123,9 +151,9 @@ internal static class NativeMethods
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct JobObjectBasicAndIoAccountingInformation
+    internal struct JobObjectBasicAndIoAccountingInfo
     {
-        internal JobObjectBasicAccountingInformation BasicInfo;
+        internal JobObjectBasicAccountingInfo BasicInfo;
         internal IoCounters IoInfo;
     }
 
@@ -202,7 +230,7 @@ internal static class NativeMethods
     internal static extern bool SetInformationJobObject(
         SafeJobHandle job,
         int informationClass,
-        ref JobObjectExtendedLimitInformation information,
+        ref JobObjectExtendedLimitInfo information,
         uint informationLength);
 
     [DllImport("kernel32.dll", SetLastError = true)]
@@ -214,6 +242,13 @@ internal static class NativeMethods
     internal static extern bool IsProcessInJob(
         SafeProcessHandle process,
         SafeJobHandle? job,
+        [MarshalAs(UnmanagedType.Bool)] out bool result);
+
+    [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "IsProcessInJob")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool IsProcessInJobRaw(
+        nint processHandle,
+        nint jobHandle,
         [MarshalAs(UnmanagedType.Bool)] out bool result);
 
     [DllImport("kernel32.dll", SetLastError = true)]

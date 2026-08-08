@@ -116,10 +116,11 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
             {
                 StartupInfo = new NativeMethods.StartupInfo
                 {
-                    Cb = checked((uint)Marshal.SizeOf<NativeMethods.StartupInfoEx>())
-                    // Do not set STARTF_USESTDHANDLES. The pseudoconsole attribute establishes the
-                    // hosted console's standard handles; overriding them with null or parent handles
-                    // would undermine the ConPTY path. CreateProcessW receives inheritHandles=false.
+                    Cb = checked((uint)Marshal.SizeOf<NativeMethods.StartupInfoEx>()),
+                    Flags = NativeMethods.StartFUseStdHandles,
+                    hStdInput = nint.Zero,
+                    hStdOutput = nint.Zero,
+                    hStdError = nint.Zero
                 },
                 AttributeList = attributes.Pointer
             };
@@ -150,8 +151,8 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
             // The process is suspended so assignment happens before any descendant can be created.
             job.Assign(processHandle);
 
-            // CreateProcess has consumed the pseudoconsole attribute. The host must close its copies of
-            // the pseudoconsole-side pipe handles so broken-pipe/EOF detection remains reliable.
+            // Close the host copies of the pseudoconsole-side pipe handles. The pseudoconsole
+            // holds its own references after CreatePseudoConsole and CreateProcessW.
             pseudoInputRead.Dispose();
             pseudoInputRead = null;
             pseudoOutputWrite.Dispose();
@@ -533,8 +534,22 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
         catch (ObjectDisposedException) when (Volatile.Read(ref _shutdownStarted) != 0)
         {
         }
-        catch (IOException) when (Volatile.Read(ref _shutdownStarted) != 0)
+        catch (IOException ex) when (Volatile.Read(ref _shutdownStarted) != 0)
         {
+            int error = Marshal.GetHRForException(ex);
+            if (error == -2147024785 || error == -2147024784)
+            {
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            lock (_outputLock)
+            {
+                byte[] failure = Encoding.UTF8.GetBytes(
+                    $"\nPUMP-FAILED:{ex.GetType().Name}:{ex.Message}\n");
+                _outputCapture.Write(failure, 0, failure.Length);
+            }
         }
         finally
         {
