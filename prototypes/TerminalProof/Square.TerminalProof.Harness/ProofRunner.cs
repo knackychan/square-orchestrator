@@ -531,10 +531,18 @@ internal sealed class ProofRunner
 
     private static async Task<int> StabilizeAndGetHandleCountAsync(CancellationToken cancellationToken)
     {
+        // ponytail: triple-GC with growing delays. Native handles from ConPTY threads and pipes
+        // defer their final release to finalizer-triggered CloseHandle; a single GC pass often
+        // collects the objects but the finalizer queue hasn't been drained yet.
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
         GC.WaitForPendingFinalizers();
+        await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken).ConfigureAwait(false);
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+        GC.WaitForPendingFinalizers();
         await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken).ConfigureAwait(false);
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+        GC.WaitForPendingFinalizers();
+        await Task.Delay(TimeSpan.FromMilliseconds(200), cancellationToken).ConfigureAwait(false);
         return GetCurrentHandleCount();
     }
 

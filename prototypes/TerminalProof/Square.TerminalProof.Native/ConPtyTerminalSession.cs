@@ -52,14 +52,22 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
         _output = new FileStream(outputRead, FileAccess.Read, bufferSize: 64 * 1024, isAsync: false);
         _launchTimestamp = launchTimestamp;
         _cleanupTimeout = cleanupTimeout;
-        // ConPTY requires synchronous channels and recommends servicing each channel on its own
-        // thread. A dedicated long-running output pump avoids blocking launch on the first ReadFile
-        // while preserving exactly one reader for the pseudoconsole output stream.
-        _outputPump = Task.Factory.StartNew(
-            PumpOutput,
-            CancellationToken.None,
-            TaskCreationOptions.LongRunning,
-            TaskScheduler.Default);
+        // ponytail: raw Thread instead of Task.Factory.StartNew. A LongRunning task creates a
+        // dedicated ThreadPool-aligned thread whose native thread handle survives task completion
+        // until GC collects the internal thread wrapper. A raw named background thread avoids
+        // the ThreadPool wrapper and makes completion deterministic.
+        TaskCompletionSource outputPumpCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        _outputPump = outputPumpCompletion.Task;
+        Thread pumpThread = new(() =>
+        {
+            PumpOutput();
+            outputPumpCompletion.TrySetResult();
+        })
+        {
+            Name = "ConPtyOutputPump",
+            IsBackground = true
+        };
+        pumpThread.Start();
     }
 
     public int ProcessId { get; }
