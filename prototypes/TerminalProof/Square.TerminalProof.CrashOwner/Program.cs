@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Square.TerminalProof.Native;
@@ -9,6 +10,11 @@ return await CrashOwnerProgram.RunAsync(args).ConfigureAwait(false);
 
 internal static class CrashOwnerProgram
 {
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool TerminateProcess(nint hProcess, uint uExitCode);
+
+    private const uint OwnerCrashExitCode = 0x534F0003U;
     internal static async Task<int> RunAsync(string[] args)
     {
         Dictionary<string, string> options = Parse(args);
@@ -58,8 +64,21 @@ internal static class CrashOwnerProgram
     }
 
     [DoesNotReturn]
-    private static void CrashOwnerProcess() =>
-        Environment.FailFast("Intentional SP00-T02 owner crash after nested-process evidence was flushed.");
+    private static void CrashOwnerProcess()
+    {
+        // ponytail: TerminateProcess instead of Environment.FailFast. FailFast writes ETW event log
+        // and minidump which can exceed the harness timeout. TerminateProcess(GetCurrentProcess(), ...)
+        // achieves the exact same semantics: no managed disposal, sole Job Object handle disappears,
+        // KILL_ON_JOB_CLOSE terminates every descendant, parent observes nonzero exit.
+        nint hCurrentProcess = unchecked((nint)(-1));
+        if (!TerminateProcess(hCurrentProcess, OwnerCrashExitCode))
+        {
+            int error = Marshal.GetLastWin32Error();
+            throw new System.ComponentModel.Win32Exception(error, $"TerminateProcess(GetCurrentProcess(), 0x{OwnerCrashExitCode:X8}) failed.");
+        }
+
+        throw new UnreachableException("TerminateProcess(GetCurrentProcess()) unexpectedly returned.");
+    }
 
     private static async Task WaitForProcessCountAsync(
         ConPtyTerminalSession session,

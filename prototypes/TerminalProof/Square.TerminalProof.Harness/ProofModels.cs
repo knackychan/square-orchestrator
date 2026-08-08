@@ -65,6 +65,8 @@ internal sealed record SessionRunEvidence
     public required int HarnessHandleCountBefore { get; init; }
 
     public required int HarnessHandleCountAfter { get; init; }
+
+    public TeardownEvidence? Teardown { get; init; }
 }
 
 internal sealed record HandleCheckpointEvidence(
@@ -72,7 +74,53 @@ internal sealed record HandleCheckpointEvidence(
     int HandleCount,
     int GrowthFromBaseline,
     DateTimeOffset CapturedAtUtc,
-    bool WithinTolerance);
+    bool WithinTolerance,
+    int ProcessThreadCount = 0,
+    int ThreadPoolThreadCount = 0,
+    int ThreadPoolPendingWorkItemCount = -1,
+    int ThreadPoolCompletedWorkItemCount = -1,
+    int Gen0Collections = 0,
+    int Gen1Collections = 0,
+    int Gen2Collections = 0,
+    long TotalManagedMemoryBytes = 0,
+    double DelaySinceLastSessionMilliseconds = 0);
+
+internal enum TeardownMode
+{
+    NaturalExit,
+    ScenarioAuthorizedHardStop,
+    CleanupHardStop,
+    OwnerProcessLoss,
+    TeardownFailure
+}
+
+internal sealed record TeardownEvidence
+{
+    public required TeardownMode Mode { get; init; }
+    public string? RootExitObserved { get; init; }
+    public int ActiveProcessCountBeforeShutdown { get; init; }
+    public bool HardStopCalled { get; init; }
+    public string? HardStopReason { get; init; }
+    public int ActiveProcessCountAfterHardStop { get; init; }
+    public double? ClosePseudoConsoleDurationMilliseconds { get; init; }
+    public double? OutputPumpCompletionDurationMilliseconds { get; init; }
+    public IReadOnlyList<int> FinalProcessSurvivors { get; init; } = Array.Empty<int>();
+}
+
+internal enum OwnerCrashFailureStage
+{
+    ProcessStart,
+    ConPtyStart,
+    TreeReady,
+    ProcessCount,
+    ReadyFileWrite,
+    ReadyFileObserve,
+    OwnerTermination,
+    DescendantTermination,
+    IdentityValidation,
+    OutputDrain,
+    Unknown
+}
 
 internal sealed record ScaleGroupEvidence(
     string Scenario,
@@ -104,6 +152,8 @@ internal sealed record OwnerCrashProbeEvidence
 
     public string? Failure { get; init; }
 
+    public OwnerCrashFailureStage FailureStage { get; init; } = OwnerCrashFailureStage.Unknown;
+
     public int? OwnerProcessId { get; init; }
 
     public int? OwnerExitCode { get; init; }
@@ -113,6 +163,28 @@ internal sealed record OwnerCrashProbeEvidence
     public required IReadOnlyList<int> JobProcessIds { get; init; }
 
     public required IReadOnlyList<int> SurvivingProcessIds { get; init; }
+
+    public double? ProcessStartReturnMilliseconds { get; init; }
+
+    public double? ReadyFileObservationMilliseconds { get; init; }
+
+    public double? OwnerExitMilliseconds { get; init; }
+
+    public double? DescendantEmptyingMilliseconds { get; init; }
+
+    public double? TotalProbeDurationMilliseconds { get; init; }
+
+    public string? OwnerStdout { get; init; }
+
+    public string? OwnerStderr { get; init; }
+
+    public string? ReadyFileSha256 { get; init; }
+
+    public bool ParentKillUsed { get; init; }
+
+    public string? FirstException { get; init; }
+
+    public string? LastException { get; init; }
 
     public required bool LivePtyReattachSupported { get; init; }
 

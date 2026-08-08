@@ -21,9 +21,15 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
     private readonly long _launchTimestamp;
     private readonly TimeSpan _cleanupTimeout;
     private long _firstOutputTimestamp = -1;
+    private long _closeStartedTimestamp = -1;
+    private long _closeCompletedTimestamp = -1;
+    private long _outputPumpCompletedTimestamp = -1;
     private int _shutdownStarted;
     private int _disposeStarted;
     private int _disposed;
+    private string? _closeFailure;
+    private string? _pumpFailure;
+    private bool _closeTimedOut;
 
     private ConPtyTerminalSession(
         uint processId,
@@ -58,6 +64,24 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
 
     public int ProcessId { get; }
 
+    public bool IsCloseTimedOut => _closeTimedOut;
+
+    public string? CloseFailure => _closeFailure;
+
+    public string? PumpFailure => _pumpFailure;
+
+    public TimeSpan? CloseDuration => _closeStartedTimestamp >= 0 && _closeCompletedTimestamp >= 0
+        ? Stopwatch.GetElapsedTime(_closeStartedTimestamp, _closeCompletedTimestamp)
+        : null;
+
+    public TimeSpan? OutputPumpCompletionTime => _outputPumpCompletedTimestamp >= 0
+        ? Stopwatch.GetElapsedTime(_closeStartedTimestamp >= 0 ? _closeStartedTimestamp : _launchTimestamp, _outputPumpCompletedTimestamp)
+        : null;
+
+    public bool IsOutputPumpCompleted => _outputPump.IsCompleted;
+
+    public bool IsOutputPumpFaulted => _outputPump.IsFaulted;
+
     public bool IsRunning
     {
         get
@@ -71,6 +95,42 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
                 _ => throw new InvalidOperationException($"WaitForSingleObject returned unexpected status 0x{result:X8}.")
             };
         }
+    }
+
+    internal sealed record TerminalLaunchPlan(
+        uint Cb,
+        uint Flags,
+        nint HStdInput,
+        nint HStdOutput,
+        nint HStdError,
+        bool InheritHandles,
+        uint CreationFlags,
+        bool HasExtendedStartupInfoPresent,
+        bool HasCreateUnicodeEnvironment,
+        bool HasCreateSuspended,
+        bool HasPseudoConsoleAttribute,
+        int InitialColumns,
+        int InitialRows);
+
+    internal static TerminalLaunchPlan BuildLaunchPlan(TerminalLaunchOptions options)
+    {
+        TerminalSize size = options.InitialSize;
+        return new TerminalLaunchPlan(
+            Cb: checked((uint)Marshal.SizeOf<NativeMethods.StartupInfoEx>()),
+            Flags: NativeMethods.StartFUseStdHandles,
+            HStdInput: nint.Zero,
+            HStdOutput: nint.Zero,
+            HStdError: nint.Zero,
+            InheritHandles: false,
+            CreationFlags: NativeMethods.ExtendedStartupInfoPresent
+                | NativeMethods.CreateUnicodeEnvironment
+                | NativeMethods.CreateSuspended,
+            HasExtendedStartupInfoPresent: true,
+            HasCreateUnicodeEnvironment: true,
+            HasCreateSuspended: true,
+            HasPseudoConsoleAttribute: true,
+            InitialColumns: size.Columns,
+            InitialRows: size.Rows);
     }
 
     public static async Task<ConPtyTerminalSession> StartAsync(
@@ -435,19 +495,35 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
 
         try
         {
+            _closeStartedTimestamp = Stopwatch.GetTimestamp();
             await _pseudoConsole.CloseAsync(_cleanupTimeout).ConfigureAwait(false);
+            _closeCompletedTimestamp = Stopwatch.GetTimestamp();
+        }
+        catch (TimeoutException)
+        {
+            _closeTimedOut = true;
+            _closeFailure = $"ClosePseudoConsole timed out after {_cleanupTimeout}.";
+            failures.Add(new TimeoutException(_closeFailure));
         }
         catch (Exception exception)
         {
+            _closeFailure = $"{exception.GetType().Name}: {exception.Message}";
             failures.Add(exception);
         }
 
         try
         {
             await _outputPump.WaitAsync(_cleanupTimeout, CancellationToken.None).ConfigureAwait(false);
+            _outputPumpCompletedTimestamp = Stopwatch.GetTimestamp();
+            if (_outputPump.IsFaulted && _outputPump.Exception is not null)
+            {
+                _pumpFailure = $"{_outputPump.Exception.InnerException?.GetType().Name}: {_outputPump.Exception.InnerException?.Message}";
+                failures.Add(new InvalidOperationException("Output pump faulted.", _outputPump.Exception));
+            }
         }
         catch (Exception exception)
         {
+            _pumpFailure = $"{exception.GetType().Name}: {exception.Message}";
             failures.Add(exception);
         }
 

@@ -39,6 +39,7 @@ internal sealed class ScenarioExecutor
         IReadOnlyList<int> leakedProcessIds = Array.Empty<int>();
         int? exitCode = null;
         string? failure = null;
+        TeardownEvidence? teardown = null;
 
         try
         {
@@ -63,16 +64,46 @@ internal sealed class ScenarioExecutor
         {
             if (session is not null)
             {
+                TeardownMode mode = TeardownMode.NaturalExit;
+                string? hardStopReason = null;
+                int processesBeforeShutdown = 0;
+                int processesAfterHardStop = 0;
+                bool hardStopCalled = false;
+
                 try
                 {
-                    if (session.GetAccounting().ActiveProcesses != 0)
+                    processesBeforeShutdown = checked((int)session.GetAccounting().ActiveProcesses);
+                }
+                catch { }
+
+                bool isAuthorizedHardStop = scenario is "forced_termination" or "nested_children";
+
+                try
+                {
+                    if (processesBeforeShutdown != 0)
                     {
+                        if (isAuthorizedHardStop)
+                        {
+                            mode = TeardownMode.ScenarioAuthorizedHardStop;
+                        }
+                        else
+                        {
+                            hardStopReason = $"Cleanup hard-stop: {processesBeforeShutdown} active processes remained for scenario '{scenario}'.";
+                            mode = TeardownMode.CleanupHardStop;
+                        }
+
+                        hardStopCalled = true;
                         await session.HardStopAsync(HardStopExitCode, CancellationToken.None).ConfigureAwait(false);
+                        processesAfterHardStop = checked((int)session.GetAccounting().ActiveProcesses);
                     }
                 }
                 catch (Exception cleanupException) when (cleanupException is not OperationCanceledException)
                 {
                     failure = AppendFailure(failure, "Hard-stop cleanup failed", cleanupException);
+                    if (mode == TeardownMode.NaturalExit)
+                    {
+                        mode = TeardownMode.TeardownFailure;
+                    }
                 }
 
                 if (sampler is not null)
@@ -97,6 +128,7 @@ internal sealed class ScenarioExecutor
                 catch (Exception shutdownException) when (shutdownException is not OperationCanceledException)
                 {
                     failure = AppendFailure(failure, "ConPTY shutdown failed", shutdownException);
+                    mode = TeardownMode.TeardownFailure;
                     try
                     {
                         output = session.GetOutputSnapshot();
@@ -137,6 +169,19 @@ internal sealed class ScenarioExecutor
                         failure = AppendFailure(failure, "Leak verification failed", leakException);
                     }
                 }
+
+                teardown = new TeardownEvidence
+                {
+                    Mode = mode,
+                    RootExitObserved = failure is null && exitCode is not null ? $"exit_code={exitCode}" : null,
+                    ActiveProcessCountBeforeShutdown = processesBeforeShutdown,
+                    HardStopCalled = hardStopCalled,
+                    HardStopReason = hardStopReason,
+                    ActiveProcessCountAfterHardStop = processesAfterHardStop,
+                    ClosePseudoConsoleDurationMilliseconds = session.CloseDuration?.TotalMilliseconds,
+                    OutputPumpCompletionDurationMilliseconds = session.OutputPumpCompletionTime?.TotalMilliseconds,
+                    FinalProcessSurvivors = leakedProcessIds
+                };
             }
         }
 
@@ -171,7 +216,8 @@ internal sealed class ScenarioExecutor
             ObservedProcessIds = processSample.ObservedProcesses.Select(item => item.ProcessId).Order().ToArray(),
             LeakedProcessIds = leakedProcessIds,
             HarnessHandleCountBefore = handleCountBefore,
-            HarnessHandleCountAfter = handleCountAfter
+            HarnessHandleCountAfter = handleCountAfter,
+            Teardown = teardown
         };
     }
 

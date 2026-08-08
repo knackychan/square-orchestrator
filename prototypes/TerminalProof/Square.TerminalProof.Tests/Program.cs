@@ -16,7 +16,16 @@ return TestRunner.Run(
     ("Proof options reject zero reliability repetitions", OptionsRejectZeroRepeat),
     ("Proof options reject unknown values", OptionsRejectUnknownValue),
     ("Quick mode rejects misleading repeat overrides", QuickModeRejectsRepeatOverride),
-    ("Canonical scenario shape is distinguishable from a subset", CanonicalScenarioShape));
+    ("Canonical scenario shape is distinguishable from a subset", CanonicalScenarioShape),
+    ("Launch plan has correct cb from StartupInfoEx", LaunchPlanCbIsCorrect),
+    ("Launch plan sets STARTF_USESTDHANDLES", LaunchPlanSetsStartFUseStdHandles),
+    ("Launch plan nulls hStdInput/hStdOutput/hStdError", LaunchPlanNullsStdHandles),
+    ("Launch plan sets bInheritHandles false", LaunchPlanInheritHandlesFalse),
+    ("Launch plan sets EXTENDED_STARTUPINFO_PRESENT", LaunchPlanExtendedStartupInfoPresent),
+    ("Launch plan sets CREATE_SUSPENDED", LaunchPlanCreateSuspended),
+    ("Launch plan sets CREATE_UNICODE_ENVIRONMENT", LaunchPlanCreateUnicodeEnvironment),
+    ("Launch plan includes pseudoconsole attribute", LaunchPlanHasPseudoConsoleAttribute),
+    ("Standard-handle isolation redirected stdout and stderr", StandardHandleIsolationSync));
 
 static void SimpleArgument()
 {
@@ -210,3 +219,236 @@ static ProofManifest CreateManifest() => new()
         DescendantExitTimeoutMilliseconds = 5_000
     }
 };
+
+static void LaunchPlanCbIsCorrect()
+{
+    ConPtyTerminalSession.TerminalLaunchPlan plan = ConPtyTerminalSession.BuildLaunchPlan(
+        new TerminalLaunchOptions
+        {
+            ExecutablePath = "fixture.exe",
+            WorkingDirectory = ".",
+            Arguments = ["--scenario", "normal_exit"],
+            InitialSize = new TerminalSize(100, 30),
+            CleanupTimeout = TimeSpan.FromSeconds(10)
+        });
+    AssertEx.Equal((uint)System.Runtime.InteropServices.Marshal.SizeOf<NativeMethods.StartupInfoEx>(), plan.Cb);
+}
+
+static void LaunchPlanSetsStartFUseStdHandles()
+{
+    ConPtyTerminalSession.TerminalLaunchPlan plan = ConPtyTerminalSession.BuildLaunchPlan(
+        new TerminalLaunchOptions
+        {
+            ExecutablePath = "fixture.exe",
+            WorkingDirectory = ".",
+            Arguments = ["--scenario", "normal_exit"],
+            InitialSize = new TerminalSize(100, 30),
+            CleanupTimeout = TimeSpan.FromSeconds(10)
+        });
+    AssertEx.True((plan.Flags & 0x00000100) != 0, "STARTF_USESTDHANDLES must be set.");
+}
+
+static void LaunchPlanNullsStdHandles()
+{
+    ConPtyTerminalSession.TerminalLaunchPlan plan = ConPtyTerminalSession.BuildLaunchPlan(
+        new TerminalLaunchOptions
+        {
+            ExecutablePath = "fixture.exe",
+            WorkingDirectory = ".",
+            Arguments = ["--scenario", "normal_exit"],
+            InitialSize = new TerminalSize(100, 30),
+            CleanupTimeout = TimeSpan.FromSeconds(10)
+        });
+    AssertEx.Equal(nint.Zero, plan.HStdInput);
+    AssertEx.Equal(nint.Zero, plan.HStdOutput);
+    AssertEx.Equal(nint.Zero, plan.HStdError);
+}
+
+static void LaunchPlanInheritHandlesFalse()
+{
+    ConPtyTerminalSession.TerminalLaunchPlan plan = ConPtyTerminalSession.BuildLaunchPlan(
+        new TerminalLaunchOptions
+        {
+            ExecutablePath = "fixture.exe",
+            WorkingDirectory = ".",
+            Arguments = ["--scenario", "normal_exit"],
+            InitialSize = new TerminalSize(100, 30),
+            CleanupTimeout = TimeSpan.FromSeconds(10)
+        });
+    AssertEx.False(plan.InheritHandles, "bInheritHandles must be false.");
+}
+
+static void LaunchPlanExtendedStartupInfoPresent()
+{
+    ConPtyTerminalSession.TerminalLaunchPlan plan = ConPtyTerminalSession.BuildLaunchPlan(
+        new TerminalLaunchOptions
+        {
+            ExecutablePath = "fixture.exe",
+            WorkingDirectory = ".",
+            Arguments = ["--scenario", "normal_exit"],
+            InitialSize = new TerminalSize(100, 30),
+            CleanupTimeout = TimeSpan.FromSeconds(10)
+        });
+    AssertEx.True(plan.HasExtendedStartupInfoPresent, "EXTENDED_STARTUPINFO_PRESENT must be present.");
+    AssertEx.True((plan.CreationFlags & 0x00080000) != 0, "EXTENDED_STARTUPINFO_PRESENT flag must be set.");
+}
+
+static void LaunchPlanCreateSuspended()
+{
+    ConPtyTerminalSession.TerminalLaunchPlan plan = ConPtyTerminalSession.BuildLaunchPlan(
+        new TerminalLaunchOptions
+        {
+            ExecutablePath = "fixture.exe",
+            WorkingDirectory = ".",
+            Arguments = ["--scenario", "normal_exit"],
+            InitialSize = new TerminalSize(100, 30),
+            CleanupTimeout = TimeSpan.FromSeconds(10)
+        });
+    AssertEx.True(plan.HasCreateSuspended, "CREATE_SUSPENDED must be present.");
+    AssertEx.True((plan.CreationFlags & 0x00000004) != 0, "CREATE_SUSPENDED flag must be set.");
+}
+
+static void LaunchPlanCreateUnicodeEnvironment()
+{
+    ConPtyTerminalSession.TerminalLaunchPlan plan = ConPtyTerminalSession.BuildLaunchPlan(
+        new TerminalLaunchOptions
+        {
+            ExecutablePath = "fixture.exe",
+            WorkingDirectory = ".",
+            Arguments = ["--scenario", "normal_exit"],
+            InitialSize = new TerminalSize(100, 30),
+            CleanupTimeout = TimeSpan.FromSeconds(10)
+        });
+    AssertEx.True(plan.HasCreateUnicodeEnvironment, "CREATE_UNICODE_ENVIRONMENT must be present.");
+    AssertEx.True((plan.CreationFlags & 0x00000400) != 0, "CREATE_UNICODE_ENVIRONMENT flag must be set.");
+}
+
+static void LaunchPlanHasPseudoConsoleAttribute()
+{
+    ConPtyTerminalSession.TerminalLaunchPlan plan = ConPtyTerminalSession.BuildLaunchPlan(
+        new TerminalLaunchOptions
+        {
+            ExecutablePath = "fixture.exe",
+            WorkingDirectory = ".",
+            Arguments = ["--scenario", "normal_exit"],
+            InitialSize = new TerminalSize(100, 30),
+            CleanupTimeout = TimeSpan.FromSeconds(10)
+        });
+    AssertEx.True(plan.HasPseudoConsoleAttribute, "Pseudoconsole attribute must be present.");
+}
+
+static void StandardHandleIsolationSync() => StandardHandleIsolation().GetAwaiter().GetResult();
+
+static async System.Threading.Tasks.Task StandardHandleIsolation()
+{
+    string runId = Guid.NewGuid().ToString("N")[..8];
+    string conptyMarker = $"CONPTY-STDOUT-MARKER:{runId}";
+    string conptyStderrMarker = $"CONPTY-STDERR-MARKER:{runId}";
+    string tempDir = Path.Combine(Path.GetTempPath(), $"square-std-isolation-{runId}");
+
+    try
+    {
+        Directory.CreateDirectory(tempDir);
+        string fixturePath = ResolveFixturePath();
+
+        TextWriter originalOut = Console.Out;
+        TextWriter originalError = Console.Error;
+        string stdoutFile = Path.Combine(tempDir, "stdout.txt");
+        string stderrFile = Path.Combine(tempDir, "stderr.txt");
+
+        try
+        {
+            using StreamWriter stdoutRedirect = new(stdoutFile, append: false, System.Text.Encoding.UTF8) { AutoFlush = true };
+            using StreamWriter stderrRedirect = new(stderrFile, append: false, System.Text.Encoding.UTF8) { AutoFlush = true };
+            Console.SetOut(stdoutRedirect);
+            Console.SetError(stderrRedirect);
+
+            ConPtyTerminalSession? session = null;
+            try
+            {
+                session = await ConPtyTerminalSession.StartAsync(
+                    new TerminalLaunchOptions
+                    {
+                        ExecutablePath = fixturePath,
+                        WorkingDirectory = tempDir,
+                        Arguments = ["--scenario", "normal_exit"],
+                        InitialSize = new TerminalSize(100, 30),
+                        CleanupTimeout = TimeSpan.FromSeconds(10)
+                    });
+
+                int exitCode = await session.WaitForExitAsync(TimeSpan.FromSeconds(20), CancellationToken.None);
+                AssertEx.Equal(0, exitCode, "Fixture must exit normally.");
+
+                TerminalOutputSnapshot conptyOutput = session.GetOutputSnapshot();
+                string conptyText = conptyOutput.Utf8Text;
+
+                AssertEx.True(conptyText.Contains("NORMAL-EXIT:0", StringComparison.Ordinal),
+                    "ConPTY output must contain fixture marker NORMAL-EXIT:0.");
+            }
+            finally
+            {
+                if (session is not null)
+                {
+                    await session.ShutdownAsync(CancellationToken.None);
+                    await session.DisposeAsync();
+                }
+            }
+
+            stdoutRedirect.Flush();
+            stderrRedirect.Flush();
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetError(originalError);
+        }
+
+        string parentStdout = await File.ReadAllTextAsync(stdoutFile);
+        string parentStderr = await File.ReadAllTextAsync(stderrFile);
+
+        AssertEx.False(parentStdout.Contains("NORMAL-EXIT:0", StringComparison.Ordinal),
+            "Fixture stdout must not appear in redirected parent stdout.");
+        AssertEx.False(parentStderr.Contains("NORMAL-EXIT:0", StringComparison.Ordinal),
+            "Fixture stdout must not appear in redirected parent stderr.");
+    }
+    finally
+    {
+        try { Directory.Delete(tempDir, recursive: true); } catch { }
+    }
+}
+
+static string ResolveFixturePath()
+{
+    string baseDir = AppContext.BaseDirectory;
+    string projectDir = Path.Combine(baseDir, "..", "..", "..", "..", "Square.TerminalProof.Fixture");
+    string fixtureBinDir = Path.GetFullPath(Path.Combine(projectDir, "bin"));
+    if (Directory.Exists(fixtureBinDir))
+    {
+        string? found = Directory.EnumerateFiles(fixtureBinDir, "Square.TerminalProof.Fixture.exe", SearchOption.AllDirectories).FirstOrDefault();
+        if (found is not null)
+        {
+            return found;
+        }
+    }
+
+    // ponytail: fallback search from base dir upward
+    string dir = baseDir;
+    for (int i = 0; i < 6; i++)
+    {
+        string? found = Directory.EnumerateFiles(dir, "Square.TerminalProof.Fixture.exe", SearchOption.AllDirectories).FirstOrDefault();
+        if (found is not null)
+        {
+            return found;
+        }
+
+        string? parent = Path.GetDirectoryName(dir);
+        if (parent is null || parent == dir)
+        {
+            break;
+        }
+
+        dir = parent;
+    }
+
+    throw new FileNotFoundException("Could not locate the terminal proof fixture. Build the solution first.");
+}

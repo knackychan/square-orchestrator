@@ -7,11 +7,14 @@ internal sealed class ProofRunner
 {
     private const int AcceptanceReliabilityRepetitions = 100;
     private const int WarmupRepetitions = 3;
+    private const int DiagnosticRepetitions = 20;
+    private const int DiagnosticCycles = 5;
     private readonly ProofOptions _options;
     private readonly ProofManifest _manifest;
     private readonly ProofEnvironmentEvidence _environment;
     private readonly ProofEvidenceWriter _evidence;
     private readonly ScenarioExecutor _executor;
+    private DateTimeOffset? _lastSessionCompletedAt;
 
     internal ProofRunner(
         ProofOptions options,
@@ -40,6 +43,15 @@ internal sealed class ProofRunner
         bool stopEarly = false;
 
         Console.WriteLine($"SP00-T02 run {proofRunId}");
+
+        // Cold owner-crash diagnostics (non-acceptance)
+        if (!_options.Quick && !_options.SkipDiagnostics && !_options.SkipOwnerCrash)
+        {
+            Console.WriteLine("Owner-crash cold diagnostic: 20 probes");
+            await RunOwnerCrashDiagnosticsAsync(
+                "cold", DiagnosticRepetitions, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+        }
+
         Console.WriteLine($"Warm-up: normal_exit x {WarmupRepetitions}");
         for (int iteration = 1; iteration <= WarmupRepetitions; iteration++)
         {
@@ -65,7 +77,7 @@ internal sealed class ProofRunner
         }
 
         int baselineHandleCount = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
-        handleCheckpoints.Add(CreateHandleCheckpoint("post-warmup-baseline", baselineHandleCount, baselineHandleCount));
+        handleCheckpoints.Add(CaptureExtendedCheckpoint("post-warmup-baseline", baselineHandleCount, baselineHandleCount));
 
         if (!stopEarly)
         {
@@ -96,7 +108,8 @@ internal sealed class ProofRunner
                     }
                 }
 
-                HandleCheckpointEvidence checkpoint = await CaptureHandleCheckpointAsync(
+                _lastSessionCompletedAt = DateTimeOffset.UtcNow;
+                HandleCheckpointEvidence checkpoint = await CaptureExtendedCheckpointAsync(
                     $"after-reliability-{scenario}",
                     baselineHandleCount,
                     cancellationToken).ConfigureAwait(false);
@@ -172,7 +185,8 @@ internal sealed class ProofRunner
                         }
                     }
 
-                    HandleCheckpointEvidence checkpoint = await CaptureHandleCheckpointAsync(
+                    _lastSessionCompletedAt = DateTimeOffset.UtcNow;
+                    HandleCheckpointEvidence checkpoint = await CaptureExtendedCheckpointAsync(
                         $"after-scale-{scenario}-x{concurrency}",
                         baselineHandleCount,
                         cancellationToken).ConfigureAwait(false);
@@ -196,6 +210,36 @@ internal sealed class ProofRunner
             }
         }
 
+        // Additional diagnostic handle-groth mode (non-acceptance, evidence only)
+        if (!_options.Quick && !_options.SkipDiagnostics)
+        {
+            Console.WriteLine("Handle-growth diagnostic: 20-cycle eight-session normal_exit");
+            await RunHandleGrowthDiagnosticAsync(baselineHandleCount, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+
+            Console.WriteLine("Handle-growth diagnostic: 5-cycle mixed scenario at concurrency 8");
+            await RunMixDiagnosticAsync(baselineHandleCount, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+
+            Console.WriteLine("Owner-crash post-stress diagnostic: 20 probes");
+            await RunOwnerCrashDiagnosticsAsync(
+                "post-stress", DiagnosticRepetitions, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+        }
+
+        // Quiescence checkpoints
+        if (!stopEarly || !_options.FailFast)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken).ConfigureAwait(false);
+            handleCheckpoints.Add(await CaptureExtendedCheckpointAsync(
+                "quiescence-250ms", baselineHandleCount, cancellationToken).ConfigureAwait(false));
+
+            await Task.Delay(TimeSpan.FromMilliseconds(1750), cancellationToken).ConfigureAwait(false);
+            handleCheckpoints.Add(await CaptureExtendedCheckpointAsync(
+                "quiescence-2s", baselineHandleCount, cancellationToken).ConfigureAwait(false));
+
+            await Task.Delay(TimeSpan.FromMilliseconds(8000), cancellationToken).ConfigureAwait(false);
+            handleCheckpoints.Add(await CaptureExtendedCheckpointAsync(
+                "quiescence-10s", baselineHandleCount, cancellationToken).ConfigureAwait(false));
+        }
+
         OwnerCrashProbeEvidence ownerCrashProbe;
         if (stopEarly && _options.FailFast)
         {
@@ -216,12 +260,23 @@ internal sealed class ProofRunner
             ownerCrashProbe = await OwnerCrashProbe.ExecuteAsync(_options, _manifest, cancellationToken).ConfigureAwait(false);
         }
 
-        HandleCheckpointEvidence finalCheckpoint = await CaptureHandleCheckpointAsync(
-            "final",
-            baselineHandleCount,
-            cancellationToken).ConfigureAwait(false);
-        handleCheckpoints.Add(finalCheckpoint);
-        RegisterHandleFailure(finalCheckpoint, globalFailures);
+        // Extended final checkpoint with forced-GC distinction
+        if (!stopEarly || !_options.FailFast)
+        {
+            int preGcHandles = GetCurrentHandleCount();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+            int postGcHandles = GetCurrentHandleCount();
+            GC.WaitForPendingFinalizers();
+            int postFinalizerHandles = GetCurrentHandleCount();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+            int postSecondGcHandles = GetCurrentHandleCount();
+            await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken).ConfigureAwait(false);
+            int postQuiescenceHandles = GetCurrentHandleCount();
+
+            HandleCheckpointEvidence finalCheckpoint = CaptureExtendedCheckpoint("final", postQuiescenceHandles, baselineHandleCount);
+            handleCheckpoints.Add(finalCheckpoint);
+            RegisterHandleFailure(finalCheckpoint, globalFailures);
+        }
 
         ValidateRunShape(reliabilityRuns, scaleGroups, globalFailures);
         if (ownerCrashProbe.Executed && !ownerCrashProbe.Passed)
@@ -435,16 +490,16 @@ internal sealed class ProofRunner
             harnessHandleCountAfter,
             harnessHandleCountAfter - harnessHandleCountBefore);
 
-    private async Task<HandleCheckpointEvidence> CaptureHandleCheckpointAsync(
+    private async Task<HandleCheckpointEvidence> CaptureExtendedCheckpointAsync(
         string name,
         int baseline,
         CancellationToken cancellationToken)
     {
         int handles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
-        return CreateHandleCheckpoint(name, handles, baseline);
+        return CaptureExtendedCheckpoint(name, handles, baseline);
     }
 
-    private HandleCheckpointEvidence CreateHandleCheckpoint(string name, int handles, int baseline)
+    private HandleCheckpointEvidence CaptureExtendedCheckpoint(string name, int handles, int baseline)
     {
         int growth = handles - baseline;
         return new HandleCheckpointEvidence(
@@ -452,7 +507,16 @@ internal sealed class ProofRunner
             handles,
             growth,
             DateTimeOffset.UtcNow,
-            growth <= _manifest.Settings.HandleGrowthTolerance);
+            growth <= _manifest.Settings.HandleGrowthTolerance,
+            GetCurrentThreadCount(),
+            ThreadPool.ThreadCount,
+            ThreadPool.PendingWorkItemCount == -1 ? -1 : checked((int)ThreadPool.PendingWorkItemCount),
+            ThreadPool.CompletedWorkItemCount == -1 ? -1 : checked((int)ThreadPool.CompletedWorkItemCount),
+            GC.CollectionCount(0),
+            GC.CollectionCount(1),
+            GC.CollectionCount(2),
+            GC.GetTotalMemory(forceFullCollection: false),
+            _lastSessionCompletedAt is null ? 0 : (DateTimeOffset.UtcNow - _lastSessionCompletedAt.Value).TotalMilliseconds);
     }
 
     private void RegisterHandleFailure(HandleCheckpointEvidence checkpoint, ICollection<string> failures)
@@ -479,6 +543,117 @@ internal sealed class ProofRunner
         using Process current = Process.GetCurrentProcess();
         current.Refresh();
         return current.HandleCount;
+    }
+
+    private static int GetCurrentThreadCount()
+    {
+        using Process current = Process.GetCurrentProcess();
+        current.Refresh();
+        return current.Threads.Count;
+    }
+
+    private async Task RunHandleGrowthDiagnosticAsync(
+        int baselineHandleCount,
+        List<HandleCheckpointEvidence> checkpoints,
+        List<string> failures,
+        CancellationToken cancellationToken)
+    {
+        // Warm once
+        await _executor.ExecuteAsync("normal_exit", "diagnostic-warmup", 0, concurrency: 1, sessionOrdinal: 1, "diagnostic", cancellationToken).ConfigureAwait(false);
+        await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+
+        int prevHandles = GetCurrentHandleCount();
+        string classification = "NO_GROWTH";
+
+        for (int round = 1; round <= DiagnosticRepetitions; round++)
+        {
+            Task<SessionRunEvidence>[] pending = Enumerable.Range(1, 8)
+                .Select(sessionOrdinal => _executor.ExecuteAsync(
+                    "normal_exit", "handle-diag", round, concurrency: 8, sessionOrdinal,
+                    "diagnostic", cancellationToken))
+                .ToArray();
+            await Task.WhenAll(pending).ConfigureAwait(false);
+
+            int afterHandles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+            int roundGrowth = afterHandles - prevHandles;
+
+            checkpoints.Add(CaptureExtendedCheckpoint(
+                $"handle-diag-normal_exit-x8-round{round}", afterHandles, baselineHandleCount));
+
+            if (round == 1 && roundGrowth > 0)
+                classification = "PLATEAU";
+            if (round > 1 && roundGrowth > 2)
+                classification = "LINEAR_GROWTH";
+
+            prevHandles = afterHandles;
+        }
+
+        Console.WriteLine($"Handle-growth normal_exit x8 classification: {classification}");
+    }
+
+    private async Task RunMixDiagnosticAsync(
+        int baselineHandleCount,
+        List<HandleCheckpointEvidence> checkpoints,
+        List<string> failures,
+        CancellationToken cancellationToken)
+    {
+        string[] mixScenarios = { "normal_exit", "large_burst", "graceful_cancel", "forced_termination", "nested_children" };
+        string mixClassification = "NO_GROWTH";
+        int prevHandles = GetCurrentHandleCount();
+
+        for (int cycle = 1; cycle <= DiagnosticCycles; cycle++)
+        {
+            foreach (string scenario in mixScenarios)
+            {
+                Task<SessionRunEvidence>[] pending = Enumerable.Range(1, 8)
+                    .Select(sessionOrdinal => _executor.ExecuteAsync(
+                        scenario, "mix-diag", cycle, concurrency: 8, sessionOrdinal,
+                        "diagnostic", cancellationToken))
+                    .ToArray();
+                await Task.WhenAll(pending).ConfigureAwait(false);
+            }
+
+            int afterHandles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+            int cycleGrowth = afterHandles - prevHandles;
+
+            checkpoints.Add(CaptureExtendedCheckpoint(
+                $"handle-diag-mix-cycle{cycle}", afterHandles, baselineHandleCount));
+
+            if (cycle == 1 && cycleGrowth > 0)
+                mixClassification = "PLATEAU";
+            if (cycle > 1 && cycleGrowth > 2)
+                mixClassification = "LINEAR_GROWTH";
+
+            prevHandles = afterHandles;
+        }
+
+        Console.WriteLine($"Handle-growth mix x8 classification: {mixClassification}");
+    }
+
+    private async Task RunOwnerCrashDiagnosticsAsync(
+        string phase,
+        int repetitions,
+        List<HandleCheckpointEvidence> checkpoints,
+        List<string> failures,
+        CancellationToken cancellationToken)
+    {
+        string diagnosticDir = Path.Combine(_evidence.DirectoryPath, $"owner-crash-diag-{phase}");
+        Directory.CreateDirectory(diagnosticDir);
+        ProofOptions diagOptions = _options with { EvidenceDirectory = diagnosticDir };
+
+        int passed = 0;
+        int failed = 0;
+        for (int i = 1; i <= repetitions; i++)
+        {
+            OwnerCrashProbeEvidence probe = await OwnerCrashProbe.ExecuteAsync(
+                diagOptions, _manifest, cancellationToken).ConfigureAwait(false);
+            if (probe.Passed) passed++; else failed++;
+            if (!probe.Passed)
+            {
+                failures.Add($"Owner-crash {phase} probe {i}/{repetitions} FAILED stage={probe.FailureStage}: {probe.Failure}");
+            }
+        }
+        Console.WriteLine($"Owner-crash {phase} diagnostic: passed={passed}/{repetitions}, failed={failed}/{repetitions}");
     }
 
     private static void WriteRunProgress(SessionRunEvidence run, int total)

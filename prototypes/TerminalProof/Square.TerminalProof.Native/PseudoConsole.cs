@@ -39,8 +39,31 @@ internal sealed class PseudoConsole : IDisposable
             return;
         }
 
-        Task closeTask = Task.Run(() => NativeMethods.ClosePseudoConsole(handle));
-        await closeTask.WaitAsync(timeout).ConfigureAwait(false);
+        TaskCompletionSource closeCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Thread closeThread = new(() =>
+        {
+            try
+            {
+                NativeMethods.ClosePseudoConsole(handle);
+                closeCompletion.TrySetResult();
+            }
+            catch (Exception ex)
+            {
+                closeCompletion.TrySetException(ex);
+            }
+        })
+        {
+            Name = "ConPtyCloseThread",
+            IsBackground = true
+        };
+        closeThread.Start();
+
+        await closeCompletion.Task.WaitAsync(timeout).ConfigureAwait(false);
+
+        if (!closeCompletion.Task.IsCompleted)
+        {
+            throw new TimeoutException($"ClosePseudoConsole did not complete within {timeout}.");
+        }
     }
 
     public void Dispose()

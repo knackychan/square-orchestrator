@@ -14,7 +14,8 @@ internal sealed record ProofOptions(
     string? ScenarioFilter,
     bool AllowElevated,
     bool SkipOwnerCrash,
-    bool FailFast)
+    bool FailFast,
+    bool SkipDiagnostics)
 {
     private static readonly HashSet<string> ValueOptions = new(StringComparer.Ordinal)
     {
@@ -35,7 +36,7 @@ internal sealed record ProofOptions(
         for (int index = 0; index < args.Length; index++)
         {
             string current = args[index];
-            if (current is "--quick" or "--allow-elevated" or "--skip-owner-crash" or "--fail-fast")
+            if (current is "--quick" or "--allow-elevated" or "--skip-owner-crash" or "--fail-fast" or "--skip-diagnostics")
             {
                 if (!switches.Add(current))
                 {
@@ -101,7 +102,8 @@ internal sealed record ProofOptions(
             values.GetValueOrDefault("--scenario"),
             switches.Contains("--allow-elevated"),
             switches.Contains("--skip-owner-crash"),
-            switches.Contains("--fail-fast"));
+            switches.Contains("--fail-fast"),
+            switches.Contains("--skip-diagnostics"));
     }
 
     internal static string Usage => """
@@ -118,6 +120,7 @@ internal sealed record ProofOptions(
           [--allow-elevated]
           [--skip-owner-crash]
           [--fail-fast]
+          [--skip-diagnostics]
         """;
 
     private static string Required(IReadOnlyDictionary<string, string> values, string name) =>
