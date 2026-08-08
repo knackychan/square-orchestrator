@@ -178,6 +178,7 @@ internal sealed class ProofRunner
                     }
 
                     _lastSessionCompletedAt = DateTimeOffset.UtcNow;
+                    await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken).ConfigureAwait(false);
                     HandleCheckpointEvidence checkpoint = await CaptureExtendedCheckpointAsync(
                         $"after-scale-{scenario}-x{concurrency}",
                         baselineHandleCount,
