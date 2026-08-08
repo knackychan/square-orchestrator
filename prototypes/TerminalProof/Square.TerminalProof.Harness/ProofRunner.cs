@@ -44,14 +44,6 @@ internal sealed class ProofRunner
 
         Console.WriteLine($"SP00-T02 run {proofRunId}");
 
-        // Cold owner-crash diagnostics (non-acceptance)
-        if (!_options.Quick && !_options.SkipDiagnostics && !_options.SkipOwnerCrash)
-        {
-            Console.WriteLine("Owner-crash cold diagnostic: 20 probes");
-            await RunOwnerCrashDiagnosticsAsync(
-                "cold", DiagnosticRepetitions, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
-        }
-
         Console.WriteLine($"Warm-up: normal_exit x {WarmupRepetitions}");
         for (int iteration = 1; iteration <= WarmupRepetitions; iteration++)
         {
@@ -210,21 +202,7 @@ internal sealed class ProofRunner
             }
         }
 
-        // Additional diagnostic handle-groth mode (non-acceptance, evidence only)
-        if (!_options.Quick && !_options.SkipDiagnostics)
-        {
-            Console.WriteLine("Handle-growth diagnostic: 20-cycle eight-session normal_exit");
-            await RunHandleGrowthDiagnosticAsync(baselineHandleCount, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
-
-            Console.WriteLine("Handle-growth diagnostic: 5-cycle mixed scenario at concurrency 8");
-            await RunMixDiagnosticAsync(baselineHandleCount, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
-
-            Console.WriteLine("Owner-crash post-stress diagnostic: 20 probes");
-            await RunOwnerCrashDiagnosticsAsync(
-                "post-stress", DiagnosticRepetitions, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
-        }
-
-        // Quiescence checkpoints
+        // Quiescence checkpoints before canonical final checkpoint
         if (!stopEarly || !_options.FailFast)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken).ConfigureAwait(false);
@@ -273,9 +251,31 @@ internal sealed class ProofRunner
             await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken).ConfigureAwait(false);
             int postQuiescenceHandles = GetCurrentHandleCount();
 
-            HandleCheckpointEvidence finalCheckpoint = CaptureExtendedCheckpoint("final", postQuiescenceHandles, baselineHandleCount);
-            handleCheckpoints.Add(finalCheckpoint);
-            RegisterHandleFailure(finalCheckpoint, globalFailures);
+        HandleCheckpointEvidence finalCheckpoint = CaptureExtendedCheckpoint("final-canonical", postQuiescenceHandles, baselineHandleCount);
+        handleCheckpoints.Add(finalCheckpoint);
+        RegisterHandleFailure(finalCheckpoint, globalFailures);
+    }
+
+        // Diagnostic modes (non-acceptance evidence, after canonical measurement)
+        if (!_options.Quick && !_options.SkipDiagnostics)
+        {
+            Console.WriteLine("Owner-crash cold diagnostic: 20 probes");
+            await RunOwnerCrashDiagnosticsAsync(
+                "cold", DiagnosticRepetitions, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+
+            Console.WriteLine("Handle-growth diagnostic: 20-cycle eight-session normal_exit");
+            await RunHandleGrowthDiagnosticAsync(baselineHandleCount, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+
+            Console.WriteLine("Handle-growth diagnostic: 5-cycle mixed scenario at concurrency 8");
+            await RunMixDiagnosticAsync(baselineHandleCount, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+
+            Console.WriteLine("Owner-crash post-stress diagnostic: 20 probes");
+            await RunOwnerCrashDiagnosticsAsync(
+                "post-stress", DiagnosticRepetitions, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+
+            int diagFinalHandles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+            HandleCheckpointEvidence diagFinal = CaptureExtendedCheckpoint("final-post-diagnostics", diagFinalHandles, baselineHandleCount);
+            handleCheckpoints.Add(diagFinal);
         }
 
         ValidateRunShape(reliabilityRuns, scaleGroups, globalFailures);
