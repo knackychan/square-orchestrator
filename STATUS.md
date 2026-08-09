@@ -4,15 +4,16 @@
 
 ## Current state
 
-- Phase: **architecture pivot — Square Orchestrator is now a maintained downstream fork of Agent Orchestrator `v0.12.1`**; SA00 fork-adoption sequence not yet started
+- Phase: **architecture pivot — Square Orchestrator is now a maintained downstream fork of Agent Orchestrator `v0.12.1`**; `SA00-T01` technically complete, `SA00-T02` next
 - Specification: `0.1-draft` (M1/M2 .NET-native specification; superseded in intent by the fork plan, retained for trace/history — see the pivot record below)
 - Active planning subplan: `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/`
 - Superseded planning subplans (trace/history only, no longer active): `docs/superpowers/plans/2026-08-05-m1-dry-run-foundation/`, `docs/superpowers/plans/2026-08-07-square-orchestrator-design/`, `docs/superpowers/plans/2026-08-08-fork/`
 - Application implementation authorized: **no** (SA00 fork-adoption/baseline sequence only; see pivot record — no Square product code)
-- Worktree state: **dirty — archive move and pivot documentation staged, upstream fork wiring in progress**
+- Worktree state: **dirty — pre-existing uncommitted TerminalProof WIP remains at its new `archive/prototypes/TerminalProof/` path, exactly as it was before this pivot, untouched and uncommitted**
 - Delegated agent launch authorized: **no**
 - Dependency installation authorized: **no**
-- External or provider calls authorized: **none, except a read-only `git fetch` of the pinned public Agent Orchestrator upstream tag under the fork pivot record below**
+- External or provider calls authorized: **none, except the read-only `git fetch` of the pinned public Agent Orchestrator upstream tag already performed under the fork pivot record below**
+- `SA00-T01` status: **technically complete (inline, owner exception) at `square/main` commit `8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b`; receipt at `docs/square/receipts/SA00-T01.json` on that branch; owner review/acceptance pending; `SA00-T02` is the next eligible task**
 - M0/M1 detailed status below (through T-M1-05) remains historically accurate and is retained for
   trace/history; **superseded by the fork pivot below — no further M0/M1/REM task will be dispatched**
 - M0 status: **accepted by the owner on 2026-08-05**
@@ -467,6 +468,41 @@ second working copy on disk. The archive move above is a repository-reorganizati
 implementation pack's original scope (the pack assumes no pre-existing content to preserve); it is
 recorded here as the owner-directed adaptation that makes "reuse this repository's path" possible
 without discarding the prior implementation line.
+
+**Root cleanup addendum (2026-08-09, same session):** the owner additionally directed cleaning the
+repository root of remaining pre-fork clutter. Commit `2864307c` on `main` (child of the archive-move
+commit `bf51d4c2`) moved the leftover root `.NET`/Node/pnpm toolchain files (`Directory.Build.props`, `Directory.Packages.props`,
+`NuGet.Config`, `SquareOrchestrator.slnx`, `global.json`, `package.json`, `pnpm-lock.yaml`,
+`pnpm-workspace.yaml`, `tsconfig*.json`, `build.ps1`/`dev.ps1`/`format.ps1`/`package.ps1`/`test.ps1`,
+`.editorconfig`, `.nvmrc`, `THIRD_PARTY.md`) and the old CI workflow (`.github/workflows/windows-ci.yml`)
+into `archive/`, and relocated the gitignored `artifacts/test-results/` scratch output to
+`archive/artifacts/` on disk (re-anchoring the `.gitignore` rule so it stays untracked; it was
+deliberately **not** committed, since committing it would turn ~130 regenerated log/JSON files from
+ignored scratch into permanent history — outside what "clean the root" asked for). The repository
+root now holds only `.git`/`.gitattributes`/`.gitignore`, root governance docs, `archive/`, and
+`docs/`.
+
+**SA00-T01 execution record:** executed inline in this same primary session per the owner's
+execution-mode decision above. Verification per the packet's §9 commands passed post-commit: all
+three commit resolutions (`HEAD`, `v0.12.1^{commit}`, `square-base-v0.12.1^{commit}`) are identical
+at `1df40e93772c2c48e916870d9c3ddf8f29a69f84`; `git diff --check square-base-v0.12.1..HEAD` passed;
+`git diff --name-only square-base-v0.12.1 -- backend frontend packages package.json package-lock.json
+.github` returned zero lines (no product-path drift); no push occurred. The resulting commit on
+`square/main` is `8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b`, message
+`SA00-T01: pin Agent Orchestrator downstream baseline`, containing only
+`docs/square/upstream/initial-baseline.json`, `docs/square/evidence/SA00-T01/20260809T085717Z/**`,
+and `docs/square/receipts/SA00-T01.json` — all within the packet's allowed-writes list. All seven
+acceptance criteria (SA00-AC-01..07) are recorded PASS in the receipt. One factual, non-blocking
+observation: the pinned upstream commit ships no `NOTICE` file (Apache-2.0 does not require one to
+exist, only that one be preserved if present) — recorded in evidence, not treated as a STOP since
+nothing was altered. A harmless untracked `archive/` directory (gitignored build-output residue:
+`bin/`, `obj/`, and the relocated `artifacts/`) remains on disk in the `square/main` working tree as
+a side effect of switching between the two unrelated-history branches sharing this working copy; it
+is not tracked by `square/main` and was not staged there.
+
+This technical completion is **not** owner acceptance. Per this repository's own review discipline,
+`SA00-T02` (build/test the unmodified upstream baseline on Windows) is the next eligible task and
+remains inactive until the owner reviews this result and activates it.
 
 ## Planned but inactive
 
