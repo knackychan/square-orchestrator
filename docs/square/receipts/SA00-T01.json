@@ -1,0 +1,84 @@
+{
+  "schema_version": "square.completion-receipt/v1",
+  "task_id": "SA00-T01",
+  "attempt_id": "SA00-T01-attempt-1-inline",
+  "status": "PASS",
+  "started_utc": "2026-08-09T08:40:00Z",
+  "finished_utc": "2026-08-09T08:57:17Z",
+  "repository": {
+    "branch": "square/main",
+    "starting_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+    "ending_commit": "__SELF__ (the commit containing this receipt; see `git log square/main -1` at review time)",
+    "working_tree_clean_at_start": true,
+    "working_tree_clean_at_end": true,
+    "upstream_tag": "v0.12.1",
+    "upstream_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84"
+  },
+  "authority_hashes": [
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/plans/MASTER_IMPLEMENTATION_PLAN.md", "sha256": "1c9be560ce262812504503defa8d128ae18b4cd741466f307b7d956b6726a486", "readFrom": "main" },
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/docs/ARCHITECTURE_AMENDMENT.md", "sha256": "00cfd717519ce91aece7460a7fb6544ff9feb709e1ac6172c986a6fe8d3e7c6a", "readFrom": "main" },
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/docs/UPSTREAM_GOVERNANCE.md", "sha256": "dadea70d8cc7e04bad7acedf2e3e771daea2b462c82ccc1d7ee7ef593aa0d1df", "readFrom": "main" },
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/plans/tasks/SA00-T01.md", "sha256": "4c2b8ddc7c0dfcd61ca2b83defb423a3dfda2373e7883fcf80152f57b9b320a4", "readFrom": "main" },
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/scripts/bootstrap-square-fork.ps1", "sha256": "32035ba9f9e1ee7b163768ad9802d82d2a6836ce0d0778ba0d8d95b90bb5d9a3", "readFrom": "main" }
+  ],
+  "changed_files": {
+    "added": [
+      "docs/square/upstream/initial-baseline.json",
+      "docs/square/evidence/SA00-T01/20260809T085717Z/environment.json",
+      "docs/square/evidence/SA00-T01/20260809T085717Z/git-identity.json",
+      "docs/square/evidence/SA00-T01/20260809T085717Z/remotes.txt",
+      "docs/square/evidence/SA00-T01/20260809T085717Z/refs.txt",
+      "docs/square/evidence/SA00-T01/20260809T085717Z/status.txt",
+      "docs/square/evidence/SA00-T01/20260809T085717Z/upstream-diff.txt",
+      "docs/square/evidence/SA00-T01/20260809T085717Z/summary.json",
+      "docs/square/evidence/SA00-T01/20260809T085717Z/manifest.sha256",
+      "docs/square/receipts/SA00-T01.json"
+    ],
+    "modified": [],
+    "deleted": []
+  },
+  "generated_files": [],
+  "validations": [
+    { "name": "tag-resolves-to-required-prefix", "command": "git rev-parse \"v0.12.1^{commit}\"", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T01/20260809T085717Z/git-identity.json" },
+    { "name": "head-tag-baseline-identical", "command": "git rev-parse square/main square-base-v0.12.1^{commit} v0.12.1^{commit}", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T01/20260809T085717Z/git-identity.json" },
+    { "name": "no-product-path-drift", "command": "git diff --name-only square-base-v0.12.1 -- backend frontend packages package.json package-lock.json .github", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T01/20260809T085717Z/upstream-diff.txt" },
+    { "name": "remotes-verified", "command": "git remote -v", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T01/20260809T085717Z/remotes.txt" },
+    { "name": "branch-and-status", "command": "git status --short --branch", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T01/20260809T085717Z/status.txt" }
+  ],
+  "acceptance_criteria": [
+    { "id": "SA00-AC-01", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T01/20260809T085717Z/git-identity.json"] },
+    { "id": "SA00-AC-02", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T01/20260809T085717Z/git-identity.json"] },
+    { "id": "SA00-AC-03", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T01/20260809T085717Z/status.txt"] },
+    { "id": "SA00-AC-04", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T01/20260809T085717Z/upstream-diff.txt"] },
+    { "id": "SA00-AC-05", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T01/20260809T085717Z/manifest.sha256"] },
+    { "id": "SA00-AC-06", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T01/20260809T085717Z/git-identity.json"] },
+    { "id": "SA00-AC-07", "status": "PASS", "evidence": ["docs/square/receipts/SA00-T01.json"] }
+  ],
+  "evidence": {
+    "directory": "docs/square/evidence/SA00-T01/20260809T085717Z/",
+    "manifest_sha256": "ff61e13ec9a33f7ed96eb6ee187fca25cd1d49ff7a7d925ec92b2d723bce3fb0"
+  },
+  "discretion_decisions": [
+    "Reused this existing repository's path/origin instead of a fresh git clone into an empty destination, per explicit owner decision recorded in STATUS.md (2026-08-09). Equivalent git operations (remote add, fetch tag, branch/tag creation) were run directly instead of via bootstrap-square-fork.ps1.",
+    "Executed inline by the primary session (Claude Code, Sonnet 5) under an explicit owner-authorized exception to the mandatory visible-worker workflow, recorded in STATUS.md.",
+    "Archived this repository's entire pre-pivot implementation tree and root toolchain files into archive/ on the main branch before this work began (separate owner-directed step, outside SA00-T01's original scope, recorded in STATUS.md)."
+  ],
+  "stop_or_escalation_events": [],
+  "deviations": [
+    "No NOTICE file exists in the pinned upstream commit; this reflects upstream's actual published state, not an alteration made during this task.",
+    "PowerShell 5.1 was independently verified available, but the actual git operations were executed via git-bash (MSYS) rather than PowerShell; the same git commands and outcomes apply."
+  ],
+  "remaining_risks": [
+    "A harmless untracked archive/ directory remains on disk in this working tree as a residue of switching between main and square/main (unrelated histories); it is not tracked by square/main and will not be committed here.",
+    "SA00-T02 (unmodified upstream baseline build/test on Windows) has not been run; pre-existing upstream failures are not yet catalogued.",
+    "Most of the OWNER_ACCEPTANCE_CHECKLIST.md and OWNER_DECISIONS.md items required before SA00-T04/A0 remain unrecorded and must be obtained before that gate."
+  ],
+  "commit": {
+    "created": true,
+    "sha": null,
+    "message": "SA00-T01: pin Agent Orchestrator downstream baseline",
+    "pushed": false
+  },
+  "next_eligible_tasks": ["SA00-T02"],
+  "review_required": true
+}

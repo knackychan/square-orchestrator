@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-08-09T08:57:17Z",
+  "os": "Windows 10 Home 10.0.19045 (Win32)",
+  "shell": {
+    "primary": "PowerShell 5.1.19041.6456",
+    "actuallyUsedForThisTask": "MINGW64/Git Bash (MSYS 3.6.9-b4195d69.x86_64) via the Claude Code Bash tool",
+    "deviationNote": "The implementation pack's bootstrap-square-fork.ps1 assumes PowerShell execution against a fresh empty destination. This task instead reused the existing square-orchestrator repository path (owner decision, recorded in STATUS.md), so the equivalent git operations were run directly via git-bash rather than through the packaged script. PowerShell 5.1 availability was independently confirmed via $PSVersionTable.PSVersion above."
+  },
+  "git": "git version 2.55.0.windows.3",
+  "node": "v24.18.0",
+  "toolsNotUsed": ["npm ci", "go build", "go test"],
+  "toolsNotUsedReason": "SA00-T01 scope is governance/bootstrap only; no dependency install or build/test run is authorized or required by this task."
+}

@@ -1,0 +1,4 @@
+origin	https://github.com/knackychan/square-orchestrator.git (fetch)
+origin	https://github.com/knackychan/square-orchestrator.git (push)
+upstream	https://github.com/Untrivial-ai/agent-orchestrator.git (fetch)
+upstream	https://github.com/Untrivial-ai/agent-orchestrator.git (push)

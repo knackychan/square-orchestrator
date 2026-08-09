@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "upstreamUrl": "https://github.com/Untrivial-ai/agent-orchestrator.git",
+  "upstreamTag": "v0.12.1",
+  "upstreamCommit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+  "squareBranch": "square/main",
+  "baselineTag": "square-base-v0.12.1",
+  "createdAtUtc": "2026-08-09T08:57:17Z",
+  "pushed": false
+}

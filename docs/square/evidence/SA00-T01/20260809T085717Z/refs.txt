@@ -1,0 +1,3 @@
+015994d3228ef875f7b45b8d37aa44c1dcffa87a refs/tags/square-base-v0.12.1
+1df40e93772c2c48e916870d9c3ddf8f29a69f84 refs/tags/square-base-v0.12.1^{}
+1df40e93772c2c48e916870d9c3ddf8f29a69f84 refs/tags/v0.12.1

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-08-09T08:57:17Z",
+  "upstream": {
+    "remoteName": "upstream",
+    "remoteUrl": "https://github.com/Untrivial-ai/agent-orchestrator.git",
+    "requestedTag": "v0.12.1",
+    "requiredCommitPrefix": "1df40e9",
+    "resolvedTagCommit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+    "tagObjectType": "commit (lightweight tag)",
+    "resolvedTree": "36bf30cc4960c10f0d94fc63a8ff0a4dd22bb8a8",
+    "resolvedParent": "26f913d97f43e339bacf1c9555cb972bfe1dd428",
+    "commitAuthor": "Just_Anniee <145839789+Annieeeee11@users.noreply.github.com>",
+    "commitCommitter": "GitHub <noreply@github.com>",
+    "commitSubject": "fix: snap theme switches with View Transitions (#3620)",
+    "commitDateIso": "2026-08-05T22:34:16+05:30",
+    "commitHasGpgSignature": true,
+    "prefixMatchesRequirement": true
+  },
+  "squareBaseline": {
+    "branch": "square/main",
+    "branchHeadCommit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+    "tag": "square-base-v0.12.1",
+    "tagType": "annotated",
+    "tagTargetCommit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+    "tagMessage": "Square Orchestrator baseline: Agent Orchestrator v0.12.1 (1df40e9)",
+    "tagger": "Test <test@example.com>",
+    "allThreeResolutionsIdentical": true
+  },
+  "origin": {
+    "remoteName": "origin",
+    "remoteUrl": "https://github.com/knackychan/square-orchestrator.git",
+    "unchangedFromBeforeThisTask": true,
+    "note": "Owner decision: reuse this repository's existing origin rather than register a new GitHub repository. No push performed."
+  },
+  "pushOccurred": false,
+  "adaptationNote": "Destination repository is this existing checkout (owner decision), not a fresh git clone. upstream was added as a remote, tag v0.12.1 fetched, square/main branch and square-base-v0.12.1 annotated tag created directly at the resolved commit. This produces the identical verifiable state (SA00-AC-01..03) that a fresh clone via bootstrap-square-fork.ps1 would have produced."
+}

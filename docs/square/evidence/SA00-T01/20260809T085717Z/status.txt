@@ -1,0 +1,13 @@
+branch:
+square/main
+
+branch -a:
+  main
+* square/main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/main
+
+status --short --branch:
+## square/main
+?? archive/
+?? docs/square/
