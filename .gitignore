@@ -8,6 +8,7 @@ node_modules/
 TestResults/
 artifacts/package/
 artifacts/test-results/
+archive/artifacts/
 *.tsbuildinfo
 *.user
 *.suo

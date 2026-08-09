@@ -96,7 +96,7 @@ new worker surface before allowing edits.
 | `STATUS.md` | Current authority and milestone state |
 | `HANDOVER.md` | Cold-start operating workflow; never authority |
 | `CLIENT-EXECUTION.md` | Dated client routes, launch profiles, and lifecycle reference |
-| `archive/` | Frozen pre-fork implementation line (former `src/`, `ui/`, `vscode/`, `prototypes/`, `contracts/`, `build/`, `tests/`, `sqorch/`), retained for trace/history only; has its own context pair |
+| `archive/` | Frozen pre-fork implementation line and toolchain (former `src/`, `ui/`, `vscode/`, `prototypes/`, `contracts/`, `build/`, `tests/`, `sqorch/`, `.github/`, `artifacts/`, and root .NET/Node/pnpm config), retained for trace/history only; has its own context pair |
 | `docs/` | Project documentation, with its own context pair |
 | `docs/superpowers/` | Specs and execution plans, with its own context pair |
 | `docs/superpowers/specs/` | Design specifications |

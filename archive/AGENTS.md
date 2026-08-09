@@ -27,6 +27,9 @@ This directory holds the repository's implementation content exactly as it stood
 | `build/` | Former PowerShell/Node build, test, format, package scripts |
 | `tests/` | Former .NET test projects and retained Python M1 suite |
 | `sqorch/` | Former standard-library Python M1 CLI source |
+| `.github/workflows/windows-ci.yml` | Former CI workflow (dotnet/pnpm build+test); no longer wired to any live CI |
+| `artifacts/` | Former gitignored local test-run output, moved here unchanged for trace only |
+| `.editorconfig`, `.nvmrc`, `Directory.Build.props`, `Directory.Packages.props`, `NuGet.Config`, `SquareOrchestrator.slnx`, `global.json`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `tsconfig.json`, `build.ps1`, `dev.ps1`, `format.ps1`, `package.ps1`, `test.ps1`, `THIRD_PARTY.md` | Former root .NET/Node/pnpm toolchain configuration and convenience scripts |
 
 Each moved directory retains its own nested `AGENTS.md`/`CLAUDE.md` context pair from before the
 move; those still describe their own subtree accurately, just now under `archive/`.
