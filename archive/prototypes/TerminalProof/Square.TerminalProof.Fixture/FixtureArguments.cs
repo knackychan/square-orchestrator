@@ -38,6 +38,8 @@ internal sealed class FixtureArguments
         ? value
         : throw new ArgumentException($"Required argument '{name}' was not supplied.");
 
+    internal string? GetString(string name) => _values.TryGetValue(name, out string? value) ? value : null;
+
     internal int GetInt32(string name, int defaultValue, int minimum = 0)
     {
         if (!_values.TryGetValue(name, out string? text))

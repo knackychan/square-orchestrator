@@ -153,14 +153,25 @@ if (attributeSource.includes("Marshal.WriteIntPtr")) {
 }
 
 const sessionSource = await readFile(join(root, "Square.TerminalProof.Native/ConPtyTerminalSession.cs"), "utf8");
-for (const marker of ["TaskCreationOptions.LongRunning", "PumpOutput", "SendCtrlCAsync", "HardStopAsync", "GetActiveProcessIds", "GetAccounting", "ShutdownAsync", "inheritHandles: false"]) {
+for (const marker of ["ConPtyOutputPump", "PumpOutput", "SendCtrlCAsync", "HardStopAsync", "GetActiveProcessIds", "GetAccounting", "ShutdownAsync", "inheritHandles: false"]) {
   if (!sessionSource.includes(marker)) fail(`terminal session is missing ${marker}`);
 }
-if (sessionSource.includes("STARTF_USESTDHANDLES") && !sessionSource.includes("Do not set STARTF_USESTDHANDLES")) {
-  fail("terminal session must not override ConPTY standard handles");
+// SP00-T02-FIX03 keeps STARTF_USESTDHANDLES with null hStd fields; the ConPTY transport pipes
+// must never be assigned to child standard handles.
+if (!sessionSource.includes("hStdInput = nint.Zero")
+    || !sessionSource.includes("hStdOutput = nint.Zero")
+    || !sessionSource.includes("hStdError = nint.Zero")) {
+  fail("terminal session must retain STARTF_USESTDHANDLES with null hStd handles");
 }
-if (/Flags\s*=\s*NativeMethods\.[A-Za-z]*StdHandles/.test(sessionSource)) {
-  fail("terminal session must not set STARTF_USESTDHANDLES for the hosted process");
+if (sessionSource.includes("hStdInput = pseudoInputRead")
+    || sessionSource.includes("hStdOutput = hostOutputRead")
+    || sessionSource.includes("hStdOutput = pseudoOutputWrite")
+    || sessionSource.includes("hStdError = hostOutputRead")) {
+  fail("terminal session must not assign ConPTY transport pipes to child standard handles");
+}
+if (!sessionSource.includes("OwnedResourceCounters.Increment")
+    || !sessionSource.includes("OwnedResourceCounters.Decrement")) {
+  fail("terminal session must track owned TerminalProof resource counters");
 }
 const createIndex = sessionSource.indexOf("CreateProcessW(");
 const assignIndex = sessionSource.indexOf("job.Assign(processHandle)");
@@ -173,13 +184,28 @@ const fixtureSource = await readFile(join(root, "Square.TerminalProof.Fixture/Fi
 for (const scenario of expectedScenarios) {
   if (!fixtureSource.includes(`"${scenario}"`)) fail(`fixture source is missing scenario ${scenario}`);
 }
-for (const marker of ["UNICODE:café", "ANSI-RED", "BURST-BEGIN", "QUIET-READY", "QUESTION:enter-square-proof-token>", "RESIZE-READY", "CANCEL-ACK", "FORCE-CANCEL-IGNORED", "TREE-READY"]) {
+for (const marker of ["UNICODE:café", "ANSI-RED", "BURST-BEGIN", "QUIET-READY", "QUESTION:enter-square-proof-token>", "RESIZE-READY", "CANCEL-ACK", "FORCE-CANCEL-IGNORED", "TREE-READY", "CONPTY-STDOUT-MARKER:", "CONPTY-STDERR-MARKER:"]) {
   if (!fixtureSource.includes(marker)) fail(`fixture source is missing marker ${marker}`);
 }
 
 const ownerSource = await readFile(join(root, "Square.TerminalProof.CrashOwner/Program.cs"), "utf8");
-for (const marker of ["CaptureProcessIdentity", "StartTimeUtcTicks", "CrashOwnerProcess", "JsonNamingPolicy.SnakeCaseLower"]) {
+for (const marker of ["CaptureProcessIdentity", "StartTimeUtcTicks", "CrashOwnerProcess", "JsonNamingPolicy.SnakeCaseLower", "ReadyFile.WriteAtomicallyAsync"]) {
   if (!ownerSource.includes(marker)) fail(`owner-crash probe is missing ${marker}`);
+}
+
+const readySource = await readFile(join(root, "Square.TerminalProof.Native/ReadyFile.cs"), "utf8");
+if (!readySource.includes("File.Move") || !readySource.includes("FileShare.Read")) {
+  fail("ready-file protocol must atomically rename and read with an explicit sharing mode");
+}
+
+const countersSource = await readFile(join(root, "Square.TerminalProof.Native/OwnedResourceCounters.cs"), "utf8");
+if (!countersSource.includes("Interlocked.Increment") || !countersSource.includes("Interlocked.Decrement")) {
+  fail("owned-resource counters must be interlocked and monotonic-per-acquire/release");
+}
+
+const classifierSource = await readFile(join(root, "Square.TerminalProof.Harness/HandleGrowthClassifier.cs"), "utf8");
+for (const marker of ["NO_GROWTH", "PLATEAU", "LINEAR_GROWTH", "DELAYED_RELEASE", "UNRESOLVED", "RuleVersion"]) {
+  if (!classifierSource.includes(marker)) fail(`handle-growth classifier is missing ${marker}`);
 }
 
 const environmentSource = await readFile(join(root, "Square.TerminalProof.Harness/ProofEnvironmentCollector.cs"), "utf8");
@@ -196,12 +222,12 @@ if (!sourceIdentity.includes(`CanonicalDispatchPacketSha256 = "${dispatchHash}"`
 }
 
 const runnerSource = await readFile(join(root, "Square.TerminalProof.Harness/ProofRunner.cs"), "utf8");
-for (const marker of ["AcceptanceReliabilityRepetitions = 100", "ScaleRepeatEach", "SessionCounts.Order()", "OwnerCrashProbe.ExecuteAsync", "CanonicalManifestSha256", "CanonicalDispatchPacketSha256", "DIAGNOSTIC_PASS"]) {
+for (const marker of ["AcceptanceReliabilityRepetitions = 100", "ScaleRepeatEach", "SessionCounts.Order()", "OwnerCrashProbe.ExecuteAsync", "CanonicalManifestSha256", "CanonicalDispatchPacketSha256", "DIAGNOSTIC_PASS", "DiagOwnerCrash", "DiagHandleGrowth", "DiagIsolation", "CheckpointPhase.Final", "OwnedResourceCounters.AssertZero"]) {
   if (!runnerSource.includes(marker)) fail(`proof runner is missing contract marker ${marker}`);
 }
 
 const testsSource = await readFile(join(root, "Square.TerminalProof.Tests/Program.cs"), "utf8");
-for (const marker of ["ManifestJsonRejectsUnknownFields", "OptionsRejectUnknownValue", "QuickModeRejectsRepeatOverride", "CanonicalScenarioShape"]) {
+for (const marker of ["ManifestJsonRejectsUnknownFields", "OptionsRejectUnknownValue", "QuickModeRejectsRepeatOverride", "CanonicalScenarioShape", "ReadyFilePublicationStress", "CONPTY-STDOUT-MARKER:", "CONPTY-STDERR-MARKER:", "HandleGrowthClassifier.Classify"]) {
   if (!testsSource.includes(marker)) fail(`prototype contract tests are missing ${marker}`);
 }
 

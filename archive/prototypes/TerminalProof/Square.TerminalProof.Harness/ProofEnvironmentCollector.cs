@@ -34,6 +34,9 @@ internal static class ProofEnvironmentCollector
             IsElevated = principal.IsInRole(WindowsBuiltInRole.Administrator),
             CurrentProcessIsInJob = WindowsProcessEnvironment.IsCurrentProcessInJob(),
             InitialHarnessHandleCount = current.HandleCount,
+            ProcessId = current.Id,
+            ProcessStartUtc = current.StartTime.ToUniversalTime(),
+            ProcessStartUtcTicks = current.StartTime.ToUniversalTime().Ticks,
             ManifestSha256 = await Hashing.Sha256FileAsync(options.ManifestPath, cancellationToken).ConfigureAwait(false),
             DispatchPacketSha256 = await Hashing.Sha256FileAsync(
                 GetDispatchPacketPath(options.ManifestPath),

@@ -37,7 +37,7 @@
     "completed_at_utc": { "type": "string", "format": "date-time" },
     "status": { "enum": ["PASS", "DIAGNOSTIC_PASS", "FAIL"] },
     "acceptance_eligible": { "type": "boolean" },
-    "mode": { "enum": ["quick", "full", "scenario"] },
+    "mode": { "enum": ["quick", "full", "scenario", "diag-owner-crash", "diag-handle-growth", "diag-isolation"] },
     "effective_repeat_each": { "type": "integer", "minimum": 1 },
     "effective_scale_repeat_each": { "type": "integer", "minimum": 0 },
     "session_counts": {
@@ -83,7 +83,26 @@
       "type": "array",
       "items": { "type": "string", "minLength": 1 }
     },
-    "evidence_directory": { "type": "string", "minLength": 1 }
+    "evidence_directory": { "type": "string", "minLength": 1 },
+    "process_id": { "type": "integer", "minimum": 1 },
+    "process_start_utc_ticks": { "type": "integer" },
+    "baseline_checkpoint_name": { "type": "string" },
+    "stable_checkpoint_policy": { "type": "string" },
+    "stable_checkpoint_names": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "handle_growth_tolerance": { "type": "integer", "minimum": 0 },
+    "diagnostics_process_separated": { "type": "boolean" },
+    "handle_growth_classifications": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/handle_growth_classification" }
+    },
+    "isolation_regression": { "$ref": "#/$defs/isolation_regression" },
+    "diagnostic_processes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/diagnostic_process" }
+    }
   },
   "allOf": [
     {
@@ -205,17 +224,43 @@
       "additionalProperties": false,
       "required": [
         "name",
+        "phase",
         "handle_count",
         "growth_from_baseline",
         "captured_at_utc",
-        "within_tolerance"
+        "within_tolerance",
+        "owned_resource_counts"
       ],
       "properties": {
         "name": { "type": "string", "minLength": 1 },
+        "phase": {
+          "type": "string",
+          "enum": [
+            "ACTIVE",
+            "IMMEDIATE_POST_DISPOSAL",
+            "POST_GC",
+            "QUIESCENT_250MS",
+            "QUIESCENT_2S",
+            "QUIESCENT_10S",
+            "FINAL"
+          ]
+        },
         "handle_count": { "type": "integer", "minimum": 0 },
         "growth_from_baseline": { "type": "integer" },
         "captured_at_utc": { "type": "string", "format": "date-time" },
-        "within_tolerance": { "type": "boolean" }
+        "within_tolerance": { "type": "boolean" },
+        "owned_resource_counts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "count"],
+            "properties": {
+              "kind": { "type": "string", "minLength": 1 },
+              "count": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
       }
     },
     "owner_crash_probe": {
@@ -250,8 +295,110 @@
           "uniqueItems": true,
           "items": { "type": "integer", "minimum": 1 }
         },
+        "ready_file_path": { "type": "string" },
+        "ready_file_sharing_mode": { "type": "string" },
+        "owned_resource_counts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "count"],
+            "properties": {
+              "kind": { "type": "string", "minLength": 1 },
+              "count": { "type": "integer", "minimum": 0 }
+            }
+          }
+        },
         "live_pty_reattach_supported": { "type": "boolean" },
         "reattach_conclusion": { "type": "string", "minLength": 1 }
+      }
+    },
+    "handle_growth_classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "series_name",
+        "rule_version",
+        "classification",
+        "matched_rule",
+        "raw_values",
+        "first_differences",
+        "last_n_net_change",
+        "minimum",
+        "maximum",
+        "range",
+        "linear_regression_slope",
+        "final_window_size",
+        "measurement_noise_band"
+      ],
+      "properties": {
+        "series_name": { "type": "string" },
+        "rule_version": { "type": "string" },
+        "classification": {
+          "type": "string",
+          "enum": ["NO_GROWTH", "PLATEAU", "LINEAR_GROWTH", "DELAYED_RELEASE", "UNRESOLVED"]
+        },
+        "matched_rule": { "type": "string" },
+        "raw_values": { "type": "array", "items": { "type": "integer" } },
+        "first_differences": { "type": "array", "items": { "type": "integer" } },
+        "last_n_net_change": { "type": "integer" },
+        "minimum": { "type": "integer" },
+        "maximum": { "type": "integer" },
+        "range": { "type": "integer" },
+        "linear_regression_slope": { "type": "number" },
+        "final_window_size": { "type": "integer", "minimum": 1 },
+        "measurement_noise_band": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "isolation_regression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["captured_marker_prefix", "probes", "run_id"],
+      "properties": {
+        "captured_marker_prefix": { "type": "string" },
+        "run_id": { "type": "string" },
+        "probes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/isolation_probe" }
+        }
+      }
+    },
+    "isolation_probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "passed",
+        "stdout_marker_captured",
+        "stderr_marker_captured",
+        "absent_from_parent_stdout",
+        "absent_from_parent_stderr",
+        "exit_code"
+      ],
+      "properties": {
+        "mode": { "type": "string" },
+        "passed": { "type": "boolean" },
+        "stdout_marker_captured": { "type": "boolean" },
+        "stderr_marker_captured": { "type": "boolean" },
+        "absent_from_parent_stdout": { "type": "boolean" },
+        "absent_from_parent_stderr": { "type": "boolean" },
+        "exit_code": { "type": ["integer", "null"] },
+        "failure": { "type": ["string", "null"] }
+      }
+    },
+    "diagnostic_process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "process_id", "exit_code", "status", "evidence_directory"],
+      "properties": {
+        "name": { "type": "string" },
+        "process_id": { "type": "integer", "minimum": 1 },
+        "exit_code": { "type": "integer" },
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "DIAGNOSTIC_PASS", "FAIL"]
+        },
+        "evidence_directory": { "type": "string" }
       }
     }
   }

@@ -64,6 +64,7 @@ internal static class FixtureProgram
         "graceful_cancel" => await RunGracefulCancelAsync().ConfigureAwait(false),
         "forced_termination" => await RunForcedTerminationAsync().ConfigureAwait(false),
         "nested_children" => await RunNestedChildrenAsync(arguments.GetInt32("--child-count", 3, 1)).ConfigureAwait(false),
+        "stream_isolation" => RunStreamIsolation(arguments.GetString("--run-id") ?? Guid.NewGuid().ToString("N")[..8]),
         _ => throw new ArgumentException($"Unknown scenario '{scenario}'.")
     };
 
@@ -301,6 +302,15 @@ internal static class FixtureProgram
 
         return Process.Start(startInfo)
             ?? throw new InvalidOperationException("Failed to start the fixture child process.");
+    }
+
+    private static int RunStreamIsolation(string runId)
+    {
+        Console.WriteLine($"CONPTY-STDOUT-MARKER:{runId}");
+        Console.Out.Flush();
+        Console.Error.WriteLine($"CONPTY-STDERR-MARKER:{runId}");
+        Console.Error.Flush();
+        return 0;
     }
 
     private static string? TryGetMode(IReadOnlyList<string> args, string name)

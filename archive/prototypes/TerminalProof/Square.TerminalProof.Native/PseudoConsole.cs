@@ -22,6 +22,7 @@ internal sealed class PseudoConsole : IDisposable
             throw new InvalidOperationException("CreatePseudoConsole returned a null handle after reporting success.");
         }
 
+        OwnedResourceCounters.Increment(OwnedResourceKind.PseudoConsole);
         return new PseudoConsole(handle);
     }
 
@@ -42,14 +43,29 @@ internal sealed class PseudoConsole : IDisposable
         TaskCompletionSource closeCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Thread closeThread = new(() =>
         {
+            OwnedResourceCounters.Increment(OwnedResourceKind.ClosePseudoConsoleThread);
+            Exception? failure = null;
             try
             {
                 NativeMethods.ClosePseudoConsole(handle);
-                closeCompletion.TrySetResult();
             }
             catch (Exception ex)
             {
-                closeCompletion.TrySetException(ex);
+                failure = ex;
+            }
+            finally
+            {
+                OwnedResourceCounters.Decrement(OwnedResourceKind.ClosePseudoConsoleThread);
+                OwnedResourceCounters.Decrement(OwnedResourceKind.PseudoConsole);
+            }
+
+            if (failure is null)
+            {
+                closeCompletion.TrySetResult();
+            }
+            else
+            {
+                closeCompletion.TrySetException(failure);
             }
         })
         {
@@ -71,7 +87,14 @@ internal sealed class PseudoConsole : IDisposable
         nint handle = Interlocked.Exchange(ref _handle, nint.Zero);
         if (handle != nint.Zero)
         {
-            NativeMethods.ClosePseudoConsole(handle);
+            try
+            {
+                NativeMethods.ClosePseudoConsole(handle);
+            }
+            finally
+            {
+                OwnedResourceCounters.Decrement(OwnedResourceKind.PseudoConsole);
+            }
         }
     }
 }

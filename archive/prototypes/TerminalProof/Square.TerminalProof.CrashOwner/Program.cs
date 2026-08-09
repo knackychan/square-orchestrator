@@ -55,6 +55,10 @@ internal static class CrashOwnerProgram
             DateTimeOffset.UtcNow);
 
         await WriteReadyEvidenceAtomicallyAsync(readyFile, evidence).ConfigureAwait(false);
+        if (!File.Exists(readyFile))
+        {
+            throw new InvalidOperationException("Ready evidence publication did not produce the final file.");
+        }
 
         // Deliberately bypass IAsyncDisposable and finalizers. Process termination closes the sole Job
         // Object handle; JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE must terminate every observed descendant.
@@ -111,42 +115,17 @@ internal static class CrashOwnerProgram
 
     private static async Task WriteReadyEvidenceAtomicallyAsync(string path, CrashOwnerReady evidence)
     {
-        string directory = Path.GetDirectoryName(path)
-            ?? throw new InvalidOperationException("The owner-crash ready file must have a parent directory.");
-        Directory.CreateDirectory(directory);
-        string temporaryPath = $"{path}.{Guid.NewGuid():N}.tmp";
-        try
+        JsonSerializerOptions options = new()
         {
-            JsonSerializerOptions options = new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-                UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-                WriteIndented = true
-            };
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(evidence, options);
-            await using (FileStream stream = new(
-                temporaryPath,
-                FileMode.CreateNew,
-                FileAccess.Write,
-                FileShare.None,
-                bufferSize: 16 * 1024,
-                FileOptions.Asynchronous | FileOptions.WriteThrough))
-            {
-                await stream.WriteAsync(json).ConfigureAwait(false);
-                await stream.WriteAsync("\n"u8.ToArray()).ConfigureAwait(false);
-                await stream.FlushAsync().ConfigureAwait(false);
-                stream.Flush(flushToDisk: true);
-            }
-
-            File.Move(temporaryPath, path, overwrite: true);
-        }
-        finally
-        {
-            if (File.Exists(temporaryPath))
-            {
-                File.Delete(temporaryPath);
-            }
-        }
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+            UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+            WriteIndented = true
+        };
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(evidence, options);
+        byte[] content = new byte[json.Length + 1];
+        json.CopyTo(content, 0);
+        content[^1] = (byte)'\n';
+        await Square.TerminalProof.Native.ReadyFile.WriteAtomicallyAsync(path, content, CancellationToken.None).ConfigureAwait(false);
     }
 
     private static Dictionary<string, string> Parse(IReadOnlyList<string> args)

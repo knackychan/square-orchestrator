@@ -1,10 +1,28 @@
 using System.Diagnostics;
 using System.Text.Json;
+using Square.TerminalProof.Native;
 
 namespace Square.TerminalProof.Harness;
 
+/// <summary>
+/// Deterministic parent-side completion sequence for the owner-crash probe.
+///
+/// The crash-owner is launched WITHOUT .NET output redirection. Redirected StandardOutput /
+/// StandardError keep an AsyncStreamReader pipe plus a blocking read thread alive in this
+/// process, and on this runtime the pair is not reclaimed even across forced GC and a 10s
+/// quiescence (measured ~+8 handles and +1 thread per probe). The crash-owner communicates
+/// exclusively through its atomically-published ready file, so no probe information is lost
+/// by disabling redirection; the parent holds zero pipe or reader handles for the probe.
+///
+/// Completion order: start process; publish/observe ready file; owner self-terminates;
+/// wait for exit; verify exit code; verify every exact descendant identity vanished;
+/// dispose the Process; the probe scope counter is released. An owned-resource counter
+/// snapshot is captured at scope exit and is verified zero by the caller.
+/// </summary>
 internal static class OwnerCrashProbe
 {
+    private const string ReadyFileName = "owner-crash-ready.json";
+
     internal static async Task<OwnerCrashProbeEvidence> ExecuteAsync(
         ProofOptions options,
         ProofManifest manifest,
@@ -15,7 +33,7 @@ internal static class OwnerCrashProbe
             return CreateSkipped();
         }
 
-        string readyFile = Path.Combine(options.EvidenceDirectory, "owner-crash-ready.json");
+        string readyFile = Path.Combine(options.EvidenceDirectory, ReadyFileName);
         if (File.Exists(readyFile))
         {
             File.Delete(readyFile);
@@ -24,8 +42,6 @@ internal static class OwnerCrashProbe
         Stopwatch totalTimer = Stopwatch.StartNew();
         string? firstException = null;
         string? lastException = null;
-        string? ownerStdout = null;
-        string? ownerStderr = null;
         string? readyFileSha256 = null;
         bool parentKillUsed = false;
         double? processStartReturnMs = null;
@@ -33,13 +49,176 @@ internal static class OwnerCrashProbe
         double? ownerExitMs = null;
         double? descendantEmptyMs = null;
         OwnerCrashFailureStage stage = OwnerCrashFailureStage.Unknown;
+        CrashOwnerReady? ready = null;
+        int? ownerExitCode = null;
 
+        ProcessStartInfo startInfo = BuildStartInfo(options, manifest, readyFile);
+
+        OwnedResourceCounters.Increment(OwnedResourceKind.OwnerCrashTimeoutScope);
+        Process? owner = null;
+        OwnerCrashProbeEvidence evidence = CreateSkipped();
+
+        try
+        {
+            stage = OwnerCrashFailureStage.ProcessStart;
+            Stopwatch startTimer = Stopwatch.StartNew();
+            owner = Process.Start(startInfo);
+            processStartReturnMs = startTimer.Elapsed.TotalMilliseconds;
+            if (owner is null)
+            {
+                evidence = Failure("Failed to start the owner-crash probe executable.", OwnerCrashFailureStage.ProcessStart);
+            }
+            else
+            {
+                OwnedResourceCounters.Increment(OwnedResourceKind.OwnerCrashProcess);
+
+                stage = OwnerCrashFailureStage.ReadyFileObserve;
+                Stopwatch readyTimer = Stopwatch.StartNew();
+                string readyText = await ReadyFile.ReadValidatedAsync(
+                    readyFile,
+                    manifest.Settings.DefaultTimeout,
+                    validate: text => ready = ParseAndValidateReady(text),
+                    cancellationToken).ConfigureAwait(false);
+                readyFileObserveMs = readyTimer.Elapsed.TotalMilliseconds;
+                if (string.IsNullOrEmpty(readyText))
+                {
+                    throw new InvalidDataException("Owner-crash ready evidence read as empty stable content.");
+                }
+
+                try
+                {
+                    readyFileSha256 = Hashing.Sha256(await File.ReadAllBytesAsync(readyFile, cancellationToken).ConfigureAwait(false));
+                }
+                catch
+                {
+                }
+
+                ready = ready ?? throw new InvalidDataException("Owner-crash ready evidence was not parsed.");
+
+                stage = OwnerCrashFailureStage.OwnerTermination;
+                Stopwatch ownerExitTimer = Stopwatch.StartNew();
+                await owner.WaitForExitAsync(cancellationToken)
+                    .WaitAsync(manifest.Settings.DefaultTimeout, cancellationToken)
+                    .ConfigureAwait(false);
+                ownerExitMs = ownerExitTimer.Elapsed.TotalMilliseconds;
+                ownerExitCode = owner.ExitCode;
+
+                stage = OwnerCrashFailureStage.DescendantTermination;
+                Stopwatch descTimer = Stopwatch.StartNew();
+                IReadOnlyList<int> survivors = await WaitForProcessesToExitAsync(
+                    ready.JobProcesses,
+                    manifest.Settings.DescendantExitTimeout,
+                    cancellationToken).ConfigureAwait(false);
+                descendantEmptyMs = descTimer.Elapsed.TotalMilliseconds;
+
+                stage = OwnerCrashFailureStage.IdentityValidation;
+                bool passed = ownerExitCode != 0 && survivors.Count == 0;
+
+                evidence = new OwnerCrashProbeEvidence
+                {
+                    Executed = true,
+                    Passed = passed,
+                    Failure = passed ? null
+                        : $"Owner exit={ownerExitCode}; survivors=[{string.Join(", ", survivors)}]",
+                    FailureStage = passed ? OwnerCrashFailureStage.Unknown : stage,
+                    OwnerProcessId = ready.OwnerProcessId,
+                    OwnerExitCode = ownerExitCode,
+                    RootProcessId = ready.RootProcessId,
+                    JobProcessIds = ready.JobProcesses.Select(process => process.ProcessId).Order().ToArray(),
+                    SurvivingProcessIds = survivors,
+                    ProcessStartReturnMilliseconds = processStartReturnMs,
+                    ReadyFileObservationMilliseconds = readyFileObserveMs,
+                    OwnerExitMilliseconds = ownerExitMs,
+                    DescendantEmptyingMilliseconds = descendantEmptyMs,
+                    TotalProbeDurationMilliseconds = totalTimer.Elapsed.TotalMilliseconds,
+                    ReadyFileSha256 = readyFileSha256,
+                    ReadyFilePath = readyFile,
+                    ReadyFileSharingMode = ReadyFile.FinalShareMode.ToString(),
+                    ParentKillUsed = parentKillUsed,
+                    FirstException = firstException,
+                    LastException = lastException,
+                    LivePtyReattachSupported = false,
+                    ReattachConclusion = "This proof architecture keeps the ConPTY, anonymous pipe, process, and unnamed Job Object handles only in the owner process and provides no surviving broker or transferable handle. After owner failure, KILL_ON_JOB_CLOSE must terminate the observed process tree; restart recovery must reconcile durable evidence and report a lost/terminated terminal rather than claim live PTY reattachment."
+                };
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            lastException = exception.ToString();
+            firstException ??= lastException;
+
+            if (owner is not null && !owner.HasExited)
+            {
+                try
+                {
+                    owner.Kill(entireProcessTree: true);
+                    parentKillUsed = true;
+                    await owner.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch
+                {
+                }
+            }
+
+            evidence = new OwnerCrashProbeEvidence
+            {
+                Executed = true,
+                Passed = false,
+                Failure = exception.ToString(),
+                FailureStage = stage,
+                OwnerProcessId = ready?.OwnerProcessId,
+                OwnerExitCode = ownerExitCode ?? (owner?.HasExited == true ? owner.ExitCode : null),
+                RootProcessId = ready?.RootProcessId,
+                JobProcessIds = ready?.JobProcesses.Select(process => process.ProcessId).Order().ToArray()
+                    ?? Array.Empty<int>(),
+                SurvivingProcessIds = ready is null
+                    ? Array.Empty<int>()
+                    : ready.JobProcesses.Where(IsSameProcessRunning).Select(process => process.ProcessId).Order().ToArray(),
+                ProcessStartReturnMilliseconds = processStartReturnMs,
+                ReadyFileObservationMilliseconds = readyFileObserveMs,
+                OwnerExitMilliseconds = ownerExitMs,
+                DescendantEmptyingMilliseconds = descendantEmptyMs,
+                TotalProbeDurationMilliseconds = totalTimer.Elapsed.TotalMilliseconds,
+                ReadyFileSha256 = readyFileSha256,
+                ReadyFilePath = readyFile,
+                ReadyFileSharingMode = ReadyFile.FinalShareMode.ToString(),
+                ParentKillUsed = parentKillUsed,
+                FirstException = firstException,
+                LastException = lastException,
+                LivePtyReattachSupported = false,
+                ReattachConclusion = "Probe failed before a complete reattachment/cleanup conclusion could be accepted."
+            };
+        }
+        finally
+        {
+            if (owner is not null)
+            {
+                owner.Dispose();
+                OwnedResourceCounters.Decrement(OwnedResourceKind.OwnerCrashProcess);
+            }
+
+            OwnedResourceCounters.Decrement(OwnedResourceKind.OwnerCrashTimeoutScope);
+        }
+
+        return evidence with { OwnedResourceCounts = OwnedResourceCounters.Snapshot() };
+    }
+
+    private static ProcessStartInfo BuildStartInfo(ProofOptions options, ProofManifest manifest, string readyFile)
+    {
+        // No RedirectStandardOutput/RedirectStandardError: .NET keeps per-stream reader pipes and
+        // threads alive in the parent on this runtime, and the crash-owner publishes its evidence
+        // exclusively through the atomic ready file. Null child handles mean no parent stream
+        // can capture crash-owner output.
         ProcessStartInfo startInfo = new(options.CrashOwnerPath)
         {
             UseShellExecute = false,
             CreateNoWindow = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
+            RedirectStandardOutput = false,
+            RedirectStandardError = false,
             WorkingDirectory = options.WorkingDirectory
         };
         startInfo.ArgumentList.Add("--fixture");
@@ -52,169 +231,15 @@ internal static class OwnerCrashProbe
         startInfo.ArgumentList.Add(manifest.Settings.NestedChildCount.ToString(System.Globalization.CultureInfo.InvariantCulture));
         startInfo.ArgumentList.Add("--timeout-ms");
         startInfo.ArgumentList.Add(manifest.Settings.DefaultTimeoutMilliseconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
-
-        Process? owner = null;
-        CrashOwnerReady? ready = null;
-
-        try
-        {
-            stage = OwnerCrashFailureStage.ProcessStart;
-            Stopwatch startTimer = Stopwatch.StartNew();
-            owner = Process.Start(startInfo);
-            processStartReturnMs = startTimer.Elapsed.TotalMilliseconds;
-            if (owner is null)
-            {
-                return Failure("Failed to start the owner-crash probe executable.", OwnerCrashFailureStage.ProcessStart);
-            }
-
-            Task<string> standardOutput = owner.StandardOutput.ReadToEndAsync(cancellationToken);
-            Task<string> standardError = owner.StandardError.ReadToEndAsync(cancellationToken);
-
-            stage = OwnerCrashFailureStage.ReadyFileObserve;
-            Stopwatch readyTimer = Stopwatch.StartNew();
-            try
-            {
-                ready = await WaitForReadyFileAsync(readyFile, manifest.Settings.DefaultTimeout, cancellationToken).ConfigureAwait(false);
-            }
-            catch (TimeoutException)
-            {
-                firstException = "Timeout waiting for ready file.";
-                lastException = firstException;
-                throw;
-            }
-            readyFileObserveMs = readyTimer.Elapsed.TotalMilliseconds;
-
-            if (File.Exists(readyFile))
-            {
-                try
-                {
-                    readyFileSha256 = Hashing.Sha256(await File.ReadAllBytesAsync(readyFile, cancellationToken).ConfigureAwait(false));
-                }
-                catch { }
-            }
-
-            stage = OwnerCrashFailureStage.OwnerTermination;
-            Stopwatch ownerExitTimer = Stopwatch.StartNew();
-            await owner.WaitForExitAsync(cancellationToken)
-                .WaitAsync(manifest.Settings.DefaultTimeout, cancellationToken).ConfigureAwait(false);
-            ownerExitMs = ownerExitTimer.Elapsed.TotalMilliseconds;
-            ownerStdout = await standardOutput.ConfigureAwait(false);
-            ownerStderr = await standardError.ConfigureAwait(false);
-
-            stage = OwnerCrashFailureStage.DescendantTermination;
-            Stopwatch descTimer = Stopwatch.StartNew();
-            IReadOnlyList<int> survivors = await WaitForProcessesToExitAsync(
-                ready.JobProcesses,
-                manifest.Settings.DescendantExitTimeout,
-                cancellationToken).ConfigureAwait(false);
-            descendantEmptyMs = descTimer.Elapsed.TotalMilliseconds;
-
-            stage = OwnerCrashFailureStage.IdentityValidation;
-            bool passed = owner.ExitCode != 0 && survivors.Count == 0;
-
-            return new OwnerCrashProbeEvidence
-            {
-                Executed = true,
-                Passed = passed,
-                Failure = passed ? null
-                    : $"Owner exit={owner.ExitCode}; survivors=[{string.Join(", ", survivors)}]; stdout_excerpt={Truncate(ownerStdout, 256)}; stderr_excerpt={Truncate(ownerStderr, 256)}",
-                FailureStage = passed ? OwnerCrashFailureStage.Unknown : stage,
-                OwnerProcessId = ready.OwnerProcessId,
-                OwnerExitCode = owner.ExitCode,
-                RootProcessId = ready.RootProcessId,
-                JobProcessIds = ready.JobProcesses.Select(process => process.ProcessId).Order().ToArray(),
-                SurvivingProcessIds = survivors,
-                ProcessStartReturnMilliseconds = processStartReturnMs,
-                ReadyFileObservationMilliseconds = readyFileObserveMs,
-                OwnerExitMilliseconds = ownerExitMs,
-                DescendantEmptyingMilliseconds = descendantEmptyMs,
-                TotalProbeDurationMilliseconds = totalTimer.Elapsed.TotalMilliseconds,
-                OwnerStdout = Truncate(ownerStdout, 1024),
-                OwnerStderr = Truncate(ownerStderr, 1024),
-                ReadyFileSha256 = readyFileSha256,
-                ParentKillUsed = parentKillUsed,
-                FirstException = firstException,
-                LastException = lastException,
-                LivePtyReattachSupported = false,
-                ReattachConclusion = "This proof architecture keeps the ConPTY, anonymous pipe, process, and unnamed Job Object handles only in the owner process and provides no surviving broker or transferable handle. After owner failure, KILL_ON_JOB_CLOSE must terminate the observed process tree; restart recovery must reconcile durable evidence and report a lost/terminated terminal rather than claim live PTY reattachment."
-            };
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception exception)
-        {
-            lastException = exception.ToString();
-            firstException ??= lastException;
-
-            if (owner is not null)
-            {
-                try
-                {
-                    if (!owner.HasExited)
-                    {
-                        owner.Kill(entireProcessTree: true);
-                        parentKillUsed = true;
-                        await owner.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                }
-                catch { }
-            }
-
-            return new OwnerCrashProbeEvidence
-            {
-                Executed = true,
-                Passed = false,
-                Failure = exception.ToString(),
-                FailureStage = stage,
-                OwnerProcessId = ready?.OwnerProcessId,
-                OwnerExitCode = owner?.HasExited == true ? owner.ExitCode : null,
-                RootProcessId = ready?.RootProcessId,
-                JobProcessIds = ready?.JobProcesses.Select(process => process.ProcessId).Order().ToArray()
-                    ?? Array.Empty<int>(),
-                SurvivingProcessIds = ready is null
-                    ? Array.Empty<int>()
-                    : ready.JobProcesses.Where(IsSameProcessRunning).Select(process => process.ProcessId).Order().ToArray(),
-                ProcessStartReturnMilliseconds = processStartReturnMs,
-                ReadyFileObservationMilliseconds = readyFileObserveMs,
-                OwnerExitMilliseconds = ownerExitMs,
-                DescendantEmptyingMilliseconds = descendantEmptyMs,
-                TotalProbeDurationMilliseconds = totalTimer.Elapsed.TotalMilliseconds,
-                OwnerStdout = Truncate(ownerStdout, 1024),
-                OwnerStderr = Truncate(ownerStderr, 1024),
-                ReadyFileSha256 = readyFileSha256,
-                ParentKillUsed = parentKillUsed,
-                FirstException = firstException,
-                LastException = lastException,
-                LivePtyReattachSupported = false,
-                ReattachConclusion = "Probe failed before a complete reattachment/cleanup conclusion could be accepted."
-            };
-        }
+        return startInfo;
     }
 
-    private static async Task<CrashOwnerReady> WaitForReadyFileAsync(
-        string path,
-        TimeSpan timeout,
-        CancellationToken cancellationToken)
+    private static CrashOwnerReady ParseAndValidateReady(string json)
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        while (!File.Exists(path))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (stopwatch.Elapsed >= timeout)
-            {
-                throw new TimeoutException($"Owner-crash probe did not create '{path}' within {timeout}.");
-            }
-
-            await Task.Delay(TimeSpan.FromMilliseconds(20), cancellationToken).ConfigureAwait(false);
-        }
-
-        string json = await File.ReadAllTextAsync(path, cancellationToken).ConfigureAwait(false);
-        CrashOwnerReady ready = JsonSerializer.Deserialize<CrashOwnerReady>(json, ProofJson.Create())
+        CrashOwnerReady parsed = JsonSerializer.Deserialize<CrashOwnerReady>(json, ProofJson.Create())
             ?? throw new InvalidDataException("Owner-crash ready evidence deserialized to null.");
-        ValidateReadyEvidence(ready);
-        return ready;
+        ValidateReadyEvidence(parsed);
+        return parsed;
     }
 
     private static async Task<IReadOnlyList<int>> WaitForProcessesToExitAsync(
@@ -305,9 +330,6 @@ internal static class OwnerCrashProbe
         LivePtyReattachSupported = false,
         ReattachConclusion = "Probe did not reach the point where reattachment behavior could be measured."
     };
-
-    private static string? Truncate(string? value, int maxLength) =>
-        value is null || value.Length <= maxLength ? value : value[..maxLength] + "…";
 
     private sealed record CrashOwnerReady(
         string SchemaVersion,

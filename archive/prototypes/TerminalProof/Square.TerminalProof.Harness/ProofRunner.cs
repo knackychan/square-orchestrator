@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Text.Json;
+using Square.TerminalProof.Native;
 
 namespace Square.TerminalProof.Harness;
 
@@ -9,6 +11,9 @@ internal sealed class ProofRunner
     private const int WarmupRepetitions = 3;
     private const int DiagnosticRepetitions = 20;
     private const int DiagnosticCycles = 5;
+
+    private static readonly string[] MixScenarios = { "normal_exit", "large_burst", "graceful_cancel", "forced_termination", "nested_children" };
+
     private readonly ProofOptions _options;
     private readonly ProofManifest _manifest;
     private readonly ProofEnvironmentEvidence _environment;
@@ -31,6 +36,26 @@ internal sealed class ProofRunner
 
     internal async Task<ProofSummaryEvidence> ExecuteAsync(CancellationToken cancellationToken)
     {
+        if (_options.DiagOwnerCrash)
+        {
+            return await RunOwnerCrashDiagnosticProcessAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        if (_options.DiagHandleGrowth)
+        {
+            return await RunHandleGrowthDiagnosticProcessAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        if (_options.DiagIsolation)
+        {
+            return await RunIsolationDiagnosticProcessAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        return await RunCanonicalAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<ProofSummaryEvidence> RunCanonicalAsync(CancellationToken cancellationToken)
+    {
         DateTimeOffset startedAtUtc = DateTimeOffset.UtcNow;
         string proofRunId = $"sp00-t02-{startedAtUtc:yyyyMMddTHHmmssZ}-{Guid.NewGuid():N}";
         List<SessionRunEvidence> warmupRuns = new();
@@ -42,7 +67,7 @@ internal sealed class ProofRunner
         List<string> limitations = BuildLimitations();
         bool stopEarly = false;
 
-        Console.WriteLine($"SP00-T02 run {proofRunId}");
+        Console.WriteLine($"SP00-T02 canonical run {proofRunId} pid={_environment.ProcessId} started_utc={_environment.ProcessStartUtc:O}");
 
         Console.WriteLine($"Warm-up: normal_exit x {WarmupRepetitions}");
         for (int iteration = 1; iteration <= WarmupRepetitions; iteration++)
@@ -69,7 +94,7 @@ internal sealed class ProofRunner
         }
 
         int baselineHandleCount = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
-        handleCheckpoints.Add(CaptureExtendedCheckpoint("post-warmup-baseline", baselineHandleCount, baselineHandleCount));
+        handleCheckpoints.Add(CaptureExtendedCheckpoint("post-warmup-baseline", CheckpointPhase.PostGc, baselineHandleCount, baselineHandleCount));
 
         if (!stopEarly)
         {
@@ -103,10 +128,11 @@ internal sealed class ProofRunner
                 _lastSessionCompletedAt = DateTimeOffset.UtcNow;
                 HandleCheckpointEvidence checkpoint = await CaptureExtendedCheckpointAsync(
                     $"after-reliability-{scenario}",
+                    CheckpointPhase.PostGc,
                     baselineHandleCount,
                     cancellationToken).ConfigureAwait(false);
                 handleCheckpoints.Add(checkpoint);
-                RegisterHandleFailure(checkpoint, globalFailures);
+                RegisterCheckpointFailures(checkpoint, globalFailures);
                 if (!checkpoint.WithinTolerance && _options.FailFast)
                 {
                     stopEarly = true;
@@ -181,10 +207,11 @@ internal sealed class ProofRunner
                     await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken).ConfigureAwait(false);
                     HandleCheckpointEvidence checkpoint = await CaptureExtendedCheckpointAsync(
                         $"after-scale-{scenario}-x{concurrency}",
+                        CheckpointPhase.PostGc,
                         baselineHandleCount,
                         cancellationToken).ConfigureAwait(false);
                     handleCheckpoints.Add(checkpoint);
-                    RegisterHandleFailure(checkpoint, globalFailures);
+                    RegisterCheckpointFailures(checkpoint, globalFailures);
                     if (!checkpoint.WithinTolerance && _options.FailFast)
                     {
                         stopEarly = true;
@@ -203,20 +230,20 @@ internal sealed class ProofRunner
             }
         }
 
-        // Quiescence checkpoints before canonical final checkpoint
+        // Quiescence checkpoints before the canonical final checkpoint.
         if (!stopEarly || !_options.FailFast)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken).ConfigureAwait(false);
             handleCheckpoints.Add(await CaptureExtendedCheckpointAsync(
-                "quiescence-250ms", baselineHandleCount, cancellationToken).ConfigureAwait(false));
+                "quiescence-250ms", CheckpointPhase.Quiescent250Ms, baselineHandleCount, cancellationToken).ConfigureAwait(false));
 
             await Task.Delay(TimeSpan.FromMilliseconds(1750), cancellationToken).ConfigureAwait(false);
             handleCheckpoints.Add(await CaptureExtendedCheckpointAsync(
-                "quiescence-2s", baselineHandleCount, cancellationToken).ConfigureAwait(false));
+                "quiescence-2s", CheckpointPhase.Quiescent2S, baselineHandleCount, cancellationToken).ConfigureAwait(false));
 
             await Task.Delay(TimeSpan.FromMilliseconds(8000), cancellationToken).ConfigureAwait(false);
             handleCheckpoints.Add(await CaptureExtendedCheckpointAsync(
-                "quiescence-10s", baselineHandleCount, cancellationToken).ConfigureAwait(false));
+                "quiescence-10s", CheckpointPhase.Quiescent10S, baselineHandleCount, cancellationToken).ConfigureAwait(false));
         }
 
         OwnerCrashProbeEvidence ownerCrashProbe;
@@ -237,9 +264,19 @@ internal sealed class ProofRunner
         {
             Console.WriteLine("Owner-crash containment probe");
             ownerCrashProbe = await OwnerCrashProbe.ExecuteAsync(_options, _manifest, cancellationToken).ConfigureAwait(false);
+            if (!ownerCrashProbe.OwnedResourcesZero)
+            {
+                string retained = DescribeRetainedResources(ownerCrashProbe);
+                globalFailures.Add($"Owner-crash containment probe left owned TerminalProof resources after disposal: {retained}.");
+                ownerCrashProbe = ownerCrashProbe with
+                {
+                    Passed = false,
+                    Failure = $"Owned-resource retention after probe disposal: {retained}"
+                };
+            }
         }
 
-        // Extended final checkpoint with forced-GC distinction
+        // Extended final checkpoint with forced-GC distinction.
         if (!stopEarly || !_options.FailFast)
         {
             int preGcHandles = GetCurrentHandleCount();
@@ -252,31 +289,9 @@ internal sealed class ProofRunner
             await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken).ConfigureAwait(false);
             int postQuiescenceHandles = GetCurrentHandleCount();
 
-        HandleCheckpointEvidence finalCheckpoint = CaptureExtendedCheckpoint("final-canonical", postQuiescenceHandles, baselineHandleCount);
-        handleCheckpoints.Add(finalCheckpoint);
-        RegisterHandleFailure(finalCheckpoint, globalFailures);
-    }
-
-        // Diagnostic modes (non-acceptance evidence, after canonical measurement)
-        if (!_options.Quick && !_options.SkipDiagnostics)
-        {
-            Console.WriteLine("Owner-crash cold diagnostic: 20 probes");
-            await RunOwnerCrashDiagnosticsAsync(
-                "cold", DiagnosticRepetitions, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
-
-            Console.WriteLine("Handle-growth diagnostic: 20-cycle eight-session normal_exit");
-            await RunHandleGrowthDiagnosticAsync(baselineHandleCount, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
-
-            Console.WriteLine("Handle-growth diagnostic: 5-cycle mixed scenario at concurrency 8");
-            await RunMixDiagnosticAsync(baselineHandleCount, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
-
-            Console.WriteLine("Owner-crash post-stress diagnostic: 20 probes");
-            await RunOwnerCrashDiagnosticsAsync(
-                "post-stress", DiagnosticRepetitions, handleCheckpoints, globalFailures, cancellationToken).ConfigureAwait(false);
-
-            int diagFinalHandles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
-            HandleCheckpointEvidence diagFinal = CaptureExtendedCheckpoint("final-post-diagnostics", diagFinalHandles, baselineHandleCount);
-            handleCheckpoints.Add(diagFinal);
+            HandleCheckpointEvidence finalCheckpoint = CaptureExtendedCheckpoint("final-canonical", CheckpointPhase.Final, postQuiescenceHandles, baselineHandleCount);
+            handleCheckpoints.Add(finalCheckpoint);
+            RegisterCheckpointFailures(finalCheckpoint, globalFailures);
         }
 
         ValidateRunShape(reliabilityRuns, scaleGroups, globalFailures);
@@ -297,6 +312,18 @@ internal sealed class ProofRunner
         string status = technicalPass
             ? acceptanceEligible ? "PASS" : "DIAGNOSTIC_PASS"
             : "FAIL";
+
+        List<HandleGrowthClassificationEvidence> classifications = new();
+        HandleCheckpointEvidence[] canonicalStablePoints = handleCheckpoints
+            .Where(checkpoint => checkpoint.Name is "quiescence-250ms" or "quiescence-2s" or "quiescence-10s" or "final-canonical")
+            .OrderBy(checkpoint => checkpoint.CapturedAtUtc)
+            .ToArray();
+        IReadOnlyList<int> canonicalStable = canonicalStablePoints.Select(checkpoint => checkpoint.HandleCount).ToArray();
+        string[] stablePhases = canonicalStablePoints.Select(checkpoint => checkpoint.Name).ToArray();
+        if (canonicalStable.Count >= 3)
+        {
+            classifications.Add(HandleGrowthClassifier.Classify("canonical-stable", canonicalStable));
+        }
 
         return new ProofSummaryEvidence
         {
@@ -322,7 +349,504 @@ internal sealed class ProofRunner
             OwnerCrashProbe = ownerCrashProbe,
             GlobalFailures = globalFailures,
             Limitations = limitations,
-            EvidenceDirectory = _evidence.DirectoryPath
+            EvidenceDirectory = _evidence.DirectoryPath,
+            ProcessId = _environment.ProcessId,
+            ProcessStartUtcTicks = _environment.ProcessStartUtcTicks,
+            BaselineCheckpointName = "post-warmup-baseline",
+            StableCheckpointPolicy =
+                "Acceptance keeps the checked-in rule: Process.HandleCount growth_from_baseline must be <= "
+                + HandleGrowthToleranceForDisplay() + " at every named handle checkpoint. "
+                + "Checkpoints are additionally phase-labelled (ACTIVE/IMMEDIATE_POST_DISPOSAL/POST_GC/QUIESCENT_*/FINAL). "
+                + "An ACTIVE or immediate post-disposal peak is not called a leak and is not removed from evidence. "
+                + "Owned TerminalProof resource counters must be zero at every checkpoint and after every session and owner-crash probe.",
+            HandleGrowthTolerance = _manifest.Settings.HandleGrowthTolerance,
+            DiagnosticsProcessSeparated = true,
+            HandleGrowthClassifications = classifications,
+            DiagnosticProcesses = LoadDiagnosticsReport(_options.DiagnosticsReport),
+            StableCheckpointNames = stablePhases
+        };
+    }
+
+    private async Task<ProofSummaryEvidence> RunOwnerCrashDiagnosticProcessAsync(CancellationToken cancellationToken)
+    {
+        DateTimeOffset startedAtUtc = DateTimeOffset.UtcNow;
+        string runId = $"sp00-t02-diag-owner-crash-{startedAtUtc:yyyyMMddTHHmmssZ}-{Guid.NewGuid():N}";
+        List<string> globalFailures = new();
+        List<string> limitations = BuildLimitations();
+        limitations.Add("Owner-crash diagnostic process: repeated probes and retention reproducer are development evidence, not canonical acceptance.");
+        List<HandleCheckpointEvidence> checkpoints = new();
+        OwnerCrashProbeEvidence lastProbe = CreateSkippedProbe("No owner-crash probe executed in the owner-crash diagnostic process.");
+
+        Console.WriteLine($"SP00-T02 owner-crash diagnostic run {runId} pid={_environment.ProcessId}");
+
+        Console.WriteLine("Diagnostic warm-up: normal_exit x 1");
+        await _executor.ExecuteAsync("normal_exit", "diagnostic-warmup", 0, concurrency: 1, sessionOrdinal: 1, runId, cancellationToken).ConfigureAwait(false);
+        int baseline = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+        checkpoints.Add(CaptureExtendedCheckpoint("diag-baseline", CheckpointPhase.PostGc, baseline, baseline));
+
+        Console.WriteLine("Owner-crash retention reproducer: single probe, staged checkpoints");
+        await RunRetentionReproducerAsync(checkpoints, baseline, cancellationToken).ConfigureAwait(false);
+
+        Console.WriteLine($"Owner-crash cold diagnostic: {DiagnosticRepetitions} probes");
+        IReadOnlyList<OwnerCrashProbeEvidence> cold = await RunProbeSeriesAsync(
+            "cold", DiagnosticRepetitions, baseline, checkpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+        lastProbe = cold.Count == 0 ? lastProbe : cold[^1];
+
+        Console.WriteLine("Eight-session terminal stress cycle");
+        await RunStressCycleAsync(runId, cancellationToken).ConfigureAwait(false);
+        int stressBaseline = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+        checkpoints.Add(CaptureExtendedCheckpoint("diag-stress-after", CheckpointPhase.PostGc, stressBaseline, baseline));
+
+        Console.WriteLine($"Owner-crash post-stress diagnostic: {DiagnosticRepetitions} probes");
+        IReadOnlyList<OwnerCrashProbeEvidence> postStress = await RunProbeSeriesAsync(
+            "post-stress", DiagnosticRepetitions, baseline, checkpoints, globalFailures, cancellationToken).ConfigureAwait(false);
+        if (postStress.Count != 0)
+        {
+            lastProbe = postStress[^1];
+        }
+
+        bool technicalPass = globalFailures.Count == 0;
+        return new ProofSummaryEvidence
+        {
+            SchemaVersion = "1.0",
+            TaskId = "SP00-T02",
+            RunId = runId,
+            StartedAtUtc = startedAtUtc,
+            CompletedAtUtc = DateTimeOffset.UtcNow,
+            Status = technicalPass ? "DIAGNOSTIC_PASS" : "FAIL",
+            AcceptanceEligible = false,
+            Mode = "diag-owner-crash",
+            EffectiveRepeatEach = 0,
+            EffectiveScaleRepeatEach = 0,
+            SessionCounts = _manifest.SessionCounts,
+            Scenarios = Array.Empty<string>(),
+            WarmupRuns = 0,
+            ReliabilityRuns = 0,
+            ScaleSessionRuns = 0,
+            FailedRuns = 0,
+            ScenarioSummaries = Array.Empty<ScenarioSummaryEvidence>(),
+            ScaleGroups = Array.Empty<ScaleGroupEvidence>(),
+            HandleCheckpoints = checkpoints,
+            OwnerCrashProbe = lastProbe with
+            {
+                Executed = true,
+                Passed = cold.All(probe => probe.Passed) && postStress.All(probe => probe.Passed),
+                Failure = globalFailures.Count == 0 ? null : $"Owner-crash diagnostic failed: {globalFailures[0]}"
+            },
+            GlobalFailures = globalFailures,
+            Limitations = limitations,
+            EvidenceDirectory = _evidence.DirectoryPath,
+            ProcessId = _environment.ProcessId,
+            ProcessStartUtcTicks = _environment.ProcessStartUtcTicks,
+            BaselineCheckpointName = "diag-baseline",
+            StableCheckpointPolicy = "Diagnostic process: baseline and staged stable checkpoints; not canonical acceptance evidence.",
+            HandleGrowthTolerance = _manifest.Settings.HandleGrowthTolerance,
+            DiagnosticsProcessSeparated = true,
+            DiagnosticProcesses = Array.Empty<DiagnosticProcessEvidence>()
+        };
+    }
+
+    private async Task<ProofSummaryEvidence> RunHandleGrowthDiagnosticProcessAsync(CancellationToken cancellationToken)
+    {
+        DateTimeOffset startedAtUtc = DateTimeOffset.UtcNow;
+        string runId = $"sp00-t02-diag-handle-growth-{startedAtUtc:yyyyMMddTHHmmssZ}-{Guid.NewGuid():N}";
+        List<string> globalFailures = new();
+        List<string> limitations = BuildLimitations();
+        limitations.Add("Handle-growth diagnostic process: repeated eight-session rounds and mixed cycles are development evidence, not canonical acceptance.");
+        List<HandleCheckpointEvidence> checkpoints = new();
+
+        Console.WriteLine($"SP00-T02 handle-growth diagnostic run {runId} pid={_environment.ProcessId}");
+
+        Console.WriteLine("Diagnostic warm-up: normal_exit x 1");
+        await _executor.ExecuteAsync("normal_exit", "diagnostic-warmup", 0, concurrency: 1, sessionOrdinal: 1, runId, cancellationToken).ConfigureAwait(false);
+        int baseline = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+        checkpoints.Add(CaptureExtendedCheckpoint("diag-baseline", CheckpointPhase.PostGc, baseline, baseline));
+
+        List<int> normalSeries = new();
+        for (int round = 1; round <= DiagnosticRepetitions; round++)
+        {
+            await RunConcurrentSessionsAsync("normal_exit", 8, "handle-diag", round, runId, cancellationToken).ConfigureAwait(false);
+            int after = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+            normalSeries.Add(after);
+            HandleCheckpointEvidence checkpoint = CaptureExtendedCheckpoint(
+                $"handle-diag-normal_exit-x8-round{round}", CheckpointPhase.PostGc, after, baseline);
+            checkpoints.Add(checkpoint);
+            RegisterCheckpointFailures(checkpoint, globalFailures);
+        }
+
+        List<int> mixSeries = new();
+        for (int cycle = 1; cycle <= DiagnosticCycles; cycle++)
+        {
+            foreach (string scenario in MixScenarios)
+            {
+                await RunConcurrentSessionsAsync(scenario, 8, "mix-diag", cycle, runId, cancellationToken).ConfigureAwait(false);
+            }
+
+            int after = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+            mixSeries.Add(after);
+            HandleCheckpointEvidence checkpoint = CaptureExtendedCheckpoint(
+                $"handle-diag-mix-cycle{cycle}", CheckpointPhase.PostGc, after, baseline);
+            checkpoints.Add(checkpoint);
+            RegisterCheckpointFailures(checkpoint, globalFailures);
+        }
+
+        HandleGrowthClassificationEvidence normalClassification = HandleGrowthClassifier.Classify("handle-growth-normal-exit-x8", normalSeries);
+        HandleGrowthClassificationEvidence mixClassification = HandleGrowthClassifier.Classify("handle-growth-mix-x8", mixSeries);
+        await _evidence.WriteClassificationsAsync([normalClassification, mixClassification], cancellationToken).ConfigureAwait(false);
+        Console.WriteLine($"Handle-growth normal_exit x8 classification: {normalClassification.Classification}");
+        Console.WriteLine($"Handle-growth mix x8 classification: {mixClassification.Classification}");
+
+        bool technicalPass = globalFailures.Count == 0;
+        return new ProofSummaryEvidence
+        {
+            SchemaVersion = "1.0",
+            TaskId = "SP00-T02",
+            RunId = runId,
+            StartedAtUtc = startedAtUtc,
+            CompletedAtUtc = DateTimeOffset.UtcNow,
+            Status = technicalPass ? "DIAGNOSTIC_PASS" : "FAIL",
+            AcceptanceEligible = false,
+            Mode = "diag-handle-growth",
+            EffectiveRepeatEach = 0,
+            EffectiveScaleRepeatEach = 0,
+            SessionCounts = _manifest.SessionCounts,
+            Scenarios = Array.Empty<string>(),
+            WarmupRuns = 0,
+            ReliabilityRuns = 0,
+            ScaleSessionRuns = 0,
+            FailedRuns = 0,
+            ScenarioSummaries = Array.Empty<ScenarioSummaryEvidence>(),
+            ScaleGroups = Array.Empty<ScaleGroupEvidence>(),
+            HandleCheckpoints = checkpoints,
+            OwnerCrashProbe = CreateSkippedProbe("Handle-growth diagnostic process does not run the canonical owner-crash probe."),
+            GlobalFailures = globalFailures,
+            Limitations = limitations,
+            EvidenceDirectory = _evidence.DirectoryPath,
+            ProcessId = _environment.ProcessId,
+            ProcessStartUtcTicks = _environment.ProcessStartUtcTicks,
+            BaselineCheckpointName = "diag-baseline",
+            StableCheckpointPolicy = "Diagnostic process: classifier operates only on stabilized post-quiescence readings, never on active-concurrency peaks.",
+            HandleGrowthTolerance = _manifest.Settings.HandleGrowthTolerance,
+            DiagnosticsProcessSeparated = true,
+            HandleGrowthClassifications = [normalClassification, mixClassification],
+            DiagnosticProcesses = Array.Empty<DiagnosticProcessEvidence>()
+        };
+    }
+
+    private async Task<ProofSummaryEvidence> RunIsolationDiagnosticProcessAsync(CancellationToken cancellationToken)
+    {
+        DateTimeOffset startedAtUtc = DateTimeOffset.UtcNow;
+        string runId = $"sp00-t02-diag-isolation-{startedAtUtc:yyyyMMddTHHmmssZ}-{Guid.NewGuid():N}";
+        List<string> globalFailures = new();
+        List<string> limitations = BuildLimitations();
+        limitations.Add("Standard-handle isolation regression runs as a diagnostic process; its markers must be absent from every redirected parent stream outside ConPTY capture.");
+
+        Console.WriteLine($"SP00-T02 standard-handle isolation diagnostic run {runId} pid={_environment.ProcessId}");
+
+        IsolationRegressionEvidence regression = await RunIsolationRegressionAsync(cancellationToken).ConfigureAwait(false);
+        await _evidence.WriteIsolationRegressionAsync(regression, cancellationToken).ConfigureAwait(false);
+        if (!regression.Passed)
+        {
+            globalFailures.Add($"Standard-handle isolation regression failed for probes: {string.Join(", ", regression.Probes.Where(probe => !probe.Passed).Select(probe => probe.Mode))}");
+        }
+
+        bool technicalPass = globalFailures.Count == 0;
+        return new ProofSummaryEvidence
+        {
+            SchemaVersion = "1.0",
+            TaskId = "SP00-T02",
+            RunId = runId,
+            StartedAtUtc = startedAtUtc,
+            CompletedAtUtc = DateTimeOffset.UtcNow,
+            Status = technicalPass ? "DIAGNOSTIC_PASS" : "FAIL",
+            AcceptanceEligible = false,
+            Mode = "diag-isolation",
+            EffectiveRepeatEach = 0,
+            EffectiveScaleRepeatEach = 0,
+            SessionCounts = _manifest.SessionCounts,
+            Scenarios = Array.Empty<string>(),
+            WarmupRuns = 0,
+            ReliabilityRuns = 0,
+            ScaleSessionRuns = 0,
+            FailedRuns = 0,
+            ScenarioSummaries = Array.Empty<ScenarioSummaryEvidence>(),
+            ScaleGroups = Array.Empty<ScaleGroupEvidence>(),
+            HandleCheckpoints = Array.Empty<HandleCheckpointEvidence>(),
+            OwnerCrashProbe = CreateSkippedProbe("Isolation diagnostic process does not run the canonical owner-crash probe."),
+            GlobalFailures = globalFailures,
+            Limitations = limitations,
+            EvidenceDirectory = _evidence.DirectoryPath,
+            ProcessId = _environment.ProcessId,
+            ProcessStartUtcTicks = _environment.ProcessStartUtcTicks,
+            BaselineCheckpointName = string.Empty,
+            StableCheckpointPolicy = "Diagnostic process: no canonical handle baseline; isolation markers must never escape to a redirected parent stream.",
+            HandleGrowthTolerance = _manifest.Settings.HandleGrowthTolerance,
+            DiagnosticsProcessSeparated = true,
+            IsolationRegression = regression,
+            DiagnosticProcesses = Array.Empty<DiagnosticProcessEvidence>()
+        };
+    }
+
+    private async Task<int> RunRetentionReproducerAsync(
+        List<HandleCheckpointEvidence> checkpoints,
+        int baseline,
+        CancellationToken cancellationToken)
+    {
+        string probeDir = Path.Combine(_evidence.DirectoryPath, "retention-probe");
+        Directory.CreateDirectory(probeDir);
+        ProofOptions probeOptions = _options with { EvidenceDirectory = probeDir };
+        OwnerCrashProbeEvidence probe = await OwnerCrashProbe.ExecuteAsync(probeOptions, _manifest, cancellationToken).ConfigureAwait(false);
+        if (!probe.Passed)
+        {
+            throw new ProofAssertionException($"Retention reproducer probe failed: {probe.Failure} stage={probe.FailureStage}");
+        }
+
+        string retained = DescribeRetainedResources(probe);
+        if (retained.Length != 0)
+        {
+            throw new ProofAssertionException($"Retention reproducer probe left owned resources: {retained}.");
+        }
+
+        int immediate = GetCurrentHandleCount();
+        checkpoints.Add(CaptureExtendedCheckpoint("reproducer-immediate", CheckpointPhase.ImmediatePostDisposal, immediate, baseline));
+        int postGc = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+        checkpoints.Add(CaptureExtendedCheckpoint("reproducer-post-gc", CheckpointPhase.PostGc, postGc, baseline));
+        await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken).ConfigureAwait(false);
+        checkpoints.Add(await CaptureExtendedCheckpointAsync("reproducer-250ms", CheckpointPhase.Quiescent250Ms, baseline, cancellationToken).ConfigureAwait(false));
+        await Task.Delay(TimeSpan.FromMilliseconds(1750), cancellationToken).ConfigureAwait(false);
+        checkpoints.Add(await CaptureExtendedCheckpointAsync("reproducer-2s", CheckpointPhase.Quiescent2S, baseline, cancellationToken).ConfigureAwait(false));
+        await Task.Delay(TimeSpan.FromMilliseconds(8000), cancellationToken).ConfigureAwait(false);
+        checkpoints.Add(await CaptureExtendedCheckpointAsync("reproducer-10s", CheckpointPhase.Quiescent10S, baseline, cancellationToken).ConfigureAwait(false));
+        return immediate;
+    }
+
+    private async Task<IReadOnlyList<OwnerCrashProbeEvidence>> RunProbeSeriesAsync(
+        string phase,
+        int repetitions,
+        int baseline,
+        List<HandleCheckpointEvidence> checkpoints,
+        List<string> failures,
+        CancellationToken cancellationToken)
+    {
+        List<OwnerCrashProbeEvidence> probes = new();
+        int passed = 0;
+        int failed = 0;
+        for (int i = 1; i <= repetitions; i++)
+        {
+            string probeDir = Path.Combine(_evidence.DirectoryPath, $"owner-crash-diag-{phase}-probe-{i:D2}");
+            Directory.CreateDirectory(probeDir);
+            ProofOptions probeOptions = _options with { EvidenceDirectory = probeDir };
+            OwnerCrashProbeEvidence probe = await OwnerCrashProbe.ExecuteAsync(probeOptions, _manifest, cancellationToken).ConfigureAwait(false);
+            probes.Add(probe);
+            string retained = DescribeRetainedResources(probe);
+            if (retained.Length != 0)
+            {
+                failures.Add($"Owner-crash {phase} probe {i} left owned TerminalProof resources: {retained}.");
+            }
+
+            if (probe.Passed)
+            {
+                passed++;
+            }
+            else
+            {
+                failed++;
+                failures.Add($"Owner-crash {phase} probe {i}/{repetitions} FAILED stage={probe.FailureStage}: {probe.Failure}");
+            }
+
+            _lastSessionCompletedAt = DateTimeOffset.UtcNow;
+            int afterHandles = GetCurrentHandleCount();
+            checkpoints.Add(CaptureExtendedCheckpoint(
+                $"owner-crash-diag-{phase}-probe-{i}",
+                CheckpointPhase.ImmediatePostDisposal,
+                afterHandles,
+                baseline));
+
+            int settledHandles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
+            checkpoints.Add(CaptureExtendedCheckpoint(
+                $"owner-crash-diag-{phase}-probe-{i}-settled",
+                CheckpointPhase.PostGc,
+                settledHandles,
+                baseline));
+        }
+
+        Console.WriteLine($"Owner-crash {phase} diagnostic: passed={passed}/{repetitions}, failed={failed}/{repetitions}");
+        return probes;
+    }
+
+    private async Task RunStressCycleAsync(string runId, CancellationToken cancellationToken)
+    {
+        await RunConcurrentSessionsAsync("normal_exit", 8, "diagnostic-stress", 1, runId, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task RunConcurrentSessionsAsync(
+        string scenario,
+        int concurrency,
+        string phase,
+        int iteration,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        Task<SessionRunEvidence>[] pending = Enumerable.Range(1, concurrency)
+            .Select(sessionOrdinal => _executor.ExecuteAsync(
+                scenario,
+                phase,
+                iteration,
+                concurrency,
+                sessionOrdinal,
+                runId,
+                cancellationToken))
+            .ToArray();
+        SessionRunEvidence[] runs = await Task.WhenAll(pending).ConfigureAwait(false);
+        foreach (SessionRunEvidence run in runs)
+        {
+            await _evidence.AppendRunAsync(run, cancellationToken).ConfigureAwait(false);
+        }
+
+        _lastSessionCompletedAt = DateTimeOffset.UtcNow;
+    }
+
+    private async Task<IsolationRegressionEvidence> RunIsolationRegressionAsync(CancellationToken cancellationToken)
+    {
+        string runId = Guid.NewGuid().ToString("N")[..8];
+        string markerPrefix = $"CONPTY-STREAM-ISOLATION:{runId}";
+        List<IsolationProbeEvidenceEntry> entries = new();
+
+        foreach (string mode in new[] { "ordinary", "stdout-redirected", "stdout-stderr-redirected" })
+        {
+            entries.Add(await RunIsolationProbeAsync(mode, runId, cancellationToken).ConfigureAwait(false));
+        }
+
+        return new IsolationRegressionEvidence(markerPrefix, entries, runId);
+    }
+
+    private async Task<IsolationProbeEvidenceEntry> RunIsolationProbeAsync(string mode, string runId, CancellationToken cancellationToken)
+    {
+        string fixtureRunId = $"{runId}-{mode}-{Guid.NewGuid():N}";
+        string stdoutMarker = $"CONPTY-STDOUT-MARKER:{fixtureRunId}";
+        string stderrMarker = $"CONPTY-STDERR-MARKER:{fixtureRunId}";
+        TextWriter? originalOut = null;
+        TextWriter? originalError = null;
+        StreamWriter? stdoutRedirect = null;
+        StreamWriter? stderrRedirect = null;
+        string stdoutFile = string.Empty;
+        string stderrFile = string.Empty;
+        IReadOnlyList<string> failures = Array.Empty<string>();
+        ConPtyTerminalSession? session = null;
+        int? exitCode = null;
+        bool stdoutCaptured = false;
+        bool stderrCaptured = false;
+
+        try
+        {
+            if (mode is "stdout-redirected" or "stdout-stderr-redirected")
+            {
+                string captureDir = Path.Combine(_evidence.DirectoryPath, "isolation", mode);
+                Directory.CreateDirectory(captureDir);
+                stdoutFile = Path.Combine(captureDir, "parent-stdout.txt");
+                stderrFile = Path.Combine(captureDir, "parent-stderr.txt");
+                originalOut = Console.Out;
+                originalError = Console.Error;
+                stdoutRedirect = new StreamWriter(stdoutFile, append: false, System.Text.Encoding.UTF8) { AutoFlush = true };
+                Console.SetOut(stdoutRedirect);
+                if (mode == "stdout-stderr-redirected")
+                {
+                    stderrRedirect = new StreamWriter(stderrFile, append: false, System.Text.Encoding.UTF8) { AutoFlush = true };
+                    Console.SetError(stderrRedirect);
+                }
+            }
+
+            session = await ConPtyTerminalSession.StartAsync(
+                    new TerminalLaunchOptions
+                    {
+                        ExecutablePath = _options.FixturePath,
+                        WorkingDirectory = _options.WorkingDirectory,
+                        Arguments =
+                        [
+                            "--scenario",
+                            "stream_isolation",
+                            "--run-id",
+                            fixtureRunId
+                        ],
+                        InitialSize = new TerminalSize(_manifest.Settings.InitialColumns, _manifest.Settings.InitialRows),
+                        CleanupTimeout = _manifest.Settings.CleanupTimeout
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            exitCode = await session.WaitForExitAsync(_manifest.Settings.DefaultTimeout, cancellationToken).ConfigureAwait(false);
+            await session.WaitForOutputAsync(stdoutMarker, _manifest.Settings.DefaultTimeout, cancellationToken).ConfigureAwait(false);
+            await session.WaitForOutputAsync(stderrMarker, _manifest.Settings.DefaultTimeout, cancellationToken).ConfigureAwait(false);
+
+            string conptyText = session.GetOutputSnapshot().Utf8Text;
+            stdoutCaptured = conptyText.Contains(stdoutMarker, StringComparison.Ordinal);
+            stderrCaptured = conptyText.Contains(stderrMarker, StringComparison.Ordinal);
+            await session.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
+            await session.DisposeAsync().ConfigureAwait(false);
+            session = null;
+            OwnedResourceCounters.AssertZero($"Isolation probe disposal boundary ({mode}, run {fixtureRunId})");
+            ProofAssert.True(exitCode == 0, $"Stream isolation fixture must exit zero; got {exitCode}.");
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            failures = [exception.ToString()];
+        }
+        finally
+        {
+            if (session is not null)
+            {
+                try
+                {
+                    await session.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
+                    await session.DisposeAsync().ConfigureAwait(false);
+                }
+                catch
+                {
+                }
+            }
+
+            if (originalOut is not null)
+            {
+                Console.SetOut(originalOut);
+            }
+
+            if (originalError is not null)
+            {
+                Console.SetError(originalError);
+            }
+
+            stdoutRedirect?.Dispose();
+            stderrRedirect?.Dispose();
+        }
+
+        bool absentStdout = true;
+        bool absentStderr = true;
+        if (mode is "stdout-redirected" or "stdout-stderr-redirected")
+        {
+            string parentStdout = File.ReadAllText(stdoutFile);
+            absentStdout = !parentStdout.Contains(stdoutMarker, StringComparison.Ordinal)
+                && !parentStdout.Contains(stderrMarker, StringComparison.Ordinal);
+            if (mode == "stdout-stderr-redirected")
+            {
+                string parentStderr = File.ReadAllText(stderrFile);
+                absentStderr = !parentStderr.Contains(stdoutMarker, StringComparison.Ordinal)
+                    && !parentStderr.Contains(stderrMarker, StringComparison.Ordinal);
+            }
+        }
+
+        bool passed = failures.Count == 0
+            && stdoutCaptured
+            && stderrCaptured
+            && absentStdout
+            && absentStderr
+            && exitCode == 0;
+        return new IsolationProbeEvidenceEntry(mode, passed, stdoutCaptured, stderrCaptured, absentStdout, absentStderr, exitCode)
+        {
+            Failure = passed ? null : string.Join(" | ", failures)
         };
     }
 
@@ -335,6 +859,8 @@ internal sealed class ProofRunner
 
         return _options.ScenarioFilter is null ? "full" : "scenario";
     }
+
+    private string HandleGrowthToleranceForDisplay() => _manifest.Settings.HandleGrowthTolerance.ToString(CultureInfo.InvariantCulture);
 
     private List<string> BuildLimitations()
     {
@@ -493,22 +1019,26 @@ internal sealed class ProofRunner
 
     private async Task<HandleCheckpointEvidence> CaptureExtendedCheckpointAsync(
         string name,
+        string phase,
         int baseline,
         CancellationToken cancellationToken)
     {
         int handles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
-        return CaptureExtendedCheckpoint(name, handles, baseline);
+        return CaptureExtendedCheckpoint(name, phase, handles, baseline);
     }
 
-    private HandleCheckpointEvidence CaptureExtendedCheckpoint(string name, int handles, int baseline)
+    private HandleCheckpointEvidence CaptureExtendedCheckpoint(string name, string phase, int handles, int baseline)
     {
         int growth = handles - baseline;
+        IReadOnlyList<OwnedResourceCount> owned = OwnedResourceCounters.Snapshot();
         return new HandleCheckpointEvidence(
             name,
+            phase,
             handles,
             growth,
             DateTimeOffset.UtcNow,
             growth <= _manifest.Settings.HandleGrowthTolerance,
+            owned,
             GetCurrentThreadCount(),
             ThreadPool.ThreadCount,
             ThreadPool.PendingWorkItemCount == -1 ? -1 : checked((int)ThreadPool.PendingWorkItemCount),
@@ -520,13 +1050,20 @@ internal sealed class ProofRunner
             _lastSessionCompletedAt is null ? 0 : (DateTimeOffset.UtcNow - _lastSessionCompletedAt.Value).TotalMilliseconds);
     }
 
-    private void RegisterHandleFailure(HandleCheckpointEvidence checkpoint, ICollection<string> failures)
+    private void RegisterCheckpointFailures(HandleCheckpointEvidence checkpoint, ICollection<string> failures)
     {
         if (!checkpoint.WithinTolerance)
         {
             failures.Add(
-                $"Handle checkpoint '{checkpoint.Name}' exceeded tolerance: " +
+                $"Handle checkpoint '{checkpoint.Name}' ({checkpoint.Phase}) exceeded tolerance: " +
                 $"growth={checkpoint.GrowthFromBaseline}, tolerance={_manifest.Settings.HandleGrowthTolerance}.");
+        }
+
+        if (!checkpoint.OwnedResourcesZero)
+        {
+            failures.Add(
+                $"Handle checkpoint '{checkpoint.Name}' retained owned TerminalProof resources: " +
+                $"{string.Join(", ", checkpoint.OwnedResourceCounts.Where(count => count.Count != 0).Select(count => $"{count.Kind}={count.Count}"))}.");
         }
     }
 
@@ -561,110 +1098,6 @@ internal sealed class ProofRunner
         return current.Threads.Count;
     }
 
-    private async Task RunHandleGrowthDiagnosticAsync(
-        int baselineHandleCount,
-        List<HandleCheckpointEvidence> checkpoints,
-        List<string> failures,
-        CancellationToken cancellationToken)
-    {
-        // Warm once
-        await _executor.ExecuteAsync("normal_exit", "diagnostic-warmup", 0, concurrency: 1, sessionOrdinal: 1, "diagnostic", cancellationToken).ConfigureAwait(false);
-        await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
-
-        int prevHandles = GetCurrentHandleCount();
-        string classification = "NO_GROWTH";
-
-        for (int round = 1; round <= DiagnosticRepetitions; round++)
-        {
-            Task<SessionRunEvidence>[] pending = Enumerable.Range(1, 8)
-                .Select(sessionOrdinal => _executor.ExecuteAsync(
-                    "normal_exit", "handle-diag", round, concurrency: 8, sessionOrdinal,
-                    "diagnostic", cancellationToken))
-                .ToArray();
-            await Task.WhenAll(pending).ConfigureAwait(false);
-
-            int afterHandles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
-            int roundGrowth = afterHandles - prevHandles;
-
-            checkpoints.Add(CaptureExtendedCheckpoint(
-                $"handle-diag-normal_exit-x8-round{round}", afterHandles, baselineHandleCount));
-
-            if (round == 1 && roundGrowth > 0)
-                classification = "PLATEAU";
-            if (round > 1 && roundGrowth > 2)
-                classification = "LINEAR_GROWTH";
-
-            prevHandles = afterHandles;
-        }
-
-        Console.WriteLine($"Handle-growth normal_exit x8 classification: {classification}");
-    }
-
-    private async Task RunMixDiagnosticAsync(
-        int baselineHandleCount,
-        List<HandleCheckpointEvidence> checkpoints,
-        List<string> failures,
-        CancellationToken cancellationToken)
-    {
-        string[] mixScenarios = { "normal_exit", "large_burst", "graceful_cancel", "forced_termination", "nested_children" };
-        string mixClassification = "NO_GROWTH";
-        int prevHandles = GetCurrentHandleCount();
-
-        for (int cycle = 1; cycle <= DiagnosticCycles; cycle++)
-        {
-            foreach (string scenario in mixScenarios)
-            {
-                Task<SessionRunEvidence>[] pending = Enumerable.Range(1, 8)
-                    .Select(sessionOrdinal => _executor.ExecuteAsync(
-                        scenario, "mix-diag", cycle, concurrency: 8, sessionOrdinal,
-                        "diagnostic", cancellationToken))
-                    .ToArray();
-                await Task.WhenAll(pending).ConfigureAwait(false);
-            }
-
-            int afterHandles = await StabilizeAndGetHandleCountAsync(cancellationToken).ConfigureAwait(false);
-            int cycleGrowth = afterHandles - prevHandles;
-
-            checkpoints.Add(CaptureExtendedCheckpoint(
-                $"handle-diag-mix-cycle{cycle}", afterHandles, baselineHandleCount));
-
-            if (cycle == 1 && cycleGrowth > 0)
-                mixClassification = "PLATEAU";
-            if (cycle > 1 && cycleGrowth > 2)
-                mixClassification = "LINEAR_GROWTH";
-
-            prevHandles = afterHandles;
-        }
-
-        Console.WriteLine($"Handle-growth mix x8 classification: {mixClassification}");
-    }
-
-    private async Task RunOwnerCrashDiagnosticsAsync(
-        string phase,
-        int repetitions,
-        List<HandleCheckpointEvidence> checkpoints,
-        List<string> failures,
-        CancellationToken cancellationToken)
-    {
-        string diagnosticDir = Path.Combine(_evidence.DirectoryPath, $"owner-crash-diag-{phase}");
-        Directory.CreateDirectory(diagnosticDir);
-        ProofOptions diagOptions = _options with { EvidenceDirectory = diagnosticDir };
-
-        int passed = 0;
-        int failed = 0;
-        for (int i = 1; i <= repetitions; i++)
-        {
-            OwnerCrashProbeEvidence probe = await OwnerCrashProbe.ExecuteAsync(
-                diagOptions, _manifest, cancellationToken).ConfigureAwait(false);
-            if (probe.Passed) passed++; else failed++;
-            if (!probe.Passed)
-            {
-                failures.Add($"Owner-crash {phase} probe {i}/{repetitions} FAILED stage={probe.FailureStage}: {probe.Failure}");
-            }
-        }
-        Console.WriteLine($"Owner-crash {phase} diagnostic: passed={passed}/{repetitions}, failed={failed}/{repetitions}");
-    }
-
     private static void WriteRunProgress(SessionRunEvidence run, int total)
     {
         if (!run.Passed || run.Iteration == 1 || run.Iteration == total || run.Iteration % 10 == 0)
@@ -678,4 +1111,38 @@ internal sealed class ProofRunner
 
     private static string FormatNullable(double? value) =>
         value is null ? "n/a" : value.Value.ToString("F1", CultureInfo.InvariantCulture);
+
+    private static string DescribeRetainedResources(OwnerCrashProbeEvidence probe) =>
+        string.Join(", ", probe.OwnedResourceCounts.Where(count => count.Count != 0).Select(count => $"{count.Kind}={count.Count}"));
+
+    private static IReadOnlyList<DiagnosticProcessEvidence> LoadDiagnosticsReport(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        {
+            return Array.Empty<DiagnosticProcessEvidence>();
+        }
+
+        try
+        {
+            DiagnosticsOrchestrationRecord? record = JsonSerializer.Deserialize<DiagnosticsOrchestrationRecord>(
+                File.ReadAllText(path),
+                ProofJson.Create(indented: false));
+            return record?.DiagnosticProcesses ?? Array.Empty<DiagnosticProcessEvidence>();
+        }
+        catch
+        {
+            return Array.Empty<DiagnosticProcessEvidence>();
+        }
+    }
+
+    private static OwnerCrashProbeEvidence CreateSkippedProbe(string reason) => new()
+    {
+        Executed = false,
+        Passed = false,
+        Failure = reason,
+        JobProcessIds = Array.Empty<int>(),
+        SurvivingProcessIds = Array.Empty<int>(),
+        LivePtyReattachSupported = false,
+        ReattachConclusion = reason
+    };
 }

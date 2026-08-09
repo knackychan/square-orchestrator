@@ -69,12 +69,29 @@ internal sealed record SessionRunEvidence
     public TeardownEvidence? Teardown { get; init; }
 }
 
+internal static class CheckpointPhase
+{
+    public const string Active = "ACTIVE";
+    public const string ImmediatePostDisposal = "IMMEDIATE_POST_DISPOSAL";
+    public const string PostGc = "POST_GC";
+    public const string Quiescent250Ms = "QUIESCENT_250MS";
+    public const string Quiescent2S = "QUIESCENT_2S";
+    public const string Quiescent10S = "QUIESCENT_10S";
+    public const string Final = "FINAL";
+
+    public static readonly IReadOnlySet<string> All = new HashSet<string>(
+        [Active, ImmediatePostDisposal, PostGc, Quiescent250Ms, Quiescent2S, Quiescent10S, Final],
+        StringComparer.Ordinal);
+}
+
 internal sealed record HandleCheckpointEvidence(
     string Name,
+    string Phase,
     int HandleCount,
     int GrowthFromBaseline,
     DateTimeOffset CapturedAtUtc,
     bool WithinTolerance,
+    IReadOnlyList<Square.TerminalProof.Native.OwnedResourceCount> OwnedResourceCounts,
     int ProcessThreadCount = 0,
     int ThreadPoolThreadCount = 0,
     int ThreadPoolPendingWorkItemCount = -1,
@@ -83,7 +100,10 @@ internal sealed record HandleCheckpointEvidence(
     int Gen1Collections = 0,
     int Gen2Collections = 0,
     long TotalManagedMemoryBytes = 0,
-    double DelaySinceLastSessionMilliseconds = 0);
+    double DelaySinceLastSessionMilliseconds = 0)
+{
+    public bool OwnedResourcesZero => OwnedResourceCounts.All(count => count.Count == 0);
+}
 
 internal enum TeardownMode
 {
@@ -180,11 +200,20 @@ internal sealed record OwnerCrashProbeEvidence
 
     public string? ReadyFileSha256 { get; init; }
 
+    public string? ReadyFilePath { get; init; }
+
+    public string? ReadyFileSharingMode { get; init; }
+
     public bool ParentKillUsed { get; init; }
 
     public string? FirstException { get; init; }
 
     public string? LastException { get; init; }
+
+    public IReadOnlyList<Square.TerminalProof.Native.OwnedResourceCount> OwnedResourceCounts { get; init; }
+        = Array.Empty<Square.TerminalProof.Native.OwnedResourceCount>();
+
+    public bool OwnedResourcesZero => OwnedResourceCounts.All(count => count.Count == 0);
 
     public required bool LivePtyReattachSupported { get; init; }
 
@@ -220,6 +249,12 @@ internal sealed record ProofEnvironmentEvidence
     public required bool CurrentProcessIsInJob { get; init; }
 
     public required int InitialHarnessHandleCount { get; init; }
+
+    public required int ProcessId { get; init; }
+
+    public required DateTimeOffset ProcessStartUtc { get; init; }
+
+    public required long ProcessStartUtcTicks { get; init; }
 
     public required string ManifestSha256 { get; init; }
 
@@ -294,4 +329,75 @@ internal sealed record ProofSummaryEvidence
     public required IReadOnlyList<string> Limitations { get; init; }
 
     public required string EvidenceDirectory { get; init; }
+
+    public int ProcessId { get; init; }
+
+    public long ProcessStartUtcTicks { get; init; }
+
+    public string BaselineCheckpointName { get; init; } = string.Empty;
+
+    public string StableCheckpointPolicy { get; init; } = string.Empty;
+
+    public IReadOnlyList<string> StableCheckpointNames { get; init; }
+        = Array.Empty<string>();
+
+    public int HandleGrowthTolerance { get; init; }
+
+    public bool DiagnosticsProcessSeparated { get; init; }
+
+    public IReadOnlyList<HandleGrowthClassificationEvidence> HandleGrowthClassifications { get; init; }
+        = Array.Empty<HandleGrowthClassificationEvidence>();
+
+    public IsolationRegressionEvidence? IsolationRegression { get; init; }
+
+    public IReadOnlyList<DiagnosticProcessEvidence> DiagnosticProcesses { get; init; }
+        = Array.Empty<DiagnosticProcessEvidence>();
 }
+
+internal sealed record HandleGrowthClassificationEvidence(
+    string SeriesName,
+    string RuleVersion,
+    string Classification,
+    string MatchedRule,
+    IReadOnlyList<int> RawValues,
+    IReadOnlyList<int> FirstDifferences,
+    int LastNNetChange,
+    int Minimum,
+    int Maximum,
+    int Range,
+    double LinearRegressionSlope,
+    int FinalWindowSize,
+    int MeasurementNoiseBand);
+
+internal sealed record IsolationProbeEvidenceEntry(
+    string Mode,
+    bool Passed,
+    bool StdoutMarkerCaptured,
+    bool StderrMarkerCaptured,
+    bool AbsentFromParentStdout,
+    bool AbsentFromParentStderr,
+    int? ExitCode)
+{
+    public string? Failure { get; init; }
+}
+
+internal sealed record IsolationRegressionEvidence(
+    string CapturedMarkerPrefix,
+    IReadOnlyList<IsolationProbeEvidenceEntry> Probes,
+    string RunId)
+{
+    public bool Passed => Probes.All(probe => probe.Passed);
+}
+
+internal sealed record DiagnosticProcessEvidence(
+    string Name,
+    int ProcessId,
+    int ExitCode,
+    string Status,
+    string EvidenceDirectory)
+{
+    public bool Passed => ExitCode == 0;
+}
+
+internal sealed record DiagnosticsOrchestrationRecord(
+    IReadOnlyList<DiagnosticProcessEvidence> DiagnosticProcesses);

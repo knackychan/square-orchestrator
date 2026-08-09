@@ -35,6 +35,7 @@ internal sealed class JobObject : IDisposable
             Win32Error.ThrowLastError("SetInformationJobObject(KILL_ON_JOB_CLOSE)");
         }
 
+        OwnedResourceCounters.Increment(OwnedResourceKind.JobObject);
         return new JobObject(handle);
     }
 
@@ -170,5 +171,9 @@ internal sealed class JobObject : IDisposable
         }
     }
 
-    public void Dispose() => _handle.Dispose();
+    public void Dispose()
+    {
+        _handle.Dispose();
+        OwnedResourceCounters.Decrement(OwnedResourceKind.JobObject);
+    }
 }

@@ -25,7 +25,13 @@ return TestRunner.Run(
     ("Launch plan sets CREATE_SUSPENDED", LaunchPlanCreateSuspended),
     ("Launch plan sets CREATE_UNICODE_ENVIRONMENT", LaunchPlanCreateUnicodeEnvironment),
     ("Launch plan includes pseudoconsole attribute", LaunchPlanHasPseudoConsoleAttribute),
-    ("Standard-handle isolation redirected stdout and stderr", StandardHandleIsolationSync));
+    ("Standard-handle isolation regression across three parent modes", StandardHandleIsolationSync),
+    ("Ready-file atomic publication survives 100 cycles", ReadyFilePublicationStress),
+    ("Handle growth classifier reports NO_GROWTH for a flat series", ClassifierNoGrowth),
+    ("Handle growth classifier reports PLATEAU for expansion then flat tail", ClassifierPlateau),
+    ("Handle growth classifier reports LINEAR_GROWTH for a persistent tail", ClassifierLinearGrowth),
+    ("Handle growth classifier reports DELAYED_RELEASE after a decline", ClassifierDelayedRelease),
+    ("Handle growth classifier reports UNRESOLVED for a short series", ClassifierUnresolvedShortSeries));
 
 static void SimpleArgument()
 {
@@ -342,79 +348,181 @@ static void StandardHandleIsolationSync() => StandardHandleIsolation().GetAwaite
 static async System.Threading.Tasks.Task StandardHandleIsolation()
 {
     string runId = Guid.NewGuid().ToString("N")[..8];
-    string conptyMarker = $"CONPTY-STDOUT-MARKER:{runId}";
-    string conptyStderrMarker = $"CONPTY-STDERR-MARKER:{runId}";
     string tempDir = Path.Combine(Path.GetTempPath(), $"square-std-isolation-{runId}");
+    string fixturePath = ResolveFixturePath();
 
     try
     {
         Directory.CreateDirectory(tempDir);
-        string fixturePath = ResolveFixturePath();
+        IsolationOutcome ordinary = await RunIsolationModeAsync(fixturePath, tempDir, runId, mode: "ordinary", CancellationToken.None).ConfigureAwait(false);
+        IsolationOutcome stdoutOnly = await RunIsolationModeAsync(fixturePath, tempDir, runId, mode: "stdout-redirected", CancellationToken.None).ConfigureAwait(false);
+        IsolationOutcome both = await RunIsolationModeAsync(fixturePath, tempDir, runId, mode: "stdout-stderr-redirected", CancellationToken.None).ConfigureAwait(false);
 
-        TextWriter originalOut = Console.Out;
-        TextWriter originalError = Console.Error;
-        string stdoutFile = Path.Combine(tempDir, "stdout.txt");
-        string stderrFile = Path.Combine(tempDir, "stderr.txt");
+        AssertIsolationOutcome(ordinary, assertAbsence: false);
+        AssertIsolationOutcome(stdoutOnly, assertAbsence: true);
+        AssertIsolationOutcome(both, assertAbsence: true);
 
-        try
-        {
-            using StreamWriter stdoutRedirect = new(stdoutFile, append: false, System.Text.Encoding.UTF8) { AutoFlush = true };
-            using StreamWriter stderrRedirect = new(stderrFile, append: false, System.Text.Encoding.UTF8) { AutoFlush = true };
-            Console.SetOut(stdoutRedirect);
-            Console.SetError(stderrRedirect);
-
-            ConPtyTerminalSession? session = null;
-            try
-            {
-                session = await ConPtyTerminalSession.StartAsync(
-                    new TerminalLaunchOptions
-                    {
-                        ExecutablePath = fixturePath,
-                        WorkingDirectory = tempDir,
-                        Arguments = ["--scenario", "normal_exit"],
-                        InitialSize = new TerminalSize(100, 30),
-                        CleanupTimeout = TimeSpan.FromSeconds(10)
-                    });
-
-                int exitCode = await session.WaitForExitAsync(TimeSpan.FromSeconds(20), CancellationToken.None);
-                AssertEx.Equal(0, exitCode, "Fixture must exit normally.");
-
-                TerminalOutputSnapshot conptyOutput = session.GetOutputSnapshot();
-                string conptyText = conptyOutput.Utf8Text;
-
-                AssertEx.True(conptyText.Contains("NORMAL-EXIT:0", StringComparison.Ordinal),
-                    "ConPTY output must contain fixture marker NORMAL-EXIT:0.");
-            }
-            finally
-            {
-                if (session is not null)
-                {
-                    await session.ShutdownAsync(CancellationToken.None);
-                    await session.DisposeAsync();
-                }
-            }
-
-            stdoutRedirect.Flush();
-            stderrRedirect.Flush();
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetError(originalError);
-        }
-
-        string parentStdout = await File.ReadAllTextAsync(stdoutFile);
-        string parentStderr = await File.ReadAllTextAsync(stderrFile);
-
-        AssertEx.False(parentStdout.Contains("NORMAL-EXIT:0", StringComparison.Ordinal),
+        // Fixture stdout must never appear in a redirected parent stream either.
+        AssertEx.False(both.ParentStdout.Contains("NORMAL-EXIT:0", StringComparison.Ordinal),
             "Fixture stdout must not appear in redirected parent stdout.");
-        AssertEx.False(parentStderr.Contains("NORMAL-EXIT:0", StringComparison.Ordinal),
-            "Fixture stdout must not appear in redirected parent stderr.");
     }
     finally
     {
         try { Directory.Delete(tempDir, recursive: true); } catch { }
     }
+}
+
+static async Task<IsolationOutcome> RunIsolationModeAsync(string fixturePath, string tempDir, string parentRunId, string mode, CancellationToken cancellationToken)
+{
+    string fixtureRunId = $"{parentRunId}-{mode}-{Guid.NewGuid():N}";
+    string stdoutMarker = $"CONPTY-STDOUT-MARKER:{fixtureRunId}";
+    string stderrMarker = $"CONPTY-STDERR-MARKER:{fixtureRunId}";
+    TextWriter originalOut = Console.Out;
+    TextWriter originalError = Console.Error;
+    string stdoutFile = Path.Combine(tempDir, $"stdout-{mode}.txt");
+    string stderrFile = Path.Combine(tempDir, $"stderr-{mode}.txt");
+
+    ConPtyTerminalSession? session = null;
+    StreamWriter? stdoutRedirect = null;
+    StreamWriter? stderrRedirect = null;
+    string conptyText = string.Empty;
+    int exitCode = -1;
+    try
+    {
+        if (mode is "stdout-redirected" or "stdout-stderr-redirected")
+        {
+            stdoutRedirect = new StreamWriter(stdoutFile, append: false, System.Text.Encoding.UTF8) { AutoFlush = true };
+            Console.SetOut(stdoutRedirect);
+            if (mode == "stdout-stderr-redirected")
+            {
+                stderrRedirect = new StreamWriter(stderrFile, append: false, System.Text.Encoding.UTF8) { AutoFlush = true };
+                Console.SetError(stderrRedirect);
+            }
+        }
+
+        session = await ConPtyTerminalSession.StartAsync(
+            new TerminalLaunchOptions
+            {
+                ExecutablePath = fixturePath,
+                WorkingDirectory = tempDir,
+                Arguments = ["--scenario", "stream_isolation", "--run-id", fixtureRunId],
+                InitialSize = new TerminalSize(100, 30),
+                CleanupTimeout = TimeSpan.FromSeconds(10)
+            });
+
+        exitCode = await session.WaitForExitAsync(TimeSpan.FromSeconds(20), cancellationToken);
+        await session.WaitForOutputAsync(stdoutMarker, TimeSpan.FromSeconds(20), cancellationToken);
+        await session.WaitForOutputAsync(stderrMarker, TimeSpan.FromSeconds(20), cancellationToken);
+        conptyText = session.GetOutputSnapshot().Utf8Text;
+        AssertEx.True(session.GetAccounting().ActiveProcesses == 0, $"No fixture process may survive the isolation run in mode '{mode}'.");
+
+        stdoutRedirect?.Flush();
+        stderrRedirect?.Flush();
+    }
+    finally
+    {
+        if (session is not null)
+        {
+            await session.ShutdownAsync(CancellationToken.None);
+            await session.DisposeAsync();
+        }
+
+        Console.SetOut(originalOut);
+        Console.SetError(originalError);
+        stdoutRedirect?.Dispose();
+        stderrRedirect?.Dispose();
+    }
+
+    OwnedResourceCounters.AssertZero($"Standard-handle isolation mode '{mode}' disposal boundary");
+    string parentStdout = mode is "stdout-redirected" or "stdout-stderr-redirected" ? await File.ReadAllTextAsync(stdoutFile) : string.Empty;
+    string parentStderr = mode == "stdout-stderr-redirected" ? await File.ReadAllTextAsync(stderrFile) : string.Empty;
+
+    bool filesCloseable = true;
+    if (mode is "stdout-redirected" or "stdout-stderr-redirected")
+    {
+        foreach (string file in mode == "stdout-stderr-redirected" ? new[] { stdoutFile, stderrFile } : new[] { stdoutFile })
+        {
+            using FileStream exclusive = new(file, FileMode.Open, FileAccess.Read, FileShare.None);
+            _ = exclusive.Length;
+        }
+    }
+
+    bool stdoutCaptured = conptyText.Contains(stdoutMarker, StringComparison.Ordinal);
+    bool stderrCaptured = conptyText.Contains(stderrMarker, StringComparison.Ordinal);
+    return new IsolationOutcome(mode, conptyText, parentStdout, parentStderr, exitCode, stdoutCaptured, stderrCaptured, filesCloseable);
+}
+
+static void AssertIsolationOutcome(IsolationOutcome outcome, bool assertAbsence)
+{
+    AssertEx.Equal(0, outcome.ExitCode, $"Isolation fixture must exit zero in mode '{outcome.Mode}'.");
+    AssertEx.True(outcome.StdoutMarkerCaptured, $"ConPTY must capture the stdout marker in mode '{outcome.Mode}'.");
+    AssertEx.True(outcome.StderrMarkerCaptured, $"ConPTY must capture the stderr marker in mode '{outcome.Mode}'.");
+    if (outcome.Mode is "stdout-redirected" or "stdout-stderr-redirected")
+    {
+        AssertEx.True(outcome.ParentFilesCloseable, $"Parent stream files must remain valid and closeable in mode '{outcome.Mode}'.");
+    }
+
+    if (assertAbsence && outcome.Mode is "stdout-redirected" or "stdout-stderr-redirected")
+    {
+        AssertEx.False(outcome.ParentStdout.Contains("CONPTY-STDOUT-MARKER:", StringComparison.Ordinal), $"Stdout marker escaped into parent stdout in mode '{outcome.Mode}'.");
+        AssertEx.False(outcome.ParentStdout.Contains("CONPTY-STDERR-MARKER:", StringComparison.Ordinal), $"Stderr marker escaped into parent stdout in mode '{outcome.Mode}'.");
+        if (outcome.Mode == "stdout-stderr-redirected")
+        {
+            AssertEx.False(outcome.ParentStderr.Contains("CONPTY-STDOUT-MARKER:", StringComparison.Ordinal), $"Stdout marker escaped into parent stderr in mode '{outcome.Mode}'.");
+            AssertEx.False(outcome.ParentStderr.Contains("CONPTY-STDERR-MARKER:", StringComparison.Ordinal), $"Stderr marker escaped into parent stderr in mode '{outcome.Mode}'.");
+        }
+    }
+}
+
+static void ReadyFilePublicationStress()
+{
+    string tempDir = Path.Combine(Path.GetTempPath(), $"square-ready-{Guid.NewGuid():N}");
+    try
+    {
+        Directory.CreateDirectory(tempDir);
+        string finalPath = Path.Combine(tempDir, "ready.json");
+        for (int cycle = 1; cycle <= 100; cycle++)
+        {
+            byte[] payload = System.Text.Encoding.UTF8.GetBytes($"{{\"cycle\":{cycle},\"payload\":\"{Guid.NewGuid():N}\"}}\n");
+            ReadyFile.WriteAtomicallyAsync(finalPath, payload, CancellationToken.None).GetAwaiter().GetResult();
+            string text = ReadyFile.ReadValidatedAsync(finalPath, TimeSpan.FromSeconds(2), validate: null, CancellationToken.None).GetAwaiter().GetResult();
+            AssertEx.True(text.Contains($"\"cycle\":{cycle}", StringComparison.Ordinal), $"Ready-file round trip failed at cycle {cycle}.");
+        }
+    }
+    finally
+    {
+        try { Directory.Delete(tempDir, recursive: true); } catch { }
+    }
+}
+
+static void ClassifierNoGrowth()
+{
+    HandleGrowthClassificationEvidence result = HandleGrowthClassifier.Classify("flat", [100, 101, 100, 101, 100, 101]);
+    AssertEx.Equal(HandleGrowthClassifier.NoGrowth, result.Classification, "Flat stable series within the noise band must classify as NO_GROWTH.");
+}
+
+static void ClassifierPlateau()
+{
+    HandleGrowthClassificationEvidence result = HandleGrowthClassifier.Classify("plateau", [100, 110, 120, 121, 120, 121, 120, 122]);
+    AssertEx.Equal(HandleGrowthClassifier.Plateau, result.Classification, "Expansion followed by a bounded flat tail must classify as PLATEAU.");
+}
+
+static void ClassifierLinearGrowth()
+{
+    HandleGrowthClassificationEvidence result = HandleGrowthClassifier.Classify("linear", [100, 103, 106, 109, 112, 115, 118, 121, 124, 127, 130]);
+    AssertEx.Equal(HandleGrowthClassifier.LinearGrowth, result.Classification, "A persistent positive tail must classify as LINEAR_GROWTH.");
+}
+
+static void ClassifierDelayedRelease()
+{
+    HandleGrowthClassificationEvidence result = HandleGrowthClassifier.Classify("delayed", [100, 108, 115, 118, 112, 104, 102, 101]);
+    AssertEx.Equal(HandleGrowthClassifier.DelayedRelease, result.Classification, "A decline below the earlier peak must classify as DELAYED_RELEASE.");
+}
+
+static void ClassifierUnresolvedShortSeries()
+{
+    HandleGrowthClassificationEvidence result = HandleGrowthClassifier.Classify("short", [100, 104]);
+    AssertEx.Equal(HandleGrowthClassifier.Unresolved, result.Classification, "A series too short for a stable window must classify as UNRESOLVED.");
 }
 
 static string ResolveFixturePath()
@@ -452,3 +560,13 @@ static string ResolveFixturePath()
 
     throw new FileNotFoundException("Could not locate the terminal proof fixture. Build the solution first.");
 }
+
+internal sealed record IsolationOutcome(
+    string Mode,
+    string ConptyText,
+    string ParentStdout,
+    string ParentStderr,
+    int ExitCode,
+    bool StdoutMarkerCaptured,
+    bool StderrMarkerCaptured,
+    bool ParentFilesCloseable);

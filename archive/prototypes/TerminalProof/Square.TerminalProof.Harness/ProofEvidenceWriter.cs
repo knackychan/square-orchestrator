@@ -44,6 +44,25 @@ internal sealed class ProofEvidenceWriter : IAsyncDisposable
     internal async Task WriteSummaryAsync(ProofSummaryEvidence summary, CancellationToken cancellationToken) =>
         await WriteJsonFileAsync("summary.json", summary, cancellationToken).ConfigureAwait(false);
 
+    internal async Task WriteClassificationsAsync(
+        IReadOnlyList<HandleGrowthClassificationEvidence> classifications,
+        CancellationToken cancellationToken)
+    {
+        Dictionary<string, object> document = new()
+        {
+            ["rule_version"] = HandleGrowthClassifier.RuleVersion,
+            ["noise_band"] = HandleGrowthClassifier.MeasurementNoiseBand,
+            ["final_window_size"] = HandleGrowthClassifier.FinalWindowSize,
+            ["classifications"] = classifications
+        };
+        await WriteJsonFileAsync("handle-growth-classification.json", document, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal async Task WriteIsolationRegressionAsync(
+        IsolationRegressionEvidence regression,
+        CancellationToken cancellationToken) =>
+        await WriteJsonFileAsync("isolation-regression.json", regression, cancellationToken).ConfigureAwait(false);
+
     internal async Task WriteEvidenceManifestAsync(CancellationToken cancellationToken)
     {
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);

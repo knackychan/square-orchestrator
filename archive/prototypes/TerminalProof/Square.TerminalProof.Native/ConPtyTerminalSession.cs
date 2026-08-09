@@ -60,13 +60,21 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
         _outputPump = outputPumpCompletion.Task;
         Thread pumpThread = new(() =>
         {
-            PumpOutput();
-            outputPumpCompletion.TrySetResult();
+            try
+            {
+                PumpOutput();
+            }
+            finally
+            {
+                OwnedResourceCounters.Decrement(OwnedResourceKind.OutputPumpThread);
+                outputPumpCompletion.TrySetResult();
+            }
         })
         {
             Name = "ConPtyOutputPump",
             IsBackground = true
         };
+        OwnedResourceCounters.Increment(OwnedResourceKind.OutputPumpThread);
         pumpThread.Start();
     }
 
@@ -171,10 +179,16 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
                 Win32Error.ThrowLastError("CreatePipe(ConPTY input)");
             }
 
+            OwnedResourceCounters.Increment(OwnedResourceKind.ConPtySidePipeHandle);
+            OwnedResourceCounters.Increment(OwnedResourceKind.HostSidePipeHandle);
+
             if (!NativeMethods.CreatePipe(out hostOutputRead, out pseudoOutputWrite, nint.Zero, 0))
             {
                 Win32Error.ThrowLastError("CreatePipe(ConPTY output)");
             }
+
+            OwnedResourceCounters.Increment(OwnedResourceKind.HostSidePipeHandle);
+            OwnedResourceCounters.Increment(OwnedResourceKind.ConPtySidePipeHandle);
 
             pseudoConsole = PseudoConsole.Create(options.InitialSize, pseudoInputRead, pseudoOutputWrite);
             attributes = ProcThreadAttributeList.CreateForPseudoConsole(pseudoConsole.Handle);
@@ -215,6 +229,8 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
 
             processHandle = new SafeProcessHandle(processInformation.Process, ownsHandle: true);
             threadHandle = new SafeThreadHandle(processInformation.Thread);
+            OwnedResourceCounters.Increment(OwnedResourceKind.ProcessHandle);
+            OwnedResourceCounters.Increment(OwnedResourceKind.PrimaryThreadHandle);
 
             // The process is suspended so assignment happens before any descendant can be created.
             job.Assign(processHandle);
@@ -222,8 +238,10 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
             // Close the host copies of the pseudoconsole-side pipe handles. The pseudoconsole
             // holds its own references after CreatePseudoConsole and CreateProcessW.
             pseudoInputRead.Dispose();
+            OwnedResourceCounters.Decrement(OwnedResourceKind.ConPtySidePipeHandle);
             pseudoInputRead = null;
             pseudoOutputWrite.Dispose();
+            OwnedResourceCounters.Decrement(OwnedResourceKind.ConPtySidePipeHandle);
             pseudoOutputWrite = null;
             attributes.Dispose();
             attributes = null;
@@ -259,6 +277,7 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
             }
 
             threadHandle.Dispose();
+            OwnedResourceCounters.Decrement(OwnedResourceKind.PrimaryThreadHandle);
             threadHandle = null;
             return session;
         }
@@ -302,13 +321,43 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
         }
         finally
         {
-            threadHandle?.Dispose();
-            processHandle?.Dispose();
+            if (threadHandle is not null)
+            {
+                threadHandle.Dispose();
+                OwnedResourceCounters.Decrement(OwnedResourceKind.PrimaryThreadHandle);
+            }
+
+            if (processHandle is not null)
+            {
+                processHandle.Dispose();
+                OwnedResourceCounters.Decrement(OwnedResourceKind.ProcessHandle);
+            }
+
             attributes?.Dispose();
-            pseudoInputRead?.Dispose();
-            pseudoOutputWrite?.Dispose();
-            hostInputWrite?.Dispose();
-            hostOutputRead?.Dispose();
+            if (pseudoInputRead is not null)
+            {
+                pseudoInputRead.Dispose();
+                OwnedResourceCounters.Decrement(OwnedResourceKind.ConPtySidePipeHandle);
+            }
+
+            if (pseudoOutputWrite is not null)
+            {
+                pseudoOutputWrite.Dispose();
+                OwnedResourceCounters.Decrement(OwnedResourceKind.ConPtySidePipeHandle);
+            }
+
+            if (hostInputWrite is not null)
+            {
+                hostInputWrite.Dispose();
+                OwnedResourceCounters.Decrement(OwnedResourceKind.HostSidePipeHandle);
+            }
+
+            if (hostOutputRead is not null)
+            {
+                hostOutputRead.Dispose();
+                OwnedResourceCounters.Decrement(OwnedResourceKind.HostSidePipeHandle);
+            }
+
             pseudoConsole?.Dispose();
             job?.Dispose();
         }
@@ -585,9 +634,12 @@ public sealed class ConPtyTerminalSession : IAsyncDisposable
 
         _inputLock.Dispose();
         _processHandle.Dispose();
+        OwnedResourceCounters.Decrement(OwnedResourceKind.ProcessHandle);
         _job.Dispose();
         _pseudoConsole.Dispose();
         _outputCapture.Dispose();
+        OwnedResourceCounters.Decrement(OwnedResourceKind.HostSidePipeHandle);
+        OwnedResourceCounters.Decrement(OwnedResourceKind.HostSidePipeHandle);
         ThrowCleanupFailures(failures);
     }
 

@@ -44,11 +44,66 @@ if (Test-Path $EvidenceDirectory) {
     New-Item -ItemType Directory -Force -Path $EvidenceDirectory | Out-Null
 }
 
-# Keep the streamed console log beside, rather than inside, the evidence directory. The harness
+# Keep streamed console logs beside, rather than inside, the evidence directory. The harness
 # requires an empty destination and hashes all files it creates there before returning.
 $logPath = "$EvidenceDirectory.harness.log"
 if (Test-Path $logPath) {
     throw "The SP00-T02 harness log already exists: $logPath"
+}
+$testsLog = "$EvidenceDirectory.tests.log"
+if (Test-Path $testsLog) {
+    throw "The SP00-T02 tests log already exists: $testsLog"
+}
+
+# SP00-T02-FIX03 separation: diagnostics and canonical acceptance run in separate harness
+# processes and separate evidence directories. The canonical process starts only after every
+# diagnostic process has exited.
+$runDiagnostics = -not $Quick
+$isolationDir = "$EvidenceDirectory-isolation"
+$ownerCrashDiagDir = "$EvidenceDirectory-owner-crash"
+$handleGrowthDiagDir = "$EvidenceDirectory-handle-growth"
+$orchestrationPath = "$EvidenceDirectory.orchestration.json"
+
+function New-HarnessBaseArguments {
+    @(
+        '--manifest', $manifest,
+        '--fixture', $fixture,
+        '--crash-owner', $owner,
+        '--working-directory', $PSScriptRoot
+    )
+}
+
+function Invoke-CanonicalHarness {
+    param([string[]]$Arguments, [string]$LogPath)
+    & $harness @Arguments *>&1 | Tee-Object -FilePath $LogPath | Out-Null
+    return $LASTEXITCODE
+}
+
+function Read-DiagnosticSummary {
+    param([string]$Directory, [string]$Name, [int]$ExitCode)
+    $processId = 0
+    $status = if ($ExitCode -eq 0) { 'DIAGNOSTIC_PASS' } else { 'FAIL' }
+    $environmentPath = Join-Path $Directory 'environment.json'
+    $summaryPath = Join-Path $Directory 'summary.json'
+    try {
+        if (Test-Path $environmentPath) {
+            $environment = Get-Content $environmentPath -Raw | ConvertFrom-Json
+            $processId = [int]$environment.process_id
+        }
+        if (Test-Path $summaryPath) {
+            $summary = Get-Content $summaryPath -Raw | ConvertFrom-Json
+            $status = $summary.status
+        }
+    } catch {
+        $status = 'FAIL'
+    }
+    return [ordered]@{
+        name = $Name
+        process_id = $processId
+        exit_code = $ExitCode
+        status = $status
+        evidence_directory = $Directory
+    }
 }
 
 Push-Location $repositoryRoot
@@ -56,16 +111,55 @@ try {
     & dotnet build $solution --configuration $Configuration
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    & $tests
+    & $tests *>&1 | Tee-Object -FilePath $testsLog
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    $harnessArguments = @(
-        '--manifest', $manifest,
-        '--fixture', $fixture,
-        '--crash-owner', $owner,
-        '--working-directory', $PSScriptRoot,
-        '--evidence-dir', $EvidenceDirectory
-    )
+    $diagnostics = @()
+    if ($runDiagnostics) {
+        Write-Host "Diagnostic process: standard-handle isolation regression"
+        $diagArgs = New-HarnessBaseArguments
+        $diagArgs += '--evidence-dir', $isolationDir
+        $diagArgs += '--diag-isolation'
+        $isolationLog = "$isolationDir.harness.log"
+        $isolationExit = Invoke-CanonicalHarness -Arguments $diagArgs -LogPath $isolationLog
+        $diagnostics += Read-DiagnosticSummary -Directory $isolationDir -Name 'isolation' -ExitCode $isolationExit
+
+        Write-Host "Diagnostic process: owner-crash cold/post-stress probes and retention reproducer"
+        $diagArgs = New-HarnessBaseArguments
+        $diagArgs += '--evidence-dir', $ownerCrashDiagDir
+        $diagArgs += '--diag-owner-crash'
+        $ownerCrashLog = "$ownerCrashDiagDir.harness.log"
+        $ownerCrashExit = Invoke-CanonicalHarness -Arguments $diagArgs -LogPath $ownerCrashLog
+        $diagnostics += Read-DiagnosticSummary -Directory $ownerCrashDiagDir -Name 'owner-crash' -ExitCode $ownerCrashExit
+
+        Write-Host "Diagnostic process: handle-growth classifier and eight-session stress rounds"
+        $diagArgs = New-HarnessBaseArguments
+        $diagArgs += '--evidence-dir', $handleGrowthDiagDir
+        $diagArgs += '--diag-handle-growth'
+        $handleGrowthLog = "$handleGrowthDiagDir.harness.log"
+        $handleGrowthExit = Invoke-CanonicalHarness -Arguments $diagArgs -LogPath $handleGrowthLog
+        $diagnostics += Read-DiagnosticSummary -Directory $handleGrowthDiagDir -Name 'handle-growth' -ExitCode $handleGrowthExit
+
+        # Machine-readable orchestration record consumed by the canonical process.
+        $orchestration = [ordered]@{ diagnostic_processes = @($diagnostics) }
+        $orchestration | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $orchestrationPath -Encoding utf8
+
+        # Outer standard-handle sweep: the isolated markers must never appear in any parent
+        # console log (only the fixture's ConPTY-captured stream may contain them).
+        $markerPattern = 'CONPTY-(STDOUT|STDERR)-MARKER:'
+        $logFiles = @($testsLog, $isolationLog, $ownerCrashLog, $handleGrowthLog)
+        foreach ($logFile in $logFiles) {
+            if (-not (Test-Path $logFile)) { continue }
+            $content = Get-Content -LiteralPath $logFile -Raw
+            if ($content -match $markerPattern) {
+                Write-Host "STANDARD-HANDLE ESCAPE DETECTED in $logFile"
+                exit 1
+            }
+        }
+    }
+
+    $harnessArguments = New-HarnessBaseArguments
+    $harnessArguments += '--evidence-dir', $EvidenceDirectory
     if ($Quick) {
         $harnessArguments += '--quick'
     } else {
@@ -76,12 +170,18 @@ try {
     if ($AllowElevated) { $harnessArguments += '--allow-elevated' }
     if ($SkipOwnerCrash) { $harnessArguments += '--skip-owner-crash' }
     if ($FailFast) { $harnessArguments += '--fail-fast' }
+    if ($runDiagnostics) { $harnessArguments += @('--diagnostics-report', $orchestrationPath) }
 
-    & $harness @harnessArguments *>&1 | Tee-Object -FilePath $logPath
-    $exitCode = $LASTEXITCODE
+    $harnessExit = Invoke-CanonicalHarness -Arguments $harnessArguments -LogPath $logPath
+
+    foreach ($diagnostic in $diagnostics) {
+        Write-Host ("SP00-T02 diagnostic {0}: status={1}, pid={2}, exit={3}, evidence={4}" -f `
+            $diagnostic.name, $diagnostic.status, $diagnostic.process_id, $diagnostic.exit_code, $diagnostic.evidence_directory)
+    }
     Write-Host "SP00-T02 evidence: $EvidenceDirectory"
     Write-Host "SP00-T02 console log: $logPath"
-    exit $exitCode
+    Write-Host "SP00-T02 orchestration: $orchestrationPath"
+    exit $harnessExit
 } finally {
     Pop-Location
 }

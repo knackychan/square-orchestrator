@@ -143,10 +143,13 @@ internal sealed class ScenarioExecutor
                 try
                 {
                     await session.DisposeAsync().ConfigureAwait(false);
+                    Square.TerminalProof.Native.OwnedResourceCounters.AssertZero(
+                        $"Terminal session disposal boundary ({phase} {scenario} iteration={iteration}) "
+                        + $"session_pid={session.ProcessId}");
                 }
                 catch (Exception disposeException)
                 {
-                    failure = AppendFailure(failure, "Session disposal failed", disposeException);
+                    failure = AppendFailure(failure, "Session disposal or owned-resource retention", disposeException);
                 }
 
                 if (sampler is not null)

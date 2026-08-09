@@ -15,7 +15,11 @@ internal sealed record ProofOptions(
     bool AllowElevated,
     bool SkipOwnerCrash,
     bool FailFast,
-    bool SkipDiagnostics)
+    bool SkipDiagnostics,
+    bool DiagOwnerCrash,
+    bool DiagHandleGrowth,
+    bool DiagIsolation,
+    string? DiagnosticsReport)
 {
     private static readonly HashSet<string> ValueOptions = new(StringComparer.Ordinal)
     {
@@ -26,7 +30,8 @@ internal sealed record ProofOptions(
         "--evidence-dir",
         "--repeat",
         "--scale-repeat",
-        "--scenario"
+        "--scenario",
+        "--diagnostics-report"
     };
 
     internal static ProofOptions Parse(string[] args)
@@ -36,7 +41,8 @@ internal sealed record ProofOptions(
         for (int index = 0; index < args.Length; index++)
         {
             string current = args[index];
-            if (current is "--quick" or "--allow-elevated" or "--skip-owner-crash" or "--fail-fast" or "--skip-diagnostics")
+            if (current is "--quick" or "--allow-elevated" or "--skip-owner-crash" or "--fail-fast" or "--skip-diagnostics"
+                or "--diag-owner-crash" or "--diag-handle-growth" or "--diag-isolation")
             {
                 if (!switches.Add(current))
                 {
@@ -73,6 +79,20 @@ internal sealed record ProofOptions(
             throw new ArgumentException("--quick cannot be combined with --repeat or --scale-repeat.");
         }
 
+        int diagnosticSwitchCount =
+            (switches.Contains("--diag-owner-crash") ? 1 : 0)
+            + (switches.Contains("--diag-handle-growth") ? 1 : 0)
+            + (switches.Contains("--diag-isolation") ? 1 : 0);
+        if (diagnosticSwitchCount > 1)
+        {
+            throw new ArgumentException("Only one of --diag-owner-crash, --diag-handle-growth, --diag-isolation may be selected.");
+        }
+
+        if (diagnosticSwitchCount != 0 && switches.Contains("--quick"))
+        {
+            throw new ArgumentException("Diagnostic modes cannot be combined with --quick.");
+        }
+
         if (values.TryGetValue("--scenario", out string? requestedScenario)
             && string.IsNullOrWhiteSpace(requestedScenario))
         {
@@ -103,7 +123,11 @@ internal sealed record ProofOptions(
             switches.Contains("--allow-elevated"),
             switches.Contains("--skip-owner-crash"),
             switches.Contains("--fail-fast"),
-            switches.Contains("--skip-diagnostics"));
+            switches.Contains("--skip-diagnostics"),
+            switches.Contains("--diag-owner-crash"),
+            switches.Contains("--diag-handle-growth"),
+            switches.Contains("--diag-isolation"),
+            values.GetValueOrDefault("--diagnostics-report"));
     }
 
     internal static string Usage => """
@@ -116,11 +140,16 @@ internal sealed record ProofOptions(
           [--repeat <positive integer>]
           [--scale-repeat <non-negative integer>]
           [--scenario <id>]
+          [--diagnostics-report <path>]
           [--quick]
           [--allow-elevated]
           [--skip-owner-crash]
           [--fail-fast]
           [--skip-diagnostics]
+          [--diag-owner-crash]
+          [--diag-handle-growth]
+          [--diag-isolation]
+        Diagnostic modes run in their own process and are never canonical acceptance evidence.
         """;
 
     private static string Required(IReadOnlyDictionary<string, string> values, string name) =>
