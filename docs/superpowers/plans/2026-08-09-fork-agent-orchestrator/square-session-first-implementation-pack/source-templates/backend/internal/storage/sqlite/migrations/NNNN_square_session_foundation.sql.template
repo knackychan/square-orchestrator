@@ -1,0 +1,90 @@
+-- TEMPLATE ONLY.
+-- Replace NNNN with the next immutable migration sequence after inspecting the
+-- accepted fork. Never edit an applied AO or Square migration.
+
+-- +goose Up
+CREATE TABLE square_sessions (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    status TEXT NOT NULL,
+    active_workflow_run_id TEXT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    version INTEGER NOT NULL CHECK (version >= 1)
+) STRICT;
+
+CREATE TABLE square_session_messages (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL REFERENCES square_sessions(id),
+    author_kind TEXT NOT NULL,
+    author_ref TEXT NULL,
+    content_artifact_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    sequence INTEGER NOT NULL,
+    UNIQUE (session_id, sequence)
+) STRICT;
+
+CREATE TABLE square_workflow_runs (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL REFERENCES square_sessions(id),
+    requested_profile TEXT NOT NULL,
+    resolved_profile TEXT NULL,
+    status TEXT NOT NULL,
+    stage TEXT NOT NULL,
+    baseline_kind TEXT NOT NULL,
+    baseline_value TEXT NOT NULL,
+    version INTEGER NOT NULL CHECK (version >= 1)
+) STRICT;
+
+CREATE TABLE square_role_runs (
+    id TEXT PRIMARY KEY,
+    workflow_run_id TEXT NOT NULL REFERENCES square_workflow_runs(id),
+    task_id TEXT NULL,
+    role_kind TEXT NOT NULL,
+    attempt INTEGER NOT NULL CHECK (attempt >= 1),
+    state TEXT NOT NULL,
+    requested_route_id TEXT NULL,
+    resolved_route_id TEXT NULL,
+    actual_identity_json TEXT NOT NULL,
+    version INTEGER NOT NULL CHECK (version >= 1)
+) STRICT;
+
+-- Semantic events are append-only and update current projections in the same
+-- transaction through the service/store boundary.
+CREATE TABLE square_events (
+    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id TEXT NOT NULL UNIQUE,
+    stream_kind TEXT NOT NULL,
+    stream_id TEXT NOT NULL,
+    stream_version INTEGER NOT NULL,
+    event_type TEXT NOT NULL,
+    schema_version TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    occurred_at TEXT NOT NULL,
+    UNIQUE (stream_kind, stream_id, stream_version)
+) STRICT;
+
+CREATE TRIGGER square_events_no_update
+BEFORE UPDATE ON square_events
+BEGIN
+    SELECT RAISE(ABORT, 'square_events is append-only');
+END;
+
+CREATE TRIGGER square_events_no_delete
+BEFORE DELETE ON square_events
+BEGIN
+    SELECT RAISE(ABORT, 'square_events is append-only');
+END;
+
+-- +goose Down
+-- Production Square migrations are forward-only. A Down section, if required by
+-- AO tooling, must not be used against accepted user state without an explicit
+-- owner-approved recovery plan.
+DROP TRIGGER IF EXISTS square_events_no_delete;
+DROP TRIGGER IF EXISTS square_events_no_update;
+DROP TABLE IF EXISTS square_events;
+DROP TABLE IF EXISTS square_role_runs;
+DROP TABLE IF EXISTS square_workflow_runs;
+DROP TABLE IF EXISTS square_session_messages;
+DROP TABLE IF EXISTS square_sessions;

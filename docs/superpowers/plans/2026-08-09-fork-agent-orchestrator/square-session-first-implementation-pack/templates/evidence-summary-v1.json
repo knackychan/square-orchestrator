@@ -1,0 +1,26 @@
+{
+  "schema_version": "square.evidence-summary/v1",
+  "task_id": "__FILL__",
+  "attempt_id": "__FILL__",
+  "environment_path": "environment.json",
+  "dispatch_path": "dispatch.json",
+  "started_utc": "1970-01-01T00:00:00Z",
+  "finished_utc": "1970-01-01T00:00:00Z",
+  "status": "FAIL",
+  "commands": [],
+  "tests": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "unavailable": 0
+  },
+  "findings": [],
+  "changed_files_path": "changed-files.json",
+  "privacy_review": {
+    "completed": false,
+    "secrets_found": false,
+    "redactions": []
+  },
+  "manifest_path": "manifest.sha256",
+  "notes": []
+}

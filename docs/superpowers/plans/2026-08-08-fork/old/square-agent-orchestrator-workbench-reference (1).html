@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="referrer" content="no-referrer">
+<title>Square Orchestrator — Agent Orchestrator Workbench</title>
+<style>
+  :root {
+    --app: #f3f3f3;
+    --panel: #ffffff;
+    --panel-alt: #f6f6f6;
+    --panel-hover: #ececec;
+    --terminal: #15181c;
+    --terminal-alt: #1d2025;
+    --border: #d1d1d1;
+    --border-strong: #a9a9a9;
+    --text: #202020;
+    --muted: #666666;
+    --dim: #8c8c8c;
+    --accent: #0067c0;
+    --selection: #dbeeff;
+    --selection-border: #6aa8da;
+    --good: #187a3d;
+    --warn: #8a6200;
+    --bad: #b42318;
+    --info: #245ea8;
+    --purple: #6d479d;
+    --focus: #0067c0;
+    --mono: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    --sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --toolbar-h: 34px;
+    --command-h: 40px;
+    --status-h: 23px;
+    --nav-w: 208px;
+    --inspector-w: 288px;
+  }
+
+  html[data-theme="dark"] {
+    --app: #1e1e1e;
+    --panel: #252526;
+    --panel-alt: #2d2d30;
+    --panel-hover: #343438;
+    --terminal: #111418;
+    --terminal-alt: #171a1f;
+    --border: #3b3b3d;
+    --border-strong: #59595b;
+    --text: #d8d8d8;
+    --muted: #a5a5a5;
+    --dim: #777777;
+    --accent: #75b8f3;
+    --selection: #173b55;
+    --selection-border: #4f87ad;
+    --good: #89d185;
+    --warn: #d7ba7d;
+    --bad: #f48771;
+    --info: #75b8f3;
+    --purple: #c586c0;
+    --focus: #75b8f3;
+  }
+
+  html[data-theme="contrast"] {
+    --app: #000;
+    --panel: #000;
+    --panel-alt: #080808;
+    --panel-hover: #111;
+    --terminal: #000;
+    --terminal-alt: #050505;
+    --border: #fff;
+    --border-strong: #fff;
+    --text: #fff;
+    --muted: #fff;
+    --dim: #d5d5d5;
+    --accent: #00ffff;
+    --selection: #002b2b;
+    --selection-border: #00ffff;
+    --good: #00ff66;
+    --warn: #ffff00;
+    --bad: #ff66ff;
+    --info: #00ffff;
+    --purple: #ff9dff;
+    --focus: #ffff00;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; }
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: var(--app);
+    color: var(--text);
+    font: 12px/1.35 var(--sans);
+    text-rendering: optimizeLegibility;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button, select { -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: -2px;
+  }
+  ::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+  .mono, code, pre { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .muted { color: var(--muted); }
+  .dim { color: var(--dim); }
+  .nowrap { white-space: nowrap; }
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  .app {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: var(--toolbar-h) var(--command-h) minmax(0, 1fr) var(--status-h);
+    background: var(--app);
+  }
+
+  /* Flat application chrome */
+  .toolbar {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-alt);
+    overflow: hidden;
+  }
+  .brand {
+    height: 100%;
+    min-width: 208px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border-right: 1px solid var(--border);
+    font-weight: 650;
+    letter-spacing: .01em;
+  }
+  .brand-mark {
+    width: 15px;
+    height: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  .brand-mark i { display: block; border: 1px solid var(--accent); }
+  .toolbar-group { height: 100%; display: flex; align-items: stretch; border-right: 1px solid var(--border); }
+  .toolbar-button, .layout-button, .speed-button {
+    min-width: 0;
+    height: 100%;
+    padding: 0 9px;
+    border: 0;
+    border-right: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .toolbar-button:last-child, .layout-button:last-child, .speed-button:last-child { border-right: 0; }
+  .toolbar-button:hover, .layout-button:hover, .speed-button:hover { background: var(--panel-hover); color: var(--text); }
+  .layout-button[aria-pressed="true"], .speed-button[aria-pressed="true"] {
+    color: var(--text);
+    background: var(--panel);
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .toolbar-spacer { flex: 1; min-width: 10px; }
+  .toolbar-counter {
+    height: 100%;
+    padding: 0 9px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-left: 1px solid var(--border);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .toolbar-counter strong { color: var(--text); font-weight: 650; }
+
+  .commandbar {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(145px, 205px) minmax(260px, 1fr) 104px auto 72px;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 7px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .field, .select, .button {
+    height: 28px;
+    border: 1px solid var(--border-strong);
+    border-radius: 1px;
+    background: var(--panel);
+    color: var(--text);
+  }
+  .field { width: 100%; min-width: 0; padding: 0 8px; }
+  .select { width: 100%; padding: 0 24px 0 7px; }
+  .button { padding: 0 9px; cursor: pointer; white-space: nowrap; }
+  .button:hover { background: var(--panel-hover); }
+  .button.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+  html[data-theme="dark"] .button.primary { color: #111; }
+  html[data-theme="contrast"] .button.primary { color: #000; }
+  .button.danger { border-color: var(--bad); color: var(--bad); background: transparent; }
+  .speed-control { height: 28px; display: flex; border: 1px solid var(--border-strong); }
+  .speed-button { height: 26px; padding: 0 8px; font-size: 10px; }
+
+  .shell {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: var(--nav-w) minmax(0, 1fr) var(--inspector-w);
+    background: var(--app);
+  }
+  .navigator, .inspector {
+    min-height: 0;
+    overflow: hidden;
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+  }
+  .navigator { border-right: 1px solid var(--border); }
+  .inspector { border-left: 1px solid var(--border); }
+  .workspace { min-width: 0; min-height: 0; overflow: hidden; position: relative; }
+
+  .panel-titlebar {
+    min-height: 29px;
+    padding: 0 7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-alt);
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .subtle { color: var(--muted); font-weight: 400; letter-spacing: 0; text-transform: none; }
+
+  /* Navigator */
+  .project-line {
+    min-height: 47px;
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .project-title { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .project-path { margin-top: 2px; color: var(--dim); font: 9.5px var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nav-scroll { min-height: 0; overflow: auto; padding: 5px 0 12px; }
+  .nav-section-title {
+    margin: 10px 8px 3px;
+    color: var(--dim);
+    font-size: 9px;
+    font-weight: 650;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    width: 100%;
+    min-height: 25px;
+    padding: 3px 8px 3px 10px;
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr) auto;
+    gap: 6px;
+    align-items: center;
+    border: 0;
+    border-left: 2px solid transparent;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .nav-item:hover { background: var(--panel-hover); }
+  .nav-item[aria-current="page"] { border-left-color: var(--accent); background: var(--selection); }
+  .nav-glyph { color: var(--muted); text-align: center; font: 10px var(--mono); }
+  .nav-count { min-width: 18px; color: var(--dim); font: 9px var(--mono); text-align: right; }
+  .plan-tree { margin: 2px 8px; border-left: 1px solid var(--border); }
+  .plan-tree-row { min-height: 23px; display: flex; align-items: center; gap: 6px; padding: 2px 6px 2px 9px; }
+  .plan-tree-row.selected { background: var(--selection); }
+  .tree-id { min-width: 45px; color: var(--muted); font: 9.5px var(--mono); }
+  .tree-state { margin-left: auto; font: 9px var(--mono); }
+  .navigator-footer { margin-top: auto; border-top: 1px solid var(--border); padding: 6px 8px; color: var(--dim); font: 9px/1.5 var(--mono); }
+
+  /* General panels */
+  .workspace-view { position: absolute; inset: 0; display: none; min-width: 0; min-height: 0; }
+  .workspace-view.active { display: grid; }
+  .panel { min-width: 0; min-height: 0; border: 1px solid var(--border); background: var(--panel); overflow: hidden; }
+  .panel-header {
+    min-height: 30px;
+    padding: 0 7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-alt);
+  }
+  .panel-header-main { min-width: 0; display: flex; align-items: center; gap: 7px; }
+  .panel-heading { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .panel-meta { color: var(--dim); font: 9.5px var(--mono); white-space: nowrap; }
+  .panel-actions { display: flex; align-items: center; gap: 2px; }
+  .panel-action {
+    height: 23px;
+    padding: 0 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .panel-action:hover { border-color: var(--border); background: var(--panel-hover); color: var(--text); }
+  .body-scroll { min-height: 0; overflow: auto; }
+
+  .state {
+    display: inline-flex;
+    align-items: center;
+    min-height: 17px;
+    padding: 1px 4px;
+    border: 1px solid currentColor;
+    border-radius: 1px;
+    font: 650 8.5px/1.2 var(--mono);
+    letter-spacing: .03em;
+    white-space: nowrap;
+  }
+  .state.running, .state.pass { color: var(--good); }
+  .state.warn, .state.approval { color: var(--warn); }
+  .state.fail { color: var(--bad); }
+  .state.info { color: var(--info); }
+  .state.queued, .state.neutral { color: var(--muted); }
+  .state.review { color: var(--purple); }
+
+  /* Main operations workbench: two working panes + events */
+  .operations-view { padding: 7px; }
+  .operations-view.active { display: block; }
+  .operations-layout {
+    width: 100%; height: 100%; min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(410px, 1.65fr) minmax(275px, .9fr);
+    grid-template-rows: minmax(360px, 1fr) 178px;
+    grid-template-areas: "session fleet" "events events";
+    gap: 7px;
+  }
+  .session-panel { grid-area: session; display: flex; flex-direction: column; }
+  .fleet-panel { grid-area: fleet; display: flex; flex-direction: column; }
+  .lower-panel { grid-area: events; display: flex; flex-direction: column; }
+  .tabbar { min-height: 28px; display: flex; align-items: flex-end; border-bottom: 1px solid var(--border); background: var(--panel); }
+  .tab {
+    height: 27px;
+    padding: 0 9px;
+    border: 0;
+    border-right: 1px solid var(--border);
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .tab:hover { background: var(--panel-hover); color: var(--text); }
+  .tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); background: var(--panel-alt); }
+  .session-content { min-height: 0; flex: 1; position: relative; }
+  .session-tab-panel { position: absolute; inset: 0; display: none; min-height: 0; }
+  .session-tab-panel.active { display: flex; flex-direction: column; }
+  .terminal-body {
+    min-height: 0;
+    flex: 1;
+    margin: 0;
+    padding: 9px 10px;
+    overflow: auto;
+    background: var(--terminal);
+    color: #d5d9df;
+    font: 11px/1.48 var(--mono);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .terminal-body .prompt { color: #7fc7ff; }
+  .terminal-body .ok { color: #9bd38f; }
+  .terminal-body .warn { color: #e4c57f; }
+  .terminal-body .dimline { color: #7f8791; }
+  .terminal-footer {
+    min-height: 25px;
+    padding: 0 7px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border-top: 1px solid var(--border);
+    background: var(--panel-alt);
+    color: var(--muted);
+    font: 9.5px var(--mono);
+  }
+  .terminal-footer span:last-child { margin-left: auto; }
+  .interaction-bar {
+    min-height: 49px;
+    padding: 6px 7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid var(--warn);
+    background: color-mix(in srgb, var(--warn) 8%, var(--panel));
+  }
+  .interaction-title { color: var(--warn); font-weight: 650; }
+  .interaction-detail { margin-top: 2px; color: var(--muted); font-size: 10px; }
+  .interaction-actions { display: flex; gap: 4px; }
+
+  .chat-log { min-height: 0; flex: 1; overflow: auto; padding: 10px; }
+  .chat-entry { display: grid; grid-template-columns: 72px minmax(0,1fr); gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .chat-who { color: var(--dim); font: 9.5px var(--mono); }
+  .diff-block { min-height: 0; flex: 1; overflow: auto; margin: 0; padding: 9px; background: var(--terminal); color: #d5d9df; font: 10.5px/1.45 var(--mono); }
+  .diff-add { color: #9bd38f; }
+  .diff-del { color: #f49a8c; }
+  .evidence-list { min-height: 0; flex: 1; overflow: auto; }
+  .evidence-row { display: grid; grid-template-columns: 90px minmax(0,1fr) 80px; gap: 7px; align-items: center; min-height: 31px; padding: 4px 7px; border-bottom: 1px solid var(--border); }
+
+  .fleet-table, .data-table, .event-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .fleet-table th, .data-table th, .event-table th {
+    height: 25px;
+    padding: 0 6px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    background: var(--panel-alt);
+    color: var(--dim);
+    font-size: 9px;
+    font-weight: 650;
+    letter-spacing: .05em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+  .fleet-table td, .data-table td, .event-table td { padding: 6px; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; }
+  .fleet-table tr.selected, .data-table tr.selected { background: var(--selection); }
+  .fleet-table tbody tr:hover, .data-table tbody tr:hover, .event-table tbody tr:hover { background: var(--panel-hover); }
+  .task-title { font-weight: 600; }
+  .table-sub { margin-top: 2px; color: var(--dim); font-size: 9.5px; }
+  .controller { color: var(--muted); font: 9px var(--mono); }
+
+  .bottom-tabs { height: 27px; display: flex; align-items: stretch; border-bottom: 1px solid var(--border); background: var(--panel-alt); }
+  .bottom-tab { height: 26px; padding: 0 9px; border: 0; border-right: 1px solid var(--border); border-bottom: 2px solid transparent; background: transparent; color: var(--muted); cursor: pointer; }
+  .bottom-tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); background: var(--panel); }
+  .bottom-panel-wrap { min-height: 0; flex: 1; position: relative; }
+  .bottom-panel { position: absolute; inset: 0; display: none; overflow: auto; }
+  .bottom-panel.active { display: block; }
+
+  /* Plan, review, resources */
+  .plan-view { padding: 7px; grid-template-columns: 260px minmax(0,1fr); gap: 7px; }
+  .plan-tree-panel, .plan-detail-panel, .review-files, .review-diff, .review-findings, .resource-main, .resource-side { display: flex; flex-direction: column; }
+  .plan-list { min-height: 0; overflow: auto; }
+  .plan-row { min-height: 36px; padding: 5px 7px; display: grid; grid-template-columns: 52px minmax(0,1fr) auto; gap: 7px; align-items: center; border-bottom: 1px solid var(--border); }
+  .plan-row.selected { background: var(--selection); }
+  .plan-id { color: var(--muted); font: 9.5px var(--mono); }
+  .plan-row-title { font-weight: 600; }
+  .plan-row-sub { margin-top: 2px; color: var(--dim); font-size: 9.5px; }
+  .detail-content { min-height: 0; overflow: auto; padding: 10px 12px; }
+  .detail-content h1 { margin: 0 0 10px; font-size: 15px; font-weight: 650; }
+  .detail-content h2 { margin: 16px 0 5px; color: var(--dim); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+  .detail-content p { margin: 0 0 7px; }
+  .decision-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  .decision-table td { padding: 5px 6px; border: 1px solid var(--border); vertical-align: top; }
+  .criteria-list { margin: 0; padding: 0; list-style: none; }
+  .criteria-list li { min-height: 30px; display: grid; grid-template-columns: 50px minmax(0,1fr) 50px; gap: 7px; align-items: center; border-bottom: 1px solid var(--border); }
+  .criterion-id, .criterion-state { font: 9.5px var(--mono); }
+  .criterion-state { text-align: right; }
+
+  .review-view { padding: 7px; grid-template-columns: 205px minmax(390px,1fr) 270px; gap: 7px; }
+  .file-tree { min-height: 0; overflow: auto; padding: 4px 0; }
+  .file-row { min-height: 25px; padding: 3px 7px; display: flex; align-items: center; gap: 7px; font: 9.5px var(--mono); }
+  .file-row.selected { background: var(--selection); }
+  .file-status { width: 14px; color: var(--good); }
+  .review-diff pre { min-height: 0; flex: 1; margin: 0; padding: 9px; overflow: auto; background: var(--terminal); color: #d5d9df; font: 10px/1.42 var(--mono); white-space: pre-wrap; }
+  .finding { padding: 8px; border-bottom: 1px solid var(--border); }
+  .finding-title { display: flex; justify-content: space-between; gap: 7px; font-weight: 650; }
+  .finding-body { margin-top: 5px; color: var(--muted); }
+  .finding-ref { margin-top: 6px; font: 9px var(--mono); color: var(--dim); }
+
+  .resources-view { padding: 7px; grid-template-columns: minmax(480px,1fr) 290px; gap: 7px; }
+  .resource-section { border-bottom: 1px solid var(--border); }
+  .resource-heading { min-height: 29px; padding: 0 7px; display: flex; align-items: center; justify-content: space-between; background: var(--panel-alt); border-bottom: 1px solid var(--border); font-weight: 650; }
+  .meter-row { min-height: 35px; display: grid; grid-template-columns: 128px minmax(120px,1fr) 86px 110px; gap: 8px; align-items: center; padding: 5px 7px; border-bottom: 1px solid var(--border); }
+  .meter-track { height: 5px; background: var(--panel-hover); border: 1px solid var(--border); }
+  .meter-fill { height: 100%; background: var(--accent); }
+  .resource-fact { min-height: 34px; display: grid; grid-template-columns: 110px minmax(0,1fr); gap: 8px; padding: 6px 7px; border-bottom: 1px solid var(--border); }
+  .resource-fact dt { color: var(--dim); }
+  .resource-fact dd { margin: 0; }
+
+  /* Generic record views */
+  .data-view { padding: 7px; grid-template-columns: minmax(420px, 1.2fr) minmax(300px, .8fr); gap: 7px; }
+  .list-panel, .detail-panel { display: flex; flex-direction: column; }
+  .record-title { font-weight: 600; }
+  .record-meta { margin-top: 2px; color: var(--dim); font-size: 9.5px; }
+  .approval-card { padding: 9px; border-bottom: 1px solid var(--border); }
+  .approval-card.selected { background: var(--selection); }
+  .approval-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .approval-title { font-weight: 650; }
+  .approval-body { margin-top: 6px; color: var(--muted); }
+  .approval-buttons { margin-top: 8px; display: flex; gap: 4px; }
+  .memory-scope { min-height: 29px; display: flex; border-bottom: 1px solid var(--border); }
+  .memory-scope button { padding: 0 9px; border: 0; border-right: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; }
+  .memory-scope button[aria-selected="true"] { color: var(--text); box-shadow: inset 0 -2px 0 var(--accent); }
+
+  /* Inspector */
+  .inspector-tabs { min-height: 29px; display: flex; border-bottom: 1px solid var(--border); }
+  .inspector-tab { flex: 1; border: 0; border-right: 1px solid var(--border); border-bottom: 2px solid transparent; background: transparent; color: var(--muted); cursor: pointer; }
+  .inspector-tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  .inspector-scroll { min-height: 0; overflow: auto; }
+  .inspector-section { border-bottom: 1px solid var(--border); padding: 8px; }
+  .inspector-section-title { margin-bottom: 6px; color: var(--dim); font-size: 9px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
+  .relation-chain { border: 1px solid var(--border); }
+  .relation-row { min-height: 26px; display: grid; grid-template-columns: 72px minmax(0,1fr); align-items: center; border-bottom: 1px solid var(--border); }
+  .relation-row:last-child { border-bottom: 0; }
+  .relation-label { height: 100%; padding: 5px; display: flex; align-items: center; color: var(--dim); background: var(--panel-alt); font: 8.5px var(--mono); }
+  .relation-value { padding: 5px; font: 9.5px var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .property-grid { margin: 0; }
+  .property-row { min-height: 26px; display: grid; grid-template-columns: 82px minmax(0,1fr); gap: 7px; align-items: start; padding: 5px 0; border-bottom: 1px solid var(--border); }
+  .property-row:last-child { border-bottom: 0; }
+  .property-row dt { color: var(--dim); }
+  .property-row dd { margin: 0; overflow-wrap: anywhere; }
+  .inspector-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+
+  /* Status line */
+  .statusbar {
+    min-width: 0;
+    display: flex;
+    align-items: stretch;
+    border-top: 1px solid var(--border);
+    background: var(--panel-alt);
+    color: var(--muted);
+    overflow: hidden;
+    font-size: 9.5px;
+  }
+  .status-item { display: flex; align-items: center; gap: 5px; padding: 0 8px; border-right: 1px solid var(--border); white-space: nowrap; }
+  .status-item strong { color: var(--text); font-weight: 600; }
+  .status-item.right { margin-left: auto; border-left: 1px solid var(--border); border-right: 0; }
+
+  /* Focus layout is a presentation change only */
+  .app[data-layout="focus"] .navigator,
+  .app[data-layout="focus"] .inspector { display: none; }
+  .app[data-layout="focus"] .shell { grid-template-columns: minmax(0,1fr); }
+  .app[data-layout="focus"] .operations-view { padding: 0; }
+  .app[data-layout="focus"] .operations-layout { grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(0,1fr); grid-template-areas: "session"; gap: 0; }
+  .app[data-layout="focus"] .fleet-panel,
+  .app[data-layout="focus"] .lower-panel { display: none; }
+  .app[data-layout="focus"] .session-panel { border: 0; }
+
+  /* Dispatch preview */
+  dialog {
+    width: min(820px, calc(100vw - 34px));
+    max-height: min(790px, calc(100vh - 34px));
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 1px;
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: 0 14px 48px rgba(0,0,0,.38);
+  }
+  dialog::backdrop { background: rgba(0,0,0,.58); }
+  .dialog-header, .dialog-footer { min-height: 38px; padding: 0 9px; display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--panel-alt); }
+  .dialog-header { border-bottom: 1px solid var(--border); }
+  .dialog-footer { border-top: 1px solid var(--border); justify-content: flex-end; }
+  .dialog-title { font-weight: 650; }
+  .dialog-body { max-height: calc(100vh - 120px); overflow: auto; padding: 10px; }
+  .dispatch-heading { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: start; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .dispatch-heading h2 { margin: 0; font-size: 15px; font-weight: 650; }
+  .dispatch-heading p { margin: 4px 0 0; color: var(--muted); }
+  .stage-list { margin-top: 10px; border: 1px solid var(--border); }
+  .stage-row { min-height: 34px; display: grid; grid-template-columns: 34px 130px minmax(0,1fr) 105px; gap: 8px; align-items: center; padding: 4px 7px; border-bottom: 1px solid var(--border); }
+  .stage-row:last-child { border-bottom: 0; }
+  .stage-index, .stage-substrate { color: var(--dim); font: 9px var(--mono); }
+  .stage-name { font-weight: 650; }
+  .stage-owner { color: var(--muted); }
+  .dispatch-grid { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
+  .dispatch-section { min-height: 86px; padding: 8px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .dispatch-section h3 { margin: 0 0 5px; color: var(--dim); font-size: 9px; letter-spacing: .07em; }
+  .dispatch-section p { margin: 0; }
+
+  @media (max-width: 1180px) {
+    :root { --nav-w: 184px; --inspector-w: 250px; }
+    .commandbar { grid-template-columns: 165px minmax(220px,1fr) 96px auto 68px; }
+    .operations-layout { grid-template-columns: minmax(380px,1.5fr) minmax(245px,.8fr); }
+    .review-view { grid-template-columns: 170px minmax(350px,1fr) 240px; }
+  }
+  @media (max-width: 940px) {
+    .shell { grid-template-columns: 172px minmax(0,1fr); }
+    .inspector { display: none; }
+    .operations-layout { grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(350px,1fr) 220px 170px; grid-template-areas: "session" "fleet" "events"; }
+    .plan-view, .data-view { grid-template-columns: 220px minmax(0,1fr); }
+    .review-view { grid-template-columns: 160px minmax(0,1fr); }
+    .review-findings { display: none; }
+    .resources-view { grid-template-columns: minmax(0,1fr); }
+    .resource-side { display: none; }
+    .commandbar { grid-template-columns: 150px minmax(180px,1fr) 92px auto; }
+    .commandbar > .button.primary { display: none; }
+  }
+  @media (max-width: 680px) {
+    .brand { min-width: 138px; }
+    .layout-button { padding: 0 6px; font-size: 10px; }
+    .toolbar-counter { display: none; }
+    .commandbar { grid-template-columns: 120px minmax(0,1fr) 86px; }
+    .speed-control, .commandbar > .button.primary { display: none; }
+    .shell { grid-template-columns: minmax(0,1fr); }
+    .navigator { display: none; }
+    .operations-view { padding: 4px; }
+    .operations-layout { gap: 4px; }
+    .plan-view, .data-view, .review-view { grid-template-columns: minmax(0,1fr); padding: 4px; gap: 4px; }
+    .plan-tree-panel, .list-panel, .review-files { display: none; }
+    .stage-row { grid-template-columns: 28px 100px minmax(0,1fr); }
+    .stage-substrate { display: none; }
+    .dispatch-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app" data-layout="operations">
+  <header class="toolbar" aria-label="Workspace toolbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Square Orchestrator</span></div>
+    <div class="toolbar-group" aria-label="Layout presets">
+      <button class="layout-button" data-layout="operations" aria-pressed="true">Operations</button>
+      <button class="layout-button" data-layout="focus" aria-pressed="false">Focus</button>
+      <button class="layout-button" data-layout="plan" aria-pressed="false">Plan</button>
+      <button class="layout-button" data-layout="review" aria-pressed="false">Review</button>
+      <button class="layout-button" data-layout="resources" aria-pressed="false">Resources</button>
+    </div>
+    <div class="toolbar-spacer"></div>
+    <div class="toolbar-counter"><strong>3</strong> live sessions</div>
+    <div class="toolbar-counter"><strong>1</strong> approval</div>
+    <button class="toolbar-button" id="themeButton" aria-label="Cycle theme">Theme</button>
+  </header>
+
+  <section class="commandbar" aria-label="Task intake">
+    <select class="select" id="projectSelect" aria-label="Project">
+      <option>square-orchestrator</option>
+      <option>content-manager</option>
+    </select>
+    <input class="field" id="requestInput" aria-label="Task request" value="Add owner-controlled project-to-global memory promotion with provenance and restart-safe receipts">
+    <select class="select" id="profileSelect" aria-label="Workflow profile">
+      <option value="auto">AUTO</option>
+      <option value="quick">QUICK</option>
+      <option value="planned">PLANNED</option>
+    </select>
+    <div class="speed-control" aria-label="Execution resource profile">
+      <button class="speed-button" data-speed="fast" aria-pressed="false">FAST</button>
+      <button class="speed-button" data-speed="normal" aria-pressed="true">NORMAL</button>
+      <button class="speed-button" data-speed="slow" aria-pressed="false">SLOW</button>
+    </div>
+    <button class="button primary" id="previewButton">Preview</button>
+  </section>
+
+  <div class="shell">
+    <nav class="navigator" aria-label="Project navigation">
+      <div class="panel-titlebar"><span>Navigator</span><span class="subtle mono">REQ 028</span></div>
+      <div class="project-line"><div class="project-title">square-orchestrator</div><div class="project-path">D:\WORK\10 - AI\SQUARE LAB\TOOLS\square-orchestrator</div></div>
+      <div class="nav-scroll">
+        <div class="nav-section-title">Square workflow</div>
+        <button class="nav-item" data-view="operations" aria-current="page"><span class="nav-glyph">●</span><span>Operations</span><span class="nav-count">3</span></button>
+        <button class="nav-item" data-view="requests" aria-current="false"><span class="nav-glyph">R</span><span>Requests</span><span class="nav-count">4</span></button>
+        <button class="nav-item" data-view="tasks" aria-current="false"><span class="nav-glyph">T</span><span>Tasks</span><span class="nav-count">7</span></button>
+        <button class="nav-item" data-view="approvals" aria-current="false"><span class="nav-glyph">!</span><span>Approvals</span><span class="nav-count">1</span></button>
+        <button class="nav-item" data-view="memory" aria-current="false"><span class="nav-glyph">M</span><span>Memory</span><span class="nav-count">9</span></button>
+
+        <div class="nav-section-title">Agent Orchestrator</div>
+        <button class="nav-item" data-view="sessions" aria-current="false"><span class="nav-glyph">S</span><span>Sessions</span><span class="nav-count">3</span></button>
+        <button class="nav-item" data-view="worktrees" aria-current="false"><span class="nav-glyph">W</span><span>Worktrees</span><span class="nav-count">2</span></button>
+        <button class="nav-item" data-view="pullrequests" aria-current="false"><span class="nav-glyph">P</span><span>Pull requests</span><span class="nav-count">1</span></button>
+        <button class="nav-item" data-view="reviewruns" aria-current="false"><span class="nav-glyph">V</span><span>Review runs</span><span class="nav-count">1</span></button>
+        <button class="nav-item" data-view="events" aria-current="false"><span class="nav-glyph">E</span><span>Events</span><span class="nav-count">—</span></button>
+
+        <div class="nav-section-title">Active plan</div>
+        <div class="plan-tree" aria-label="Active task tree">
+          <div class="plan-tree-row"><span class="tree-id">SQ-T01</span><span>Contracts</span><span class="tree-state" style="color:var(--good)">PASS</span></div>
+          <div class="plan-tree-row"><span class="tree-id">SQ-T02</span><span>Persistence</span><span class="tree-state" style="color:var(--good)">PASS</span></div>
+          <div class="plan-tree-row selected"><span class="tree-id">SQ-T03</span><span>Promotion API</span><span class="tree-state" style="color:var(--info)">RUN</span></div>
+          <div class="plan-tree-row"><span class="tree-id">SQ-T04</span><span>Memory UI</span><span class="tree-state" style="color:var(--warn)">WAIT</span></div>
+          <div class="plan-tree-row"><span class="tree-id">SQ-RV01</span><span>Review</span><span class="tree-state">QUEUE</span></div>
+        </div>
+      </div>
+      <div class="navigator-footer">Square layer: READY<br>AO base: v0.12.1 · connected</div>
+    </nav>
+
+    <main class="workspace" aria-label="Square workbench">
+      <!-- OPERATIONS -->
+      <section class="workspace-view operations-view active" id="view-operations" data-view-panel="operations" aria-label="Operations workspace">
+        <div class="operations-layout">
+          <article class="panel session-panel" aria-label="Selected Square task and AO session">
+            <header class="panel-header">
+              <div class="panel-header-main"><span class="state running">RUNNING</span><span class="panel-heading"><span class="mono">SQ-T03</span> · Project/global memory promotion</span><span class="panel-meta">ses_04f2 · wt_09d1</span></div>
+              <div class="panel-actions"><button class="panel-action">Attach</button><button class="panel-action">Checkpoint</button><button class="panel-action">Cancel</button></div>
+            </header>
+            <div class="tabbar" role="tablist" aria-label="Selected AO session">
+              <button class="tab" data-session-tab="terminal" aria-selected="true">Terminal</button>
+              <button class="tab" data-session-tab="chat" aria-selected="false">Chat</button>
+              <button class="tab" data-session-tab="diff" aria-selected="false">Diff</button>
+              <button class="tab" data-session-tab="evidence" aria-selected="false">Evidence</button>
+            </div>
+            <div class="session-content">
+              <section class="session-tab-panel active" data-session-panel="terminal" aria-label="Terminal output">
+                <pre class="terminal-body"><span class="prompt">D:\...\wt_09d1&gt;</span> square attempt attach SQ-A03
+<span class="dimline">[square]</span> task contract sq.task.v1 verified
+<span class="dimline">[square]</span> writer lease SQ-L-013 · scope squarememory/**
+<span class="dimline">[ao]</span> session ses_04f2 · controller generation 3
+<span class="dimline">[ao]</span> worktree wt_09d1 · branch square/sq-t03-memory-promotion
+<span class="dimline">[agent]</span> implementing promotion transaction and provenance checks
+<span class="dimline">[tool]</span> go test ./internal/service/squarememory/...
+<span class="ok">  PASS  candidate promotion preserves source evidence</span>
+<span class="ok">  PASS  duplicate promotion returns original receipt</span>
+<span class="dimline">[tool]</span> npm test -- square-memory
+<span class="ok">  PASS  generated client rejects missing provenance</span>
+<span class="warn">[agent]</span> next: restart fixture and migration compatibility
+
+<span class="prompt">▌</span></pre>
+                <footer class="terminal-footer"><span>route Codex CLI · GPT-5.6</span><span>writer lease SQ-L-013</span><span>42.8K context</span><span>CONTROL</span></footer>
+              </section>
+              <section class="session-tab-panel" data-session-panel="chat" aria-label="Structured Chat">
+                <div class="chat-log"><div class="chat-entry"><span class="chat-who">TASK PACKET</span><span>Implement only SQ-T03. Preserve accepted memory contract, transaction boundary, owner approval, and idempotent receipt semantics.</span></div><div class="chat-entry"><span class="chat-who">WORKER</span><span>I located the current AO transaction wrapper and Square memory service. I will add the promotion path without changing AO session ownership.</span></div><div class="chat-entry"><span class="chat-who">SQUARE</span><span>Two deterministic validations passed. Remaining acceptance: restart and migration compatibility.</span></div></div>
+              </section>
+              <section class="session-tab-panel" data-session-panel="diff" aria-label="Current diff"><pre class="diff-block">diff --git a/backend/internal/service/squarememory/promote.go b/backend/internal/service/squarememory/promote.go
+<span class="diff-add">+func (s *Service) Promote(ctx context.Context, cmd PromoteCommand) (Receipt, error) {</span>
+<span class="diff-add">+    return s.tx.Write(ctx, func(q *db.Queries) (Receipt, error) {</span>
+<span class="diff-add">+        candidate, err := q.GetSquareMemoryCandidate(ctx, cmd.CandidateID)</span>
+<span class="diff-add">+        if err != nil { return Receipt{}, err }</span>
+<span class="diff-add">+        if candidate.ProjectID != cmd.ProjectID { return Receipt{}, ErrScope }</span>
+<span class="diff-add">+        // insert accepted global practice + immutable provenance + event</span>
+<span class="diff-add">+    })</span>
+<span class="diff-add">+}</span></pre></section>
+              <section class="session-tab-panel" data-session-panel="evidence" aria-label="Task evidence"><div class="evidence-list"><div class="evidence-row"><span class="mono">AC-01</span><span>Owner approval is required before global promotion.</span><span class="state pass">PASS</span></div><div class="evidence-row"><span class="mono">AC-02</span><span>Project-specific details are redacted from promoted practice.</span><span class="state pass">PASS</span></div><div class="evidence-row"><span class="mono">AC-03</span><span>Immutable candidate and outcome provenance retained.</span><span class="state running">RUNNING</span></div><div class="evidence-row"><span class="mono">AC-04</span><span>Restart and duplicate command remain idempotent.</span><span class="state queued">QUEUED</span></div></div></section>
+            </div>
+            <div class="interaction-bar" id="interactionBar" role="status" aria-label="Approval required">
+              <div><div class="interaction-title">Dependency approval requested by SQ-T04</div><div class="interaction-detail"><span class="mono">@tanstack/react-virtual</span> · renderer only · package review required · expires 14:32</div></div>
+              <div class="interaction-actions"><button class="button" data-action="inspect-approval">Inspect</button><button class="button" data-action="deny-approval">Deny</button><button class="button primary" data-action="approve-approval">Approve once</button></div>
+            </div>
+          </article>
+
+          <article class="panel fleet-panel" aria-label="Agent Fleet">
+            <header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Agent Fleet</span><span class="panel-meta">Square roles mapped to AO sessions</span></div><div class="panel-actions"><button class="panel-action">Filter</button></div></header>
+            <div class="body-scroll">
+              <table class="fleet-table">
+                <thead><tr><th style="width:72px">Role</th><th>Task / AO binding</th><th style="width:68px">State</th><th style="width:54px">Time</th></tr></thead>
+                <tbody>
+                  <tr class="selected"><td>Worker</td><td><div class="task-title"><span class="mono">SQ-T03</span> Promotion API</div><div class="table-sub">ses_04f2 · wt_09d1 · Codex/GPT-5.6 · writer</div><div class="controller">CONTROL · generation 3</div></td><td><span class="state running">RUNNING</span></td><td class="mono">12:41</td></tr>
+                  <tr><td>Worker</td><td><div class="task-title"><span class="mono">SQ-T04</span> Memory UI</div><div class="table-sub">ses_b212 · wt_214a · Claude/Sonnet · writer queued</div><div class="controller">VIEW · waiting owner</div></td><td><span class="state approval">APPROVAL</span></td><td class="mono">03:18</td></tr>
+                  <tr><td>Reviewer</td><td><div class="task-title"><span class="mono">SQ-RV01</span> Independent review</div><div class="table-sub">review_31 · OpenCode/Qwen · read-only</div><div class="controller">not launched · dependency SQ-T04</div></td><td><span class="state queued">QUEUED</span></td><td class="mono">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel lower-panel" aria-label="Events and problems">
+            <div class="bottom-tabs" role="tablist"><button class="bottom-tab" data-bottom-tab="events" aria-selected="true">Events</button><button class="bottom-tab" data-bottom-tab="queue" aria-selected="false">Queue</button><button class="bottom-tab" data-bottom-tab="problems" aria-selected="false">Problems</button><button class="bottom-tab" data-bottom-tab="lifecycle" aria-selected="false">AO lifecycle</button></div>
+            <div class="bottom-panel-wrap">
+              <section class="bottom-panel active" data-bottom-panel="events"><table class="event-table"><thead><tr><th style="width:85px">Time</th><th style="width:82px">Kind</th><th>Event</th><th style="width:105px">Causation</th></tr></thead><tbody><tr><td class="mono">10:31:18</td><td><span class="state approval">INTERACTION</span></td><td>Dependency approval opened for SQ-T04.</td><td class="mono">SQ-E-1282</td></tr><tr><td class="mono">10:30:51</td><td><span class="state pass">VALIDATION</span></td><td>SQ-T03 targeted backend tests passed.</td><td class="mono">SQ-E-1281</td></tr><tr><td class="mono">10:29:42</td><td><span class="state neutral">AO OBSERVE</span></td><td>Session ses_04f2 controller generation changed to 3.</td><td class="mono">SQ-E-1280</td></tr><tr><td class="mono">10:28:57</td><td><span class="state info">ROUTE</span></td><td>Codex/GPT-5.6 selected for writer role.</td><td class="mono">SQ-E-1279</td></tr></tbody></table></section>
+              <section class="bottom-panel" data-bottom-panel="queue"><table class="data-table"><thead><tr><th style="width:88px">Task</th><th>Readiness</th><th style="width:100px">Reservation</th><th style="width:70px">Priority</th></tr></thead><tbody><tr><td class="mono">SQ-T04</td><td>Blocked by owner dependency approval</td><td>writer slot 2</td><td>P1</td></tr><tr><td class="mono">SQ-RV01</td><td>Waiting SQ-T03 + SQ-T04 result commits</td><td>review route</td><td>P2</td></tr></tbody></table></section>
+              <section class="bottom-panel" data-bottom-panel="problems"><table class="data-table"><thead><tr><th style="width:84px">Severity</th><th>Problem</th><th style="width:105px">Owner</th></tr></thead><tbody><tr><td><span class="state warn">WARNING</span></td><td>AO desktop-close behavior has not yet been requalified after fork adoption.</td><td>SA01 lifecycle</td></tr><tr><td><span class="state info">INFO</span></td><td>Storage temperature telemetry is unavailable; profile remains conservative.</td><td>Resource policy</td></tr></tbody></table></section>
+              <section class="bottom-panel" data-bottom-panel="lifecycle"><table class="data-table"><thead><tr><th style="width:95px">AO object</th><th>Observation</th><th style="width:105px">Square mapping</th></tr></thead><tbody><tr><td class="mono">ses_04f2</td><td>Chat controller generation 3 is active.</td><td class="mono">SQ-A03</td></tr><tr><td class="mono">wt_09d1</td><td>Worktree dirty; 3 tracked files changed.</td><td class="mono">SQ-T03</td></tr><tr><td class="mono">PR #184</td><td>Backend checks pass; frontend checks running.</td><td class="mono">SQ-R-028</td></tr></tbody></table></section>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- PLAN -->
+      <section class="workspace-view plan-view" id="view-plan" data-view-panel="plan" aria-label="Plan workspace">
+        <article class="panel plan-tree-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Plan set</span><span class="panel-meta">sq.plan.v1 · 7a61…</span></div></header><div class="plan-list"><div class="plan-row"><span class="plan-id">SQ-T01</span><span><div class="plan-row-title">Contracts</div><div class="plan-row-sub">Memory, candidate, promotion, receipt</div></span><span class="state pass">PASS</span></div><div class="plan-row"><span class="plan-id">SQ-T02</span><span><div class="plan-row-title">Persistence</div><div class="plan-row-sub">Migrations, queries, change log</div></span><span class="state pass">PASS</span></div><div class="plan-row selected"><span class="plan-id">SQ-T03</span><span><div class="plan-row-title">Promotion API</div><div class="plan-row-sub">Transaction + provenance + idempotency</div></span><span class="state running">RUNNING</span></div><div class="plan-row"><span class="plan-id">SQ-T04</span><span><div class="plan-row-title">Memory UI</div><div class="plan-row-sub">Candidate review and owner promotion</div></span><span class="state approval">WAIT</span></div><div class="plan-row"><span class="plan-id">SQ-RV01</span><span><div class="plan-row-title">Independent review</div><div class="plan-row-sub">Combined diff and acceptance map</div></span><span class="state queued">QUEUE</span></div></div></article>
+        <article class="panel plan-detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">SQ-T03 · Promotion API</span><span class="panel-meta">accepted baseline 9d3c220</span></div><div class="panel-actions"><button class="panel-action">Compare amendment</button><button class="panel-action">Open packet</button></div></header><div class="detail-content"><h1>Implement owner-gated project-to-global memory promotion</h1><h2>Outcome</h2><p>A project memory candidate can be generalized, redacted, approved by the owner, and committed as an immutable global practice with full provenance. Duplicate commands return the original receipt.</p><h2>Execution mapping</h2><table class="decision-table"><tr><td>Square authority</td><td>Task contract, write scope, acceptance, approval, receipt, and integration decision.</td></tr><tr><td>AO substrate</td><td>Session <span class="mono">ses_04f2</span>, worktree <span class="mono">wt_09d1</span>, agent adapter, controller, and terminal lifecycle.</td></tr><tr><td>Write paths</td><td class="mono">backend/internal/service/squarememory/**<br>frontend/src/features/square/memory/**<br>generated API outputs</td></tr><tr><td>STOP</td><td>New dependency, public contract change, schema rewrite, cross-project unredacted data, or owner authority bypass.</td></tr></table><h2>Acceptance contract</h2><ul class="criteria-list"><li><span class="criterion-id">AC-01</span><span>Promotion is impossible without a valid owner approval event.</span><span class="criterion-state" style="color:var(--good)">PASS</span></li><li><span class="criterion-id">AC-02</span><span>Project identifiers and sensitive paths are removed before global insertion.</span><span class="criterion-state" style="color:var(--good)">PASS</span></li><li><span class="criterion-id">AC-03</span><span>Candidate source, outcome evidence, reviewer, and approval remain immutable.</span><span class="criterion-state" style="color:var(--info)">RUN</span></li><li><span class="criterion-id">AC-04</span><span>Duplicate promotion after restart returns the original receipt and no duplicate event.</span><span class="criterion-state">QUEUE</span></li></ul></div></article>
+      </section>
+
+      <!-- REVIEW -->
+      <section class="workspace-view review-view" id="view-review" data-view-panel="review" aria-label="Review workspace">
+        <article class="panel review-files"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Changed files</span><span class="panel-meta">6</span></div></header><div class="file-tree"><div class="file-row"><span class="file-status">M</span><span>promote.go</span></div><div class="file-row selected"><span class="file-status">M</span><span>promote_test.go</span></div><div class="file-row"><span class="file-status">A</span><span>square_memory.sql</span></div><div class="file-row"><span class="file-status">M</span><span>MemoryCandidatePanel.tsx</span></div><div class="file-row"><span class="file-status">M</span><span>openapi.yaml</span></div><div class="file-row"><span class="file-status">M</span><span>client.gen.ts</span></div></div></article>
+        <article class="panel review-diff"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">promote_test.go</span><span class="panel-meta">9d3c220 → b72e2ad</span></div><div class="panel-actions"><button class="panel-action">Open in editor</button></div></header><pre>@@ -41,6 +41,27 @@ func TestPromoteCandidate(t *testing.T) {
+ <span class="diff-add">+t.Run("requires owner approval", func(t *testing.T) {</span>
+ <span class="diff-add">+    _, err := service.Promote(ctx, PromoteCommand{</span>
+ <span class="diff-add">+        CandidateID: candidate.ID,</span>
+ <span class="diff-add">+        ApprovalID:  "missing",</span>
+ <span class="diff-add">+    })</span>
+ <span class="diff-add">+    require.ErrorIs(t, err, squarememory.ErrApprovalRequired)</span>
+ <span class="diff-add">+})</span>
++
+ <span class="diff-add">+t.Run("duplicate command returns original receipt", func(t *testing.T) {</span>
+ <span class="diff-add">+    first := mustPromote(t, service, command)</span>
+ <span class="diff-add">+    reopened := newServiceFromDisk(t, statePath)</span>
+ <span class="diff-add">+    second := mustPromote(t, reopened, command)</span>
+ <span class="diff-add">+    require.Equal(t, first.ID, second.ID)</span>
+ <span class="diff-add">+    require.Equal(t, 1, countPromotionEvents(t, reopened.DB()))</span>
+ <span class="diff-add">+})</span></pre></article>
+        <article class="panel review-findings"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Findings</span><span class="panel-meta">1 open</span></div></header><div class="finding"><div class="finding-title"><span>Migration lacks downgrade refusal fixture</span><span class="state warn">MEDIUM</span></div><div class="finding-body">The service rejects a newer schema in production code, but the task evidence does not contain a restart fixture against a future schema version.</div><div class="finding-ref">FIND-014 · violates AC-04 evidence completeness</div></div><div class="finding"><div class="finding-title"><span>Owner approval verification</span><span class="state pass">PASS</span></div><div class="finding-body">Approval identity, scope, expiry, and one-time use are checked inside the same transaction.</div><div class="finding-ref">AC-01 · b72e2ad</div></div></article>
+      </section>
+
+      <!-- RESOURCES -->
+      <section class="workspace-view resources-view" id="view-resources" data-view-panel="resources" aria-label="Resources workspace">
+        <article class="panel resource-main"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Routes, exposure, and reservations</span><span class="panel-meta">indicators remain separate</span></div></header><div class="body-scroll"><section class="resource-section"><div class="resource-heading"><span>Model-family exposure</span><span class="state warn">GPT-5.6 DOMINANT</span></div><div class="meter-row"><span>GPT-5.6</span><span class="meter-track"><span class="meter-fill" style="display:block;width:74%"></span></span><span class="mono">1.02M</span><span>74% exposure</span></div><div class="meter-row"><span>Claude Sonnet</span><span class="meter-track"><span class="meter-fill" style="display:block;width:19%"></span></span><span class="mono">262K</span><span>19% exposure</span></div><div class="meter-row"><span>Qwen 3 Coder</span><span class="meter-track"><span class="meter-fill" style="display:block;width:7%"></span></span><span class="mono">95K</span><span>7% exposure</span></div></section><section class="resource-section"><div class="resource-heading"><span>Session context</span><span class="state info">NORMAL</span></div><div class="meter-row"><span>ses_04f2</span><span class="meter-track"><span class="meter-fill" style="display:block;width:36%"></span></span><span class="mono">42.8K</span><span>120K handover</span></div><div class="meter-row"><span>ses_b212</span><span class="meter-track"><span class="meter-fill" style="display:block;width:9%"></span></span><span class="mono">10.6K</span><span>waiting owner</span></div></section><section class="resource-section"><div class="resource-heading"><span>Estimated / actual cost</span><span class="state neutral">ESTIMATED</span></div><table class="data-table"><thead><tr><th>Route</th><th style="width:100px">Actual</th><th style="width:120px">Equivalent</th><th style="width:100px">Confidence</th></tr></thead><tbody><tr><td>Codex CLI · GPT-5.6</td><td>unavailable</td><td class="mono">$1.46</td><td>medium</td></tr><tr><td>Claude CLI · Sonnet</td><td>subscription</td><td class="mono">$0.38</td><td>low</td></tr></tbody></table></section></div></article>
+        <article class="panel resource-side"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Machine and scheduler</span></div></header><div class="body-scroll"><dl style="margin:0"><div class="resource-fact"><dt>Profile</dt><dd id="resourceProfileLabel">NORMAL</dd></div><div class="resource-fact"><dt>CPU</dt><dd>27% · 3 active sessions</dd></div><div class="resource-fact"><dt>Memory</dt><dd>8.7 / 31.8 GB</dd></div><div class="resource-fact"><dt>Volume D:</dt><dd>NVMe · I/O light</dd></div><div class="resource-fact"><dt>Temperature</dt><dd><span class="state neutral">UNAVAILABLE</span><br><span class="dim">not shown as zero/healthy</span></dd></div><div class="resource-fact"><dt>Writer slots</dt><dd>1 used / 2 policy max</dd></div><div class="resource-fact"><dt>Heavy jobs</dt><dd>0 active · 1 queued</dd></div><div class="resource-fact"><dt>Next gate</dt><dd>Frontend dependency review</dd></div></dl></div></article>
+      </section>
+
+      <!-- REQUESTS -->
+      <section class="workspace-view data-view" id="view-requests" data-view-panel="requests">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Requests</span><span class="panel-meta">project-bound</span></div><div class="panel-actions"><button class="panel-action">New request</button></div></header><div class="body-scroll"><table class="data-table"><thead><tr><th style="width:95px">Request</th><th>Outcome</th><th style="width:86px">Profile</th><th style="width:90px">State</th></tr></thead><tbody><tr class="selected"><td class="mono">SQ-R-028</td><td><div class="record-title">Project/global memory promotion</div><div class="record-meta">5 tasks · 1 approval · plan 7a61…</div></td><td>PLANNED</td><td><span class="state running">RUNNING</span></td></tr><tr><td class="mono">SQ-R-027</td><td><div class="record-title">Disable upstream telemetry</div><div class="record-meta">1 task · targeted validation</div></td><td>QUICK</td><td><span class="state pass">DONE</span></td></tr><tr><td class="mono">SQ-R-026</td><td><div class="record-title">Windows daemon close/reconnect proof</div><div class="record-meta">adoption blocker</div></td><td>SYSTEMIC</td><td><span class="state warn">BLOCKED</span></td></tr></tbody></table></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">SQ-R-028</span><span class="panel-meta">accepted</span></div><div class="panel-actions"><button class="panel-action">Pause</button><button class="panel-action">Amend</button></div></header><div class="detail-content"><h1>Owner-controlled project-to-global memory promotion</h1><h2>Task Brief</h2><p>Provide a durable workflow that generalizes project learning, removes project-specific information, preserves evidence, and requires explicit owner approval before entering global memory.</p><h2>Current position</h2><p>Task <span class="mono">SQ-T03</span> is executing in AO session <span class="mono">ses_04f2</span>. Task <span class="mono">SQ-T04</span> is waiting on a dependency approval. Review is queued.</p><h2>Immutable baseline</h2><p class="mono">commit 9d3c220 · plan 7a61f80 · acceptance b91a6e2</p></div></article>
+      </section>
+
+      <!-- TASKS -->
+      <section class="workspace-view data-view" id="view-tasks" data-view-panel="tasks">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Tasks and attempts</span></div></header><div class="body-scroll"><table class="data-table"><thead><tr><th style="width:82px">Task</th><th>Contract / execution binding</th><th style="width:92px">State</th></tr></thead><tbody><tr><td class="mono">SQ-T01</td><td>Memory contracts · no AO session retained</td><td><span class="state pass">PASS</span></td></tr><tr><td class="mono">SQ-T02</td><td>SQLite migration and queries · receipt SQ-RC-082</td><td><span class="state pass">PASS</span></td></tr><tr class="selected"><td class="mono">SQ-T03</td><td>Attempt SQ-A03 → ses_04f2 → wt_09d1</td><td><span class="state running">RUNNING</span></td></tr><tr><td class="mono">SQ-T04</td><td>Attempt SQ-A04 → ses_b212 → wt_214a</td><td><span class="state approval">APPROVAL</span></td></tr><tr><td class="mono">SQ-RV01</td><td>Review packet → AO review run review_31</td><td><span class="state queued">QUEUED</span></td></tr></tbody></table></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">SQ-T03 relation</span></div></header><div class="detail-content"><h1>Square task mapped to AO execution objects</h1><table class="decision-table"><tr><td>Task</td><td class="mono">SQ-T03 · immutable contract and acceptance IDs</td></tr><tr><td>Attempt</td><td class="mono">SQ-A03 · route, budgets, receipt nonce</td></tr><tr><td>AO session</td><td class="mono">ses_04f2 · Chat controller generation 3</td></tr><tr><td>Worktree</td><td class="mono">wt_09d1 · branch square/sq-t03-memory-promotion</td></tr><tr><td>Writer lease</td><td class="mono">SQ-L-013 · scope squarememory/**</td></tr></table></div></article>
+      </section>
+
+      <!-- APPROVALS -->
+      <section class="workspace-view data-view" id="view-approvals" data-view-panel="approvals">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Approvals and gates</span><span class="panel-meta">ordered by urgency</span></div></header><div class="body-scroll"><div class="approval-card selected"><div class="approval-top"><span class="approval-title">Dependency admission · SQ-T04</span><span class="state approval">REQUIRED</span></div><div class="approval-body"><span class="mono">@tanstack/react-virtual</span> for the Square memory candidate table. Requested capability: renderer package only. Network install and lockfile update will be auditable.</div><div class="approval-buttons"><button class="button" data-action="deny-approval">Deny</button><button class="button primary" data-action="approve-approval">Approve once</button></div></div><div class="approval-card"><div class="approval-top"><span class="approval-title">Manual authentication · ses_a1d9</span><span class="state info">TAKEOVER</span></div><div class="approval-body">Claude CLI requires interactive authentication. Credentials are never entered through Square; attach to the AO terminal manually.</div><div class="approval-buttons"><button class="button">Attach terminal</button></div></div></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">INT-0041 · dependency admission</span></div></header><div class="detail-content"><h1>@tanstack/react-virtual</h1><h2>Requested by</h2><p class="mono">SQ-R-028 → SQ-T04 → SQ-A04 → ses_b212</p><h2>Policy comparison</h2><table class="decision-table"><tr><td>Declared need</td><td>Virtualize large memory-candidate and evidence lists.</td></tr><tr><td>Current policy</td><td>New dependencies require owner approval and recorded license/security review.</td></tr><tr><td>Scope</td><td>Renderer package, lockfile, THIRD_PARTY attribution.</td></tr><tr><td>Expiry</td><td>14 minutes, one attempt only.</td></tr></table></div></article>
+      </section>
+
+      <!-- MEMORY -->
+      <section class="workspace-view data-view" id="view-memory" data-view-panel="memory">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Knowledge and practices</span><span class="panel-meta">advisory, not authority</span></div><div class="panel-actions"><button class="panel-action">New candidate</button></div></header><div class="memory-scope" role="tablist"><button aria-selected="true">Project</button><button aria-selected="false">Global</button><button aria-selected="false">Candidates</button><button aria-selected="false">Deprecated</button></div><div class="body-scroll"><table class="data-table"><thead><tr><th style="width:96px">Memory</th><th>Practice</th><th style="width:90px">Status</th><th style="width:88px">Evidence</th></tr></thead><tbody><tr class="selected"><td class="mono">MEM-P-014</td><td><div class="record-title">Keep AO lifecycle facts separate from Square semantic events</div><div class="record-meta">project · observed in SA01 Windows lifecycle work</div></td><td><span class="state pass">ADOPTED</span></td><td>4 outcomes</td></tr><tr><td class="mono">MEM-P-013</td><td><div class="record-title">Never force-delete a dirty AO worktree</div><div class="record-meta">project · cleanup and recovery</div></td><td><span class="state pass">ADOPTED</span></td><td>3 outcomes</td></tr><tr><td class="mono">MEM-C-009</td><td><div class="record-title">Separate model-session context from model-family exposure</div><div class="record-meta">candidate for global promotion</div></td><td><span class="state warn">CANDIDATE</span></td><td>2 outcomes</td></tr></tbody></table></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">MEM-P-014</span><span class="panel-meta">project memory</span></div><div class="panel-actions"><button class="panel-action">Propose global</button><button class="panel-action">Deprecate</button></div></header><div class="detail-content"><h1>Keep AO lifecycle facts separate from Square semantic events</h1><h2>Practice</h2><p>AO session, controller, worktree, PR, and terminal observations are execution-substrate facts. Square workflow events record request, contract, approval, validation, finding, receipt, and acceptance semantics. Do not collapse one into the other.</p><h2>Provenance</h2><table class="decision-table"><tr><td>Source</td><td>SA01 lifecycle tests and SQ-R-026 recovery investigation</td></tr><tr><td>Accepted by</td><td>Owner · 2026-08-08</td></tr><tr><td>Evidence</td><td class="mono">EV-0061, EV-0064, EV-0070, EV-0071</td></tr><tr><td>Cross-project use</td><td>Denied until generalized, redacted, and owner-approved.</td></tr></table></div></article>
+      </section>
+
+      <!-- AO SESSIONS -->
+      <section class="workspace-view data-view" id="view-sessions" data-view-panel="sessions">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">AO sessions</span><span class="panel-meta">execution substrate</span></div><div class="panel-actions"><button class="panel-action">Reconcile</button></div></header><div class="body-scroll"><table class="data-table"><thead><tr><th style="width:96px">Session</th><th>Controller / binding</th><th style="width:92px">State</th><th style="width:82px">Mode</th></tr></thead><tbody><tr class="selected"><td class="mono">ses_04f2</td><td><div class="record-title">Codex CLI · GPT-5.6</div><div class="record-meta">generation 3 · SQ-A03 · wt_09d1</div></td><td><span class="state running">RUNNING</span></td><td>Chat</td></tr><tr><td class="mono">ses_b212</td><td><div class="record-title">Claude CLI · Sonnet</div><div class="record-meta">generation 1 · SQ-A04 · wt_214a</div></td><td><span class="state approval">WAITING</span></td><td>TUI</td></tr><tr><td class="mono">review_31</td><td><div class="record-title">OpenCode · Qwen 3 Coder</div><div class="record-meta">review binding SQ-RV01</div></td><td><span class="state queued">QUEUED</span></td><td>Reviewer</td></tr></tbody></table></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">ses_04f2</span></div><div class="panel-actions"><button class="panel-action">Attach</button><button class="panel-action">Stop</button></div></header><div class="detail-content"><h1>AO execution session</h1><p>AO owns the provider controller, process/terminal stream, session persistence, and worktree association. Square binds the session to one bounded attempt and controls its task authority.</p><h2>Binding</h2><p class="mono">SQ-R-028 → SQ-T03 → SQ-A03 → ses_04f2 → wt_09d1</p><h2>Controller</h2><p>Chat controller · generation 3 · input lease held by this desktop view.</p></div></article>
+      </section>
+
+      <!-- WORKTREES -->
+      <section class="workspace-view data-view" id="view-worktrees" data-view-panel="worktrees">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">AO worktrees</span><span class="panel-meta">2 live</span></div><div class="panel-actions"><button class="panel-action">Reconcile</button></div></header><div class="body-scroll"><table class="data-table"><thead><tr><th style="width:100px">Worktree</th><th>Branch / path</th><th style="width:86px">Git</th><th style="width:104px">Writer lease</th></tr></thead><tbody><tr class="selected"><td class="mono">wt_09d1</td><td><span class="mono">square/sq-t03-memory-promotion</span><br><span class="dim">D:\...\worktrees\sq-t03</span></td><td><span class="state warn">DIRTY</span></td><td class="mono">SQ-L-013</td></tr><tr><td class="mono">wt_214a</td><td><span class="mono">square/sq-t04-memory-ui</span><br><span class="dim">D:\...\worktrees\sq-t04</span></td><td><span class="state neutral">CLEAN</span></td><td>reserved</td></tr></tbody></table></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">wt_09d1</span></div></header><div class="detail-content"><h1>square/sq-t03-memory-promotion</h1><h2>Ownership</h2><p>AO creates and maintains the Git worktree. Square owns the writer lease, permitted paths, immutable baseline, result receipt, and integration decision.</p><h2>Safety</h2><p>Dirty worktrees are never force-deleted. Cleanup is a separate lifecycle outcome and cannot convert a successful implementation into a failed task result.</p></div></article>
+      </section>
+
+      <!-- PULL REQUESTS -->
+      <section class="workspace-view data-view" id="view-pullrequests" data-view-panel="pullrequests">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Pull requests</span></div><div class="panel-actions"><button class="panel-action">Refresh GitHub</button></div></header><div class="body-scroll"><table class="data-table"><thead><tr><th style="width:70px">PR</th><th>Title</th><th style="width:92px">Checks</th><th style="width:102px">Request</th></tr></thead><tbody><tr class="selected"><td class="mono">#184</td><td>Add Square memory promotion contract</td><td><span class="state running">RUNNING</span></td><td class="mono">SQ-R-028</td></tr></tbody></table></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">PR #184</span></div><div class="panel-actions"><button class="panel-action">Open browser</button></div></header><div class="detail-content"><h1>Add Square memory promotion contract</h1><p>AO observes the pull request, CI, review comments, and merge conflicts. Square maps those observations to immutable task findings and acceptance results.</p><h2>Current checks</h2><p><span class="state pass">BACKEND PASS</span> <span class="state running">FRONTEND RUNNING</span> <span class="state queued">REVIEW QUEUED</span></p></div></article>
+      </section>
+
+      <!-- REVIEW RUNS -->
+      <section class="workspace-view data-view" id="view-reviewruns" data-view-panel="reviewruns">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">AO review runs</span></div><div class="panel-actions"><button class="panel-action">Open review workspace</button></div></header><div class="body-scroll"><table class="data-table"><thead><tr><th style="width:95px">Review</th><th>Reviewer / target</th><th style="width:90px">State</th><th style="width:102px">Binding</th></tr></thead><tbody><tr class="selected"><td class="mono">review_31</td><td>OpenCode reviewer · commit b72e2ad</td><td><span class="state queued">QUEUED</span></td><td class="mono">SQ-RV01</td></tr></tbody></table></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Independent review binding</span></div></header><div class="detail-content"><h1>review_31 → SQ-RV01</h1><p>The AO reviewer process supplies execution, diff access, and session lifecycle. Square supplies the Review Packet, acceptance IDs, independent-route policy, finding schema, and bounded fix-loop authority.</p></div></article>
+      </section>
+
+      <!-- EVENTS -->
+      <section class="workspace-view data-view" id="view-events" data-view-panel="events">
+        <article class="panel list-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">Semantic event timeline</span><span class="panel-meta">Square + mapped AO observations</span></div><div class="panel-actions"><button class="panel-action">Export evidence</button></div></header><div class="body-scroll"><table class="event-table"><thead><tr><th style="width:104px">Sequence</th><th style="width:105px">Kind</th><th>Summary</th></tr></thead><tbody><tr class="selected"><td class="mono">SQ-E-001282</td><td><span class="state approval">INTERACTION</span></td><td>SQ-T04 dependency approval opened.</td></tr><tr><td class="mono">SQ-E-001281</td><td><span class="state pass">VALIDATION</span></td><td>SQ-T03 targeted backend validation passed.</td></tr><tr><td class="mono">SQ-E-001280</td><td><span class="state neutral">AO OBSERVE</span></td><td>AO session ses_04f2 changed controller generation.</td></tr><tr><td class="mono">SQ-E-001279</td><td><span class="state info">ROUTE</span></td><td>Codex/GPT-5.6 selected for writer role.</td></tr></tbody></table></div></article>
+        <article class="panel detail-panel"><header class="panel-header"><div class="panel-header-main"><span class="panel-heading">SQ-E-001282</span></div></header><div class="detail-content"><h1>Interaction requested</h1><h2>Causation</h2><p class="mono">request SQ-R-028 → task SQ-T04 → attempt SQ-A04 → AO session ses_b212</p><h2>Authority</h2><p>The renderer may present approve-once or deny because the daemon returned those exact capabilities. No UI state changes until a new authoritative event arrives.</p></div></article>
+      </section>
+    </main>
+
+    <aside class="inspector" aria-label="Selected context inspector">
+      <div class="panel-titlebar"><span>Inspector</span><span class="subtle mono">SQ-T03</span></div>
+      <div class="inspector-tabs" role="tablist"><button class="inspector-tab" aria-selected="true">Context</button><button class="inspector-tab" aria-selected="false">Policy</button><button class="inspector-tab" aria-selected="false">Evidence</button></div>
+      <div class="inspector-scroll">
+        <section class="inspector-section"><div class="inspector-section-title">Square ↔ AO binding</div><div class="relation-chain"><div class="relation-row"><span class="relation-label">REQUEST</span><span class="relation-value">SQ-R-028</span></div><div class="relation-row"><span class="relation-label">TASK</span><span class="relation-value">SQ-T03</span></div><div class="relation-row"><span class="relation-label">ATTEMPT</span><span class="relation-value">SQ-A03</span></div><div class="relation-row"><span class="relation-label">SESSION</span><span class="relation-value">ses_04f2</span></div><div class="relation-row"><span class="relation-label">WORKTREE</span><span class="relation-value">wt_09d1</span></div></div></section>
+        <section class="inspector-section"><div class="inspector-section-title">State and route</div><dl class="property-grid"><div class="property-row"><dt>State</dt><dd><span class="state running">RUNNING</span></dd></div><div class="property-row"><dt>Role</dt><dd>Implementation worker</dd></div><div class="property-row"><dt>Client</dt><dd>Codex CLI · Chat</dd></div><div class="property-row"><dt>Model</dt><dd>GPT-5.6</dd></div><div class="property-row"><dt>Controller</dt><dd>CONTROL · generation 3</dd></div><div class="property-row"><dt>Writer</dt><dd>Lease SQ-L-013</dd></div></dl></section>
+        <section class="inspector-section"><div class="inspector-section-title">Scope and authority</div><dl class="property-grid"><div class="property-row"><dt>Read</dt><dd>Square memory, API, generated contracts</dd></div><div class="property-row"><dt>Write</dt><dd><span class="mono">squarememory/**</span>, memory feature UI, generated API</dd></div><div class="property-row"><dt>Network</dt><dd>Denied</dd></div><div class="property-row"><dt>Packages</dt><dd>Not authorized</dd></div></dl></section>
+        <section class="inspector-section"><div class="inspector-section-title">Budgets</div><dl class="property-grid"><div class="property-row"><dt>Context</dt><dd>42.8K / 120K handover</dd></div><div class="property-row"><dt>Exposure</dt><dd>GPT-5.6 dominant · 74%</dd></div><div class="property-row"><dt>Equivalent</dt><dd>$1.46 · medium confidence</dd></div><div class="property-row"><dt>Fix loops</dt><dd>0 / 2</dd></div><div class="property-row"><dt>Elapsed</dt><dd class="mono">00:12:41</dd></div><div class="property-row"><dt>Resource</dt><dd>NORMAL · LIGHT I/O</dd></div></dl></section>
+        <section class="inspector-section"><div class="inspector-section-title">Acceptance</div><ul class="criteria-list"><li><span class="criterion-id">AC-01</span><span>Owner approval required</span><span class="criterion-state" style="color:var(--good)">PASS</span></li><li><span class="criterion-id">AC-02</span><span>Project data redacted</span><span class="criterion-state" style="color:var(--good)">PASS</span></li><li><span class="criterion-id">AC-03</span><span>Immutable provenance</span><span class="criterion-state" style="color:var(--info)">RUN</span></li><li><span class="criterion-id">AC-04</span><span>Restart idempotency</span><span class="criterion-state">QUEUE</span></li></ul></section>
+        <section class="inspector-section"><div class="inspector-section-title">Authorized actions</div><div class="inspector-actions"><button class="button">Attach</button><button class="button">Checkpoint</button><button class="button">Open worktree</button><button class="button danger">Cancel</button></div></section>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="statusbar" role="status" aria-live="polite">
+    <span class="status-item"><strong>DAEMON</strong> connected</span>
+    <span class="status-item"><strong>AO</strong> v0.12.1</span>
+    <span class="status-item"><strong>WRITER</strong> 1 / 2</span>
+    <span class="status-item"><strong>PROFILE</strong> <span id="statusProfile">NORMAL</span></span>
+    <span class="status-item"><strong>STORAGE</strong> telemetry unavailable</span>
+    <span class="status-item right" id="statusMessage">Operations · authoritative state</span>
+  </footer>
+</div>
+
+<dialog id="dispatchDialog" aria-labelledby="dispatchTitle">
+  <div class="dialog-header"><span class="dialog-title" id="dispatchTitle">Dispatch Preview</span><button class="button" data-close-dialog>Close</button></div>
+  <div class="dialog-body">
+    <div class="dispatch-heading"><div><h2 id="previewTitle">Owner-controlled project/global memory promotion</h2><p>Project: <span class="mono">square-orchestrator</span> · Square compiles the workflow; AO supplies bounded execution objects.</p></div><span class="state running" id="previewProfile">PLANNED</span></div>
+    <div class="stage-list" id="stageList"></div>
+    <div class="dispatch-grid"><section class="dispatch-section"><h3>SQUARE AUTHORITY</h3><p>Task Brief, plan, write scope, acceptance, approvals, memory policy, validations, findings, receipt, and final state.</p></section><section class="dispatch-section"><h3>AO EXECUTION SUBSTRATE</h3><p>Sessions, worktrees, controllers, terminal mux, agent adapters, reviewer process, and PR/CI observation.</p></section><section class="dispatch-section"><h3>WRITE SCOPE</h3><p class="mono">squarememory/** · features/square/memory/** · generated API</p></section><section class="dispatch-section"><h3>MEMORY CONTEXT</h3><p>3 project practices · 2 accepted global practices · no raw transcripts.</p></section><section class="dispatch-section"><h3>VALIDATION</h3><p>Targeted Go tests, renderer tests, OpenAPI parity, restart/idempotency fixture.</p></section><section class="dispatch-section"><h3>GATES</h3><p>Owner approval before global promotion and before adding any dependency.</p></section></div>
+  </div>
+  <div class="dialog-footer"><button class="button" data-close-dialog>Edit request</button><button class="button primary" data-approve-dispatch>Approve and dispatch</button></div>
+</dialog>
+
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const views = [...document.querySelectorAll('[data-view-panel]')];
+  const navItems = [...document.querySelectorAll('.nav-item[data-view]')];
+  const layoutButtons = [...document.querySelectorAll('.layout-button[data-layout]')];
+  const statusMessage = document.getElementById('statusMessage');
+  const dialog = document.getElementById('dispatchDialog');
+  const requestInput = document.getElementById('requestInput');
+  const profileSelect = document.getElementById('profileSelect');
+  const previewTitle = document.getElementById('previewTitle');
+  const previewProfile = document.getElementById('previewProfile');
+  const stageList = document.getElementById('stageList');
+  const themeOrder = ['dark', 'light', 'contrast'];
+  const layoutToView = { operations: 'operations', focus: 'operations', plan: 'plan', review: 'review', resources: 'resources' };
+
+  function announce(text) { statusMessage.textContent = text; }
+
+  function setView(name, updateHash = true) {
+    const target = document.querySelector(`[data-view-panel="${name}"]`);
+    if (!target) return;
+    views.forEach(v => v.classList.toggle('active', v === target));
+    navItems.forEach(item => item.setAttribute('aria-current', item.dataset.view === name ? 'page' : 'false'));
+    if (updateHash) history.replaceState(null, '', `#${name}`);
+    announce(`${name.charAt(0).toUpperCase() + name.slice(1)} · authoritative state`);
+  }
+
+  function setLayout(layout) {
+    app.dataset.layout = layout;
+    layoutButtons.forEach(btn => btn.setAttribute('aria-pressed', btn.dataset.layout === layout ? 'true' : 'false'));
+    setView(layoutToView[layout] || 'operations');
+  }
+
+  layoutButtons.forEach(btn => btn.addEventListener('click', () => setLayout(btn.dataset.layout)));
+  navItems.forEach(item => item.addEventListener('click', () => {
+    app.dataset.layout = 'operations';
+    layoutButtons.forEach(btn => btn.setAttribute('aria-pressed', btn.dataset.layout === 'operations' ? 'true' : 'false'));
+    setView(item.dataset.view);
+  }));
+
+  document.querySelectorAll('.tab[data-session-tab]').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab[data-session-tab]').forEach(t => t.setAttribute('aria-selected', t === tab ? 'true' : 'false'));
+    document.querySelectorAll('[data-session-panel]').forEach(panel => panel.classList.toggle('active', panel.dataset.sessionPanel === tab.dataset.sessionTab));
+  }));
+
+  document.querySelectorAll('.bottom-tab[data-bottom-tab]').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.bottom-tab[data-bottom-tab]').forEach(t => t.setAttribute('aria-selected', t === tab ? 'true' : 'false'));
+    document.querySelectorAll('[data-bottom-panel]').forEach(panel => panel.classList.toggle('active', panel.dataset.bottomPanel === tab.dataset.bottomTab));
+  }));
+
+  document.querySelectorAll('.speed-button').forEach(btn => btn.addEventListener('click', () => {
+    const speed = btn.dataset.speed.toUpperCase();
+    document.querySelectorAll('.speed-button').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+    document.getElementById('statusProfile').textContent = speed;
+    document.getElementById('resourceProfileLabel').textContent = speed;
+    announce(`${speed} execution profile selected; authority and validation remain unchanged.`);
+  }));
+
+  document.getElementById('themeButton').addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme || 'dark';
+    document.documentElement.dataset.theme = themeOrder[(themeOrder.indexOf(current) + 1) % themeOrder.length];
+    announce(`${document.documentElement.dataset.theme} theme selected`);
+  });
+
+  function updatePreview() {
+    const title = requestInput.value.trim() || 'Untitled project task';
+    const selected = profileSelect.value;
+    const planned = selected === 'planned' || (selected === 'auto' && /memory|architecture|workflow|security|migration|multi|global/i.test(title));
+    previewTitle.textContent = title;
+    previewProfile.textContent = planned ? 'PLANNED' : 'QUICK';
+    previewProfile.className = planned ? 'state running' : 'state info';
+    stageList.innerHTML = planned ? `
+      <div class="stage-row"><span class="stage-index">01</span><span class="stage-name">Task Brief</span><span class="stage-owner">Fresh bounded Secretary session</span><span class="stage-substrate">AO Chat</span></div>
+      <div class="stage-row"><span class="stage-index">02</span><span class="stage-name">Context jobs</span><span class="stage-owner">Read-only Scouts</span><span class="stage-substrate">AO TUI</span></div>
+      <div class="stage-row"><span class="stage-index">03</span><span class="stage-name">Plan + AC</span><span class="stage-owner">Fresh Planner session</span><span class="stage-substrate">AO Chat</span></div>
+      <div class="stage-row"><span class="stage-index">04</span><span class="stage-name">Implementation</span><span class="stage-owner">One writer worktree/session</span><span class="stage-substrate">AO worktree</span></div>
+      <div class="stage-row"><span class="stage-index">05</span><span class="stage-name">Validation</span><span class="stage-owner">Deterministic checks</span><span class="stage-substrate">Square daemon</span></div>
+      <div class="stage-row"><span class="stage-index">06</span><span class="stage-name">Independent review</span><span class="stage-owner">Fresh eligible reviewer</span><span class="stage-substrate">AO reviewer</span></div>` : `
+      <div class="stage-row"><span class="stage-index">01</span><span class="stage-name">Compact contract</span><span class="stage-owner">Deterministic Square compiler</span><span class="stage-substrate">Square daemon</span></div>
+      <div class="stage-row"><span class="stage-index">02</span><span class="stage-name">Implementation</span><span class="stage-owner">One bounded writer session</span><span class="stage-substrate">AO worktree</span></div>
+      <div class="stage-row"><span class="stage-index">03</span><span class="stage-name">Validation</span><span class="stage-owner">Targeted deterministic checks</span><span class="stage-substrate">Square daemon</span></div>`;
+  }
+
+  document.getElementById('previewButton').addEventListener('click', () => { updatePreview(); dialog.showModal(); });
+  requestInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); updatePreview(); dialog.showModal(); } });
+  document.querySelectorAll('[data-close-dialog]').forEach(btn => btn.addEventListener('click', () => dialog.close()));
+  document.querySelector('[data-approve-dispatch]').addEventListener('click', () => { dialog.close(); announce('Dispatch accepted; waiting for daemon acknowledgement.'); });
+
+  document.querySelectorAll('[data-action="approve-approval"]').forEach(btn => btn.addEventListener('click', () => {
+    const bar = document.getElementById('interactionBar');
+    if (bar) bar.innerHTML = '<div><div class="interaction-title" style="color:var(--good)">Approval submitted</div><div class="interaction-detail">Pending authoritative daemon event; no optimistic state change.</div></div>';
+    announce('Approve-once command submitted');
+  }));
+  document.querySelectorAll('[data-action="deny-approval"]').forEach(btn => btn.addEventListener('click', () => announce('Typed denial submitted')));
+  document.querySelectorAll('[data-action="inspect-approval"]').forEach(btn => btn.addEventListener('click', () => setView('approvals')));
+
+  document.querySelectorAll('.memory-scope button').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.memory-scope button').forEach(b => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
+    announce(`${btn.textContent.trim()} memory scope selected`);
+  }));
+
+  document.querySelectorAll('.inspector-tab').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.inspector-tab').forEach(t => t.setAttribute('aria-selected', t === tab ? 'true' : 'false'));
+    announce(`${tab.textContent.trim()} inspector section selected`);
+  }));
+
+  window.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); requestInput.focus(); requestInput.select(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === '1') { e.preventDefault(); setLayout('operations'); }
+    if ((e.ctrlKey || e.metaKey) && e.key === '2') { e.preventDefault(); setLayout('plan'); }
+    if ((e.ctrlKey || e.metaKey) && e.key === '3') { e.preventDefault(); setLayout('review'); }
+    if (e.key === 'Escape' && dialog.open) dialog.close();
+  });
+
+  const initial = location.hash.replace('#', '');
+  if (initial && document.querySelector(`[data-view-panel="${initial}"]`)) {
+    if (['plan', 'review', 'resources'].includes(initial)) setLayout(initial); else setView(initial, false);
+  }
+  updatePreview();
+})();
+</script>
+</body>
+</html>

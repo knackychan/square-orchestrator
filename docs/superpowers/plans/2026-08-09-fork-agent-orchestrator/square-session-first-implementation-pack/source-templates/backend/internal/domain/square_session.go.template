@@ -1,0 +1,40 @@
+// TEMPLATE ONLY — do not copy before SA02 inspects the pinned AO package conventions.
+package domain
+
+import "time"
+
+type SquareSessionID string
+type SquareWorkflowRunID string
+type SquareRoleRunID string
+
+type SquareSessionStatus string
+
+const (
+	SquareSessionDraft          SquareSessionStatus = "DRAFT"
+	SquareSessionReady          SquareSessionStatus = "READY"
+	SquareSessionRunning        SquareSessionStatus = "RUNNING"
+	SquareSessionWaitingForUser SquareSessionStatus = "WAITING_FOR_USER"
+	SquareSessionBlocked        SquareSessionStatus = "BLOCKED"
+	SquareSessionPaused         SquareSessionStatus = "PAUSED"
+	SquareSessionVerifying      SquareSessionStatus = "VERIFYING"
+	SquareSessionReviewing      SquareSessionStatus = "REVIEWING"
+	SquareSessionSucceeded      SquareSessionStatus = "SUCCEEDED"
+	SquareSessionFailed         SquareSessionStatus = "FAILED"
+	SquareSessionCancelled      SquareSessionStatus = "CANCELLED"
+	SquareSessionArchived       SquareSessionStatus = "ARCHIVED"
+)
+
+type SquareSession struct {
+	ID                  SquareSessionID
+	ProjectID           string
+	Title               string
+	Status              SquareSessionStatus
+	ActiveWorkflowRunID *SquareWorkflowRunID
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	Version             int64
+}
+
+// Transition functions belong in pure reducers. They receive explicit time and
+// event/command values; they never read the clock, database, filesystem, API,
+// Electron state, AO adapters, or process runtime directly.

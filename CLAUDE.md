@@ -71,15 +71,11 @@ new worker surface before allowing edits.
 | `STATUS.md` | Current authority |
 | `HANDOVER.md` | Cold-start operating workflow |
 | `CLIENT-EXECUTION.md` | Client routes, launch profiles, and lifecycle reference |
-| `src/` | .NET 10 module source |
-| `ui/` | TypeScript shared UI packages |
-| `vscode/` | VS Code extension shell |
-| `prototypes/` | Architecture proofs, gated by G0 |
-| `contracts/` | Draft public contracts |
-| `build/` | Reproducible build/test/format/package scripts |
-| `tests/` | .NET test projects (plus retained Python M1 suite until the port completes) |
+| `archive/` | Frozen pre-fork implementation line (former `src/`, `ui/`, `vscode/`, `prototypes/`, `contracts/`, `build/`, `tests/`, `sqorch/`), trace/history only |
 | `docs/` | Specifications, plans, and architecture evidence |
-| `sqorch/` | Standard-library Python M1 CLI source, being ported to .NET |
+
+The repository is mid-pivot to a maintained downstream fork of Agent Orchestrator; see
+`docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/`.
 
 The repository carries pinned toolchain declarations and central package management; no external
 package dependency or runtime database is admitted before an owner-approved review.

@@ -1,0 +1,36 @@
+flowchart TD
+  SA00["SA00 — Fork adoption and reproducible baseline"]
+  SA01["SA01 — Windows lifecycle and AO platform hardening"]
+  SA02["SA02 — Session-first contracts and deterministic domain"]
+  SA03["SA03 — Durable state, semantic events, artifacts, leases, and recovery"]
+  SA04["SA04 — Role route registry and AO execution facade"]
+  SA05["SA05 — Session API, read models, events, and fake workflows"]
+  SA06["SA06 — Rounded session-first desktop UI foundation"]
+  SA07["SA07 — QUICK vertical slice and Core Alpha"]
+  SA08["SA08 — Interactions, controller authority, cancellation, and restart"]
+  SA09["SA09 — Project/global memory and bounded context"]
+  SA10["SA10 — PLANNED workflow and bounded orchestration"]
+  SA11["SA11 — Verification, independent review, findings, fix loop, and Square MVP"]
+  SA12["SA12 — Role-routing UX, route plurality, CLI, and optional VS Code"]
+  SA13["SA13 — Exposure, cost, resource profiles, context reuse, and evaluation"]
+  SA14["SA14 — Security, diagnostics, packaging, updater, and upstream sync"]
+  SA15["SA15 — Optional advanced scale and controlled practice evolution"]
+  SA00 --> SA01
+  SA01 --> SA02
+  SA02 --> SA03
+  SA03 --> SA04
+  SA04 --> SA05
+  SA05 --> SA06
+  SA06 --> SA07
+  SA07 --> SA08
+  SA08 --> SA09
+  SA09 --> SA10
+  SA10 --> SA11
+  SA11 --> SA12
+  SA12 --> SA13
+  SA13 --> SA14
+  SA14 --> SA15
+
+  %% UI fixture work in SA06 may begin after A2, but live integration waits for SA05/A5.
+  SA02 -. fixture contracts .-> SA06
+  SA05 -. live API integration .-> SA06

@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "task_id": "SP02-T01",
+  "title": "SQLite schema and migration runner",
+  "packet_revision": "1.0-draft",
+  "starting_commit": "<FILL_FROM_LOCAL_GIT>",
+  "target_branch": "<FILL>",
+  "authority_hashes": {
+    "sliced_implementation_plan": "sha256:<FILL>",
+    "technical_architecture": "sha256:<FILL>",
+    "ui_design": "sha256:<FILL>",
+    "ui_handover": "sha256:<FILL>"
+  },
+  "prerequisites": {
+    "g0_gate_record": {
+      "path": "<FILL>",
+      "sha256": "sha256:<FILL>",
+      "decision": "ACCEPTED"
+    },
+    "sp01_t06_receipt": {
+      "path": "<FILL>",
+      "sha256": "sha256:<FILL>",
+      "contract_version": "<FILL>"
+    },
+    "dependency_admission_report": {
+      "path": "docs/dependencies/SP02-T01-sqlite-dependency-admission.json",
+      "sha256": "sha256:<FILL>",
+      "decision": "PASS",
+      "reviewer_approval": true
+    }
+  },
+  "toolchain": {
+    "dotnet_sdk": "10.0.302",
+    "target_framework": "net10.0",
+    "runtime_identifier_for_dependency_proof": "win-x64"
+  },
+  "allowed_read_paths": [
+    "docs/authority/**",
+    "docs/gates/**",
+    "docs/adr/**",
+    "docs/receipts/SP01-*.json",
+    "Directory.Build.props",
+    "Directory.Packages.props",
+    "NuGet.Config",
+    "THIRD_PARTY.md",
+    "global.json",
+    "SquareOrchestrator.slnx",
+    "src/Square.Domain/**",
+    "src/Square.Contracts/**",
+    "src/Square.Application/**",
+    "src/Square.Persistence.Sqlite/**",
+    "tests/Architecture.Tests/**",
+    "tests/Domain.Tests/**",
+    "tests/Contract.Tests/**",
+    "tests/TestKit/**",
+    "tests/Persistence.Tests/**",
+    "build/**"
+  ],
+  "allowed_write_paths": [
+    "Directory.Build.props",
+    "Directory.Packages.props",
+    "NuGet.Config",
+    "THIRD_PARTY.md",
+    "src/Square.Persistence.Sqlite/**",
+    "tests/Persistence.Tests/**",
+    "tests/fixtures/Square.SqliteProbe/**",
+    "tests/test-suites.json",
+    "build/test.ps1",
+    "build/dependencies/**",
+    "docs/dependencies/SP02-T01-*",
+    "docs/validation/SP02-T01-*",
+    "docs/receipts/SP02-T01*"
+  ],
+  "forbidden_decisions": [
+    "Replace SQLite with a JSON/custom file store",
+    "Introduce EF Core, Dapper, another ORM, or another provider",
+    "Change public SP01 contracts or ID formats",
+    "Permit UI/CLI/extension direct database access",
+    "Make lifecycle events mutable",
+    "Migrate without a verified backup",
+    "Silently downgrade or overwrite a newer/corrupt database",
+    "Suppress dependency audit findings",
+    "Use another package/version without owner amendment"
+  ],
+  "budgets": {
+    "warning_context_tokens": 100000,
+    "planned_handover_tokens": 120000,
+    "hard_stop_context_tokens": 150000,
+    "same_failure_corrective_attempts": 2,
+    "normal_commit_count": 1
+  },
+  "validation_commands": [
+    "./build.ps1",
+    "./test.ps1 -Category Architecture",
+    "./test.ps1 -Category Deterministic",
+    "./test.ps1 -Category Persistence"
+  ],
+  "completion_receipt": "docs/receipts/SP02-T01.completion-receipt.json",
+  "dispatcher": "<FILL>",
+  "dispatched_utc": "<FILL_CANONICAL_UTC>"
+}

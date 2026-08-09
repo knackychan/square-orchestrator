@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "task_id": "SP02-T01",
+  "run_id": "<FILL>",
+  "acceptance_eligible": false,
+  "outcome": "BLOCKED",
+  "starting_commit": "<FILL>",
+  "result_commit": "<FILL>",
+  "authority_hashes": {},
+  "environment": {},
+  "dependency_report_sha256": "sha256:<FILL>",
+  "runtime_sqlite_version": "<FILL>",
+  "schema_version_before": null,
+  "schema_version_after": null,
+  "migration_paths": [
+    { "path": "0->4", "passed": false },
+    { "path": "1->4", "passed": false },
+    { "path": "2->4", "passed": false },
+    { "path": "3->4", "passed": false },
+    { "path": "4->4", "passed": false }
+  ],
+  "test_suites": {
+    "build": { "passed": false, "log_sha256": "sha256:<FILL>" },
+    "architecture": { "passed": false, "log_sha256": "sha256:<FILL>" },
+    "deterministic": { "passed": false, "log_sha256": "sha256:<FILL>" },
+    "persistence": { "passed": false, "log_sha256": "sha256:<FILL>" }
+  },
+  "required_tests_passed": 0,
+  "required_tests_failed": 0,
+  "backup_matrix_passed": false,
+  "fault_injection_matrix_passed": false,
+  "atomicity_matrix_passed": false,
+  "remaining_risks": [],
+  "evidence_manifest_sha256": "sha256:<FILL>"
+}

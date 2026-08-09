@@ -1,0 +1,8 @@
+a93f6fcd2d0caf6b00af82355114d3d1478bc189e084163b81adf0a632d52a77  ./OFFICIAL_SOURCES.md
+40b9fc684ca01a7ef369566ff183c95dfaeec58627c03772da318f73052e58be  ./README.md
+984f66b825bc3db51b9e8f147092ba35795ca0709e17851d6cbfdd17e2c8c994  ./SP02-T01_DEPENDENCY_ADMISSION_PROOF_GUIDE.md
+bce0ac171b98f8eb5d4d81c4e37ffd53a700bd086e46dc89975585747054cb73  ./SP02-T01_DISPATCH_PACKET.md
+60b9210dd5149ebda3ecd217d8af2d8d9341e638eba9e13fb4926beb4bbdf7a9  ./templates/SP02-T01.completion-receipt.json
+480d4b8af2cdcf2cbdec785b8b0d41fb371073daa095398f64fab8d26a48f495  ./templates/SP02-T01.dependency-admission-report.json
+58ee530680b5ff53ee47f69aa68e5800e4f1926771a0ff1eab3a2c2db1dfad61  ./templates/SP02-T01.dispatch.json
+1f59053cbe77039a812be885469560aea816a49c96ffba5a5aa352eea16f164b  ./templates/SP02-T01.evidence-summary.json

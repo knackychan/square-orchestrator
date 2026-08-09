@@ -1,0 +1,35 @@
+// TEMPLATE ONLY — exact naming/types are frozen by SA02, not this file.
+package domain
+
+type SquareRoleKind string
+
+const (
+	SquareRoleTaskManager    SquareRoleKind = "TASK_MANAGER"
+	SquareRoleSecretary      SquareRoleKind = "SECRETARY"
+	SquareRoleScout          SquareRoleKind = "SCOUT"
+	SquareRolePlanner        SquareRoleKind = "PLANNER"
+	SquareRoleOrchestrator   SquareRoleKind = "ORCHESTRATOR"
+	SquareRoleWorker         SquareRoleKind = "WORKER"
+	SquareRoleReviewer       SquareRoleKind = "REVIEWER"
+	SquareRoleTerminalTriage SquareRoleKind = "TERMINAL_TRIAGE"
+)
+
+type ActualRouteIdentity struct {
+	Harness      *string
+	Provider     *string
+	Model        *string
+	Verification string // VERIFIED, REPORTED, UNVERIFIED, MISMATCH
+	Source       *string
+}
+
+type AOExecutionBinding struct {
+	AOSessionID         string
+	ControllerGeneration int64
+	Mode                string
+	Worktree            *string
+	Branch              *string
+	PullRequest         *string
+}
+
+// Task Manager is a durable software actor. It can have a visible system dock
+// and history, but it never receives a model route or AO process binding.

@@ -1,17 +1,20 @@
 # Square Orchestrator — Project Status
 
-> Last updated: 2026-08-07
+> Last updated: 2026-08-09
 
 ## Current state
 
-- Phase: dependency-security fork resolved (Option A); REM-01 technically accepted; owner acceptance pending
-- Specification: `0.1-draft`
-- Active planning subplans: `docs/superpowers/plans/2026-08-05-m1-dry-run-foundation/` and `docs/superpowers/plans/2026-08-07-square-orchestrator-design/`
-- Application implementation authorized: **no**
-- Worktree state: **dirty — preserved documentation/runtime artifacts plus activation/result amendments**
+- Phase: **architecture pivot — Square Orchestrator is now a maintained downstream fork of Agent Orchestrator `v0.12.1`**; SA00 fork-adoption sequence not yet started
+- Specification: `0.1-draft` (M1/M2 .NET-native specification; superseded in intent by the fork plan, retained for trace/history — see the pivot record below)
+- Active planning subplan: `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/`
+- Superseded planning subplans (trace/history only, no longer active): `docs/superpowers/plans/2026-08-05-m1-dry-run-foundation/`, `docs/superpowers/plans/2026-08-07-square-orchestrator-design/`, `docs/superpowers/plans/2026-08-08-fork/`
+- Application implementation authorized: **no** (SA00 fork-adoption/baseline sequence only; see pivot record — no Square product code)
+- Worktree state: **dirty — archive move and pivot documentation staged, upstream fork wiring in progress**
 - Delegated agent launch authorized: **no**
 - Dependency installation authorized: **no**
-- External or provider calls authorized: **none**
+- External or provider calls authorized: **none, except a read-only `git fetch` of the pinned public Agent Orchestrator upstream tag under the fork pivot record below**
+- M0/M1 detailed status below (through T-M1-05) remains historically accurate and is retained for
+  trace/history; **superseded by the fork pivot below — no further M0/M1/REM task will be dispatched**
 - M0 status: **accepted by the owner on 2026-08-05**
 - Post-M0 context: **client execution playbook added at `59c3a87`; no authority widened**
 - M1 planning status: **technically complete at `44428ce`; accepted by the owner on 2026-08-05**
@@ -387,6 +390,83 @@ one attempt. The route is not a precedent for later tasks.
 REM-01 is **accepted by the owner on 2026-08-07**. This acceptance closes the dependency-security
 fork remediation but does not activate `SP02-T01` or any other implementation. No application
 implementation is authorized.
+
+## Fork pivot — Square as a downstream fork of Agent Orchestrator (2026-08-09)
+
+The owner directed a full architecture pivot on 2026-08-09: Square Orchestrator is no longer a new
+.NET-native application. It becomes a maintained downstream fork of
+`Untrivial-ai/agent-orchestrator` stable `v0.12.1` (expected release commit prefix `1df40e9`),
+following the session-first implementation pack at
+`docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/`.
+That pack's own `docs/ARCHITECTURE_AMENDMENT.md` records the full decision and non-negotiable
+invariants; its `plans/OWNER_ACCEPTANCE_CHECKLIST.md` and `plans/OWNER_DECISIONS.md` list the
+owner inputs required before dispatch. This STATUS.md entry is the owner-acceptance record for the
+inputs needed to start `SA00-T01`; later gates (A0, A1, ...) still require their own owner
+decisions as each is reached, per that checklist.
+
+This entry **supersedes** the M0 bootstrap, the M1 dry-run foundation plan and its tasks
+(T-M1-01 through T-M1-05 and their FIX chains), the `2026-08-07-square-orchestrator-design` plan,
+the dependency-security fork resolution, and REM-01. All of that work remains technically accurate
+history — none of it is deleted or repudiated — but no further task from any of those plans will be
+dispatched. `SPEC.md` likewise remains as historical record of the pre-pivot product/API design; it
+is not authoritative for the fork and will be superseded by the fork pack's own contracts
+(`docs/SESSION_DOMAIN_MODEL.md`, `docs/API_AND_EXECUTION_FACADE.md`, etc.) as SA02 is reached.
+
+**Owner decisions recorded (via chat, 2026-08-09):**
+
+1. **Fork destination:** reuse this repository's existing path
+   (`D:\WORK\10 - AI\AI TOOLS\square-orchestrator`) rather than a new sibling directory. This is a
+   deliberate deviation from the implementation pack's default script
+   (`scripts/bootstrap-square-fork.ps1`), which assumes a fresh `git clone` into an empty
+   destination. Reusing this repository's path means `square/main` is created as a branch with
+   history unrelated to this repository's existing `main` (Agent Orchestrator's Go/Electron tree
+   shares no commits with this repository's prior .NET/Python tree); this is ordinary Git and does
+   not require a fresh clone to achieve the same reproducible-upstream-identity outcome the packet's
+   acceptance criteria (SA00-AC-01..07) actually require.
+2. **Archive scope:** all pre-pivot implementation content — `prototypes/`, `src/`, `sqorch/`,
+   `ui/`, `vscode/`, `tests/`, `build/`, `contracts/` — moved via `git mv` into `archive/` on the
+   existing `main` branch, preserving full file history. Root governance docs (`AGENTS.md`,
+   `CLAUDE.md`, `SPEC.md`, `STATUS.md`, `HANDOVER.md`, `CLIENT-EXECUTION.md`, `README.md`) and
+   `docs/` stay in place on `main`. Root .NET/pnpm toolchain files (`Directory.Build.props`,
+   `Directory.Packages.props`, `NuGet.Config`, `SquareOrchestrator.slnx`, `global.json`,
+   `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `build.ps1`/`dev.ps1`/`format.ps1`/
+   `package.ps1`/`test.ps1`, `tsconfig*.json`, `THIRD_PARTY.md`) were left in place at the `main`
+   root exactly as they were; `main` is now a frozen historical branch and no longer receives new
+   implementation work, so their exact placement there is immaterial going forward. `archive/`
+   received its own `AGENTS.md`/`CLAUDE.md` context pair per the root context-pair invariant; root
+   `AGENTS.md`/`CLAUDE.md` and `docs/superpowers/plans/AGENTS.md`/`CLAUDE.md` were updated to match.
+3. **Remote origin:** reuse this repository's existing `origin` remote
+   (`https://github.com/knackychan/square-orchestrator.git`) for the new fork rather than
+   registering a new GitHub repository. No push occurs as part of this pivot record or SA00-T01;
+   pushing `square/main` remains a separate, later, explicitly owner-authorized action.
+4. **Execution mode:** the owner explicitly authorized this exact bootstrap/governance work — the
+   archive move, upstream remote wiring, `square/main`/baseline-tag creation, and SA00-T01
+   evidence/receipt — to be performed **inline by the primary session** (Claude Code, Sonnet 5)
+   rather than dispatched to a separate visible foreground worker under the mandatory client
+   workflow. This mirrors the precedent set for T-M1-01 (owner-authorized inline execution) and the
+   implementation pack's own `plans/START_HERE.md`, which has the primary run
+   `bootstrap-square-fork.ps1` directly rather than dispatching it. This exception is scoped to this
+   exact adapted SA00-T01 bootstrap step only; it does not authorize inline execution of SA00-T02 or
+   any later task, and does not authorize any Square product code.
+
+**What this pivot authorizes:** only the SA00 fork-adoption/baseline sequence
+(`SA00-T01` through the `A0` gate) as defined in the active pack. It does not authorize SA01 or
+later work, Square product code, dependency installation beyond `git fetch` of the pinned public
+upstream tag, or any push to a remote. `docs/ARCHITECTURE_AMENDMENT.md` §10 in the pack states this
+explicitly: "This amendment authorizes only the planning and adoption sequence until A0 passes."
+
+**SA00-T01 adaptation record:** because the destination is this existing repository rather than a
+fresh empty clone, the literal `bootstrap-square-fork.ps1` script does not apply as written. The
+equivalent, owner-directed sequence actually executed is: add `upstream` remote
+(`https://github.com/Untrivial-ai/agent-orchestrator.git`); fetch tag `v0.12.1`; verify the
+resolved commit begins with `1df40e9`; create branch `square/main` at that commit; create annotated
+tag `square-base-v0.12.1` at that same commit; leave `origin` unchanged; do not push. This produces
+the same verifiable state the packet's acceptance criteria require (exact upstream identity,
+`square/main` branch, baseline tag, `upstream` remote, no product-path drift, no push) without a
+second working copy on disk. The archive move above is a repository-reorganization step outside the
+implementation pack's original scope (the pack assumes no pre-existing content to preserve); it is
+recorded here as the owner-directed adaptation that makes "reuse this repository's path" possible
+without discarding the prior implementation line.
 
 ## Planned but inactive
 

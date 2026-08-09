@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "task_id": "SP02-T01",
+  "packet_revision": "1.0-draft",
+  "outcome": "BLOCKED",
+  "started_utc": "<FILL>",
+  "completed_utc": "<FILL>",
+  "starting_commit": "<FILL>",
+  "result_commit": "<FILL>",
+  "authority_hashes": {},
+  "prerequisite_receipts": {
+    "g0": { "path": "<FILL>", "sha256": "sha256:<FILL>" },
+    "sp01_t06": { "path": "<FILL>", "sha256": "sha256:<FILL>" },
+    "dependency_admission": { "path": "<FILL>", "sha256": "sha256:<FILL>" }
+  },
+  "changed_paths": [],
+  "dependencies": {
+    "direct": [],
+    "transitive": [],
+    "lock_files": [],
+    "runtime_sqlite_version": "<FILL>",
+    "native_dll_sha256": "sha256:<FILL>"
+  },
+  "migrations": [
+    { "version": 1, "name": "schema_identity_and_registry", "sha256": "sha256:<FILL>" },
+    { "version": 2, "name": "workflow_projections", "sha256": "sha256:<FILL>" },
+    { "version": 3, "name": "eventing_coordination_and_breakers", "sha256": "sha256:<FILL>" },
+    { "version": 4, "name": "artifacts_receipts_usage_and_exposure", "sha256": "sha256:<FILL>" }
+  ],
+  "schema_catalog_sha256": "sha256:<FILL>",
+  "validations": [],
+  "evidence": {
+    "directory": "<FILL>",
+    "manifest_sha256": "sha256:<FILL>"
+  },
+  "discretion_exercised": [],
+  "stop_events": [],
+  "remaining_risks": [],
+  "deferred_to_later_tasks": [
+    "artifact content store implementation (SP02-T02)",
+    "application handlers and repositories (SP02-T03)",
+    "daemon writer ownership and pipe server (SP02-T04)",
+    "final WAL/checkpoint/SSD policy measurement (SP12)"
+  ],
+  "worker": "<FILL>",
+  "reviewer": "<FILL>",
+  "reviewer_approval": false
+}

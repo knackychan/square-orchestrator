@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://square.local/schemas/session-read-model-v1.json",
+  "title": "Square Session Read Model v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "project_id",
+    "title",
+    "status",
+    "attention",
+    "created_at",
+    "updated_at",
+    "messages",
+    "workflow_runs",
+    "active_workflow_run_id",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "square.session-read-model/v1"
+    },
+    "id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "READY",
+        "RUNNING",
+        "WAITING_FOR_USER",
+        "BLOCKED",
+        "PAUSED",
+        "VERIFYING",
+        "REVIEWING",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELLED",
+        "ARCHIVED"
+      ]
+    },
+    "attention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "count",
+        "summary"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "NONE",
+            "NEEDS_USER",
+            "BLOCKED",
+            "FAILED",
+            "AUTH_REQUIRED"
+          ]
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "active_workflow_run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "author",
+          "content",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "author": {
+            "enum": [
+              "USER",
+              "TASK_MANAGER",
+              "ROLE",
+              "SYSTEM"
+            ]
+          },
+          "author_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "artifact_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "workflow_runs": {
+      "type": "array",
+      "items": {
+        "$ref": "workflow-run-v1.json"
+      }
+    },
+    "available_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

@@ -1,0 +1,40 @@
+// TEMPLATE ONLY — intended to illustrate the contract boundary.
+package domain
+
+type RoleSelectionMode string
+
+const (
+	RoleSelectionAuto      RoleSelectionMode = "AUTO"
+	RoleSelectionPreferred RoleSelectionMode = "PREFERRED"
+	RoleSelectionPinned    RoleSelectionMode = "PINNED"
+)
+
+type RoleRoutingProfile struct {
+	ID                   string
+	Scope                string // GLOBAL, PROJECT, SESSION, TASK
+	ScopeID              *string
+	Role                 SquareRoleKind
+	Selection            RoleSelectionMode
+	RouteIDs             []string
+	RouteClass           *string
+	Permissions          string
+	RequiredCapabilities []string
+	Fallback             string
+	Version              int64
+}
+
+type RouteDecision struct {
+	RequestedRouteID *string
+	ResolvedRouteID  *string
+	RejectedRoutes   []RouteRejection
+	Reason           string
+	PolicyVersion    string
+}
+
+type RouteRejection struct {
+	RouteID string
+	Code    string
+	Reason  string
+}
+
+// PINNED unavailability is a blocking decision, never an implicit AUTO fallback.

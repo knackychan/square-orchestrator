@@ -1,0 +1,119 @@
+{
+  "schema_version": "square.session-read-model/v1",
+  "id": "session-quick",
+  "project_id": "project-square",
+  "title": "Update the session header labels",
+  "status": "RUNNING",
+  "attention": {
+    "kind": "NONE",
+    "count": 0,
+    "summary": null
+  },
+  "created_at": "2026-08-09T00:45:00Z",
+  "updated_at": "2026-08-09T02:00:00Z",
+  "active_workflow_run_id": "wf-quick",
+  "messages": [
+    {
+      "id": "m-q-1",
+      "author": "USER",
+      "author_ref": null,
+      "content": "Make the session header clearer and keep the current behavior.",
+      "created_at": "2026-08-09T00:45:00Z",
+      "artifact_refs": []
+    },
+    {
+      "id": "m-q-2",
+      "author": "TASK_MANAGER",
+      "author_ref": "rr-q-tm",
+      "content": "Resolved as QUICK: one worker, narrow UI files, targeted tests.",
+      "created_at": "2026-08-09T00:46:00Z",
+      "artifact_refs": []
+    }
+  ],
+  "workflow_runs": [
+    {
+      "schema_version": "square.workflow-run/v1",
+      "id": "wf-quick",
+      "session_id": "session-quick",
+      "profile": "AUTO",
+      "resolved_profile": "QUICK",
+      "status": "IMPLEMENTING",
+      "stage": "Worker",
+      "baseline": {
+        "kind": "GIT_COMMIT",
+        "value": "bd5e4ec30c0f2e4e31fea82d48ae700cdb5f041f"
+      },
+      "role_runs": [
+        {
+          "schema_version": "square.role-run/v1",
+          "id": "rr-q-tm",
+          "workflow_run_id": "wf-quick",
+          "task_id": null,
+          "role": "TASK_MANAGER",
+          "title": "Coordinate QUICK workflow",
+          "attempt": 1,
+          "state": "RUNNING",
+          "requested_route": null,
+          "resolved_route": null,
+          "actual_identity": {
+            "harness": null,
+            "model": null,
+            "provider": null,
+            "verification": "UNVERIFIED",
+            "source": null
+          },
+          "permission": "NONE",
+          "ao_binding": null,
+          "attention": null,
+          "artifacts": [
+            "artifact:dispatch-preview"
+          ],
+          "started_at": "2026-08-09T01:00:00Z",
+          "finished_at": null,
+          "version": 1
+        },
+        {
+          "schema_version": "square.role-run/v1",
+          "id": "rr-q-worker",
+          "workflow_run_id": "wf-quick",
+          "task_id": null,
+          "role": "WORKER",
+          "title": "Update session header labels",
+          "attempt": 1,
+          "state": "RUNNING",
+          "requested_route": "codex/coding-primary",
+          "resolved_route": "codex/coding-primary",
+          "actual_identity": {
+            "harness": "codex",
+            "model": "gpt-coding-primary",
+            "provider": null,
+            "verification": "VERIFIED",
+            "source": "adapter-startup"
+          },
+          "permission": "WRITER",
+          "ao_binding": {
+            "ao_session_id": "ao-q-01",
+            "controller_generation": 1,
+            "worktree": "D:/worktrees/sq-q-01",
+            "branch": "square/session-labels",
+            "pr": null,
+            "mode": "TERMINAL"
+          },
+          "attention": null,
+          "artifacts": [],
+          "started_at": "2026-08-09T01:00:00Z",
+          "finished_at": null,
+          "version": 1
+        }
+      ],
+      "receipt_id": null,
+      "version": 1
+    }
+  ],
+  "available_actions": [
+    "PAUSE",
+    "CANCEL",
+    "SEND_MESSAGE"
+  ],
+  "version": 1
+}

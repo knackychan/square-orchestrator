@@ -1,0 +1,22 @@
+// TEMPLATE ONLY — SA06 must use the pinned frontend router/query/component conventions.
+import type { ReactNode } from "react";
+
+type Props = {
+  sessionId: string;
+};
+
+export function SquareSessionPage({ sessionId }: Props): ReactNode {
+  // Authoritative state comes from generated API types and server queries/SSE.
+  // Local state is presentation-only: selected tab, pane sizes, focus, theme.
+  return (
+    <main data-square-session-id={sessionId}>
+      <header>{/* title, status, workflow progress, direct attention */}</header>
+      <section>{/* conversation + new message composer */}</section>
+      <section>{/* Task Manager system dock + dynamic bounded role docks */}</section>
+      <nav>{/* Workbench / Conversation / Plan & Review / History */}</nav>
+    </main>
+  );
+}
+
+// Closing/unmounting this page unsubscribes views only. It must never invoke a
+// session/process stop operation unless the user selected an explicit authorized action.

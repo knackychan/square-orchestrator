@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="referrer" content="no-referrer">
+<title>Square — Session Workspace Reference</title>
+<style>
+:root {
+  --app:#f2f2f2;
+  --panel:#ffffff;
+  --panel-alt:#f7f7f7;
+  --panel-hover:#ececec;
+  --terminal:#111418;
+  --terminal-2:#171b20;
+  --terminal-text:#d7dde5;
+  --border:#d2d2d2;
+  --border-strong:#a9a9a9;
+  --text:#202020;
+  --muted:#666;
+  --dim:#8c8c8c;
+  --accent:#0067c0;
+  --accent-soft:#e2f1ff;
+  --good:#187a3d;
+  --good-soft:#e7f4eb;
+  --warn:#8a6200;
+  --warn-soft:#fff3cf;
+  --bad:#b42318;
+  --bad-soft:#fde9e7;
+  --review:#6d479d;
+  --review-soft:#f0e9fa;
+  --focus:#0067c0;
+  --sans:"Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"Cascadia Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  --top-h:38px;
+  --tabs-h:34px;
+  --status-h:23px;
+  --sidebar-w:258px;
+}
+html[data-theme="dark"] {
+  --app:#1e1e1e;
+  --panel:#252526;
+  --panel-alt:#2d2d30;
+  --panel-hover:#343438;
+  --terminal:#0f1216;
+  --terminal-2:#161a1f;
+  --terminal-text:#d7dde5;
+  --border:#3b3b3d;
+  --border-strong:#59595b;
+  --text:#dedede;
+  --muted:#a5a5a5;
+  --dim:#747478;
+  --accent:#75b8f3;
+  --accent-soft:#173a54;
+  --good:#89d185;
+  --good-soft:#173c25;
+  --warn:#e0bd70;
+  --warn-soft:#4a3b18;
+  --bad:#f48771;
+  --bad-soft:#4a2421;
+  --review:#c7a7e8;
+  --review-soft:#392b4c;
+  --focus:#75b8f3;
+}
+* { box-sizing:border-box; }
+html,body { width:100%;height:100%;margin:0;overflow:hidden; }
+body { background:var(--app); color:var(--text); font:12px/1.35 var(--sans); }
+button,input,textarea,select { font:inherit;color:inherit; }
+button { cursor:pointer; }
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:2px solid var(--focus);outline-offset:-1px; }
+.mono,code,pre,.status-bar,.session-meta,.dock-meta,.workflow-step,.session-tab { font-family:var(--mono); }
+.icon { width:14px;height:14px;display:inline-grid;place-items:center;flex:0 0 14px;color:currentColor; }
+.app { height:100%;display:grid;grid-template-rows:var(--top-h) minmax(0,1fr) var(--status-h); }
+.topbar { display:flex;align-items:center;gap:10px;padding:0 9px;border-bottom:1px solid var(--border);background:var(--panel); }
+.brand { display:flex;align-items:center;gap:8px;font-weight:650;letter-spacing:.01em;white-space:nowrap; }
+.brand-mark { width:16px;height:16px;border:1px solid var(--border-strong);display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;padding:2px; }
+.brand-mark i { background:var(--text);opacity:.82; }
+.project-select { min-width:220px;height:26px;border:1px solid var(--border);background:var(--panel-alt);padding:0 26px 0 8px;border-radius:3px; }
+.top-spacer { flex:1; }
+.top-summary { display:flex;align-items:center;gap:10px;color:var(--muted);white-space:nowrap; }
+.dot { width:7px;height:7px;border-radius:50%;display:inline-block;background:currentColor; }
+.dot.good { color:var(--good); }.dot.warn { color:var(--warn); }.dot.bad { color:var(--bad); }.dot.work { color:var(--accent); }.dot.review { color:var(--review); }
+.btn { min-height:25px;padding:0 8px;border:1px solid var(--border);background:var(--panel-alt);border-radius:3px;display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap; }
+.btn:hover { background:var(--panel-hover); }
+.btn.primary { color:white;background:#1668a9;border-color:#1668a9; }
+html[data-theme="dark"] .btn.primary { color:#111;background:#86c7ff;border-color:#86c7ff; }
+.btn.ghost { border-color:transparent;background:transparent;color:var(--muted); }
+.btn.ghost:hover { color:var(--text);background:var(--panel-hover); }
+.btn.danger { color:var(--bad); }
+.btn.small { min-height:22px;padding:0 6px;font-size:11px; }
+.main { min-height:0;display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr); }
+.sidebar { min-height:0;border-right:1px solid var(--border);background:var(--panel);display:flex;flex-direction:column; }
+.sidebar-head { height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 9px;border-bottom:1px solid var(--border); }
+.sidebar-title { font-weight:650; }
+.session-search { margin:8px;height:27px;border:1px solid var(--border);background:var(--panel-alt);padding:0 8px;border-radius:3px; }
+.filter-row { display:flex;gap:2px;padding:0 8px 7px;border-bottom:1px solid var(--border); }
+.filter-btn { min-height:23px;padding:0 7px;border:1px solid transparent;background:transparent;color:var(--muted);border-radius:3px; }
+.filter-btn.active { border-color:var(--border);background:var(--panel-alt);color:var(--text); }
+.session-list { min-height:0;overflow:auto;padding:4px 0 12px; }
+.session-group-label { padding:8px 10px 4px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em; }
+.session-item { width:100%;border:0;border-left:3px solid transparent;background:transparent;padding:8px 9px 8px 7px;text-align:left;display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:7px;align-items:start; }
+.session-item:hover { background:var(--panel-hover); }
+.session-item.selected { border-left-color:var(--accent);background:var(--accent-soft); }
+.session-item-title { font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.session-item-sub { margin-top:2px;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.session-badge { min-width:18px;height:18px;padding:0 5px;border:1px solid var(--border);border-radius:9px;display:inline-grid;place-items:center;font:10px var(--mono); }
+.session-badge.attn { color:var(--bad);border-color:color-mix(in srgb,var(--bad) 55%,var(--border));background:var(--bad-soft); }
+.workspace { min-width:0;min-height:0;display:grid;grid-template-rows:var(--tabs-h) minmax(0,1fr); }
+.session-tabs { display:flex;align-items:end;min-width:0;overflow:hidden;border-bottom:1px solid var(--border);background:var(--panel-alt);padding-left:3px; }
+.session-tab { height:31px;max-width:245px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid transparent;border-bottom:0;background:transparent;color:var(--muted); }
+.session-tab:hover { background:var(--panel-hover); }
+.session-tab.active { color:var(--text);background:var(--panel);border-color:var(--border); }
+.session-tab-title { min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.tab-close { opacity:.45;border:0;background:transparent;padding:0;width:16px;height:16px;color:inherit; }
+.tab-close:hover { opacity:1;background:var(--panel-hover); }
+.tab-plus { width:30px;height:29px;border:0;background:transparent;color:var(--muted); }
+.tab-plus:hover { color:var(--text);background:var(--panel-hover); }
+.session-root { min-height:0;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);background:var(--app); }
+.session-header { min-height:54px;display:flex;align-items:center;gap:14px;padding:7px 11px;border-bottom:1px solid var(--border);background:var(--panel); }
+.session-heading { min-width:0;flex:1; }
+.session-title-row { display:flex;align-items:center;gap:8px;min-width:0; }
+.session-title { font-size:15px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.state-label { height:20px;padding:0 6px;border:1px solid var(--border);border-radius:2px;display:inline-flex;align-items:center;gap:5px;font:10px/18px var(--mono);text-transform:uppercase;white-space:nowrap; }
+.state-label.needs { color:var(--bad);border-color:color-mix(in srgb,var(--bad) 50%,var(--border));background:var(--bad-soft); }
+.state-label.blocked { color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,var(--border));background:var(--warn-soft); }
+.state-label.working { color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,var(--border));background:var(--accent-soft); }
+.state-label.review { color:var(--review);border-color:color-mix(in srgb,var(--review) 50%,var(--border));background:var(--review-soft); }
+.state-label.done { color:var(--good);border-color:color-mix(in srgb,var(--good) 50%,var(--border));background:var(--good-soft); }
+.session-meta { margin-top:3px;color:var(--muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.session-pulse { display:flex;align-items:center;gap:9px;white-space:nowrap; }
+.pulse-item { display:flex;align-items:center;gap:4px;color:var(--muted); }
+.pulse-item strong { color:var(--text);font:600 11px var(--mono); }
+.session-actions { display:flex;gap:5px; }
+.attention { display:grid;grid-template-columns:auto minmax(0,1.15fr) minmax(0,1fr) auto;align-items:center;gap:11px;padding:7px 11px;border-bottom:1px solid color-mix(in srgb,var(--warn) 45%,var(--border));background:var(--warn-soft); }
+.attention.needs { border-color:color-mix(in srgb,var(--bad) 45%,var(--border));background:var(--bad-soft); }
+.attention-label { font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.06em; }
+.attention strong { display:block;font-size:11px; }
+.attention p { margin:1px 0 0;color:var(--muted); }
+.attention-actions { display:flex;gap:5px;justify-content:flex-end; }
+.session-nav { height:31px;display:flex;align-items:end;padding:0 9px;border-bottom:1px solid var(--border);background:var(--panel); }
+.session-view-btn { height:29px;padding:0 9px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted); }
+.session-view-btn:hover { color:var(--text);background:var(--panel-hover); }
+.session-view-btn.active { color:var(--text);border-bottom-color:var(--accent); }
+.session-content { min-height:0;overflow:hidden; }
+.workbench { height:100%;display:grid;grid-template-columns:minmax(285px,31%) minmax(0,1fr); }
+.thread-pane { min-width:0;min-height:0;border-right:1px solid var(--border);background:var(--panel);display:grid;grid-template-rows:31px minmax(0,1fr) auto; }
+.pane-heading { height:31px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid var(--border);background:var(--panel-alt);font-weight:600; }
+.thread { min-height:0;overflow:auto;padding:9px 10px 12px; }
+.message { margin-bottom:12px; }
+.message-head { display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em; }
+.message-role { display:flex;align-items:center;gap:5px;font-weight:650;color:var(--text); }
+.message-body { margin-top:4px;padding:7px 8px;border-left:2px solid var(--border-strong);background:var(--panel-alt);white-space:pre-wrap; }
+.message.user .message-body { border-left-color:var(--accent); }
+.message.task-manager .message-body { border-left-color:var(--good); }
+.message.orchestrator .message-body { border-left-color:var(--review); }
+.message.system .message-body { border-left-color:var(--warn);color:var(--muted); }
+.composer { padding:8px;border-top:1px solid var(--border);background:var(--panel-alt); }
+.composer textarea { width:100%;height:64px;resize:none;border:1px solid var(--border);border-radius:3px;background:var(--panel);padding:7px 8px; }
+.composer-footer { display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:6px; }
+.quick-actions { display:flex;gap:4px;min-width:0;overflow:hidden; }
+.workflow-pane { min-width:0;min-height:0;display:grid;grid-template-rows:38px minmax(0,1fr);background:var(--app); }
+.workflow-strip { display:flex;align-items:center;gap:0;padding:0 8px;border-bottom:1px solid var(--border);background:var(--panel);overflow:auto; }
+.workflow-step { height:26px;display:flex;align-items:center;gap:6px;padding:0 9px;border:1px solid var(--border);border-right:0;background:var(--panel-alt);white-space:nowrap;font-size:10px; }
+.workflow-step:first-child { border-radius:3px 0 0 3px; }
+.workflow-step:last-of-type { border-right:1px solid var(--border);border-radius:0 3px 3px 0; }
+.workflow-step.current { background:var(--accent-soft);color:var(--accent); }
+.workflow-step.done { color:var(--good); }
+.workflow-step.wait { color:var(--muted); }
+.workflow-spacer { flex:1; }
+.workflow-note { color:var(--muted);white-space:nowrap;padding-left:9px; }
+.dock-scroll { min-height:0;overflow:auto;padding:7px; }
+.dock-grid { display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:minmax(158px,auto);gap:7px;align-items:stretch; }
+.dock { min-width:0;border:1px solid var(--border);background:var(--panel);display:flex;flex-direction:column;position:relative; }
+.dock.selected { border-color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 60%,transparent); }
+.dock.span-4 { grid-column:span 4; }.dock.span-5 { grid-column:span 5; }.dock.span-6 { grid-column:span 6; }.dock.span-7 { grid-column:span 7; }.dock.span-8 { grid-column:span 8; }.dock.span-12 { grid-column:span 12; }
+.dock-head { min-height:37px;display:flex;align-items:center;gap:7px;padding:5px 6px;border-bottom:1px solid var(--border);background:var(--panel-alt); }
+.dock-role { font-weight:650;white-space:nowrap; }
+.dock-title { min-width:0;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.dock-head-spacer { flex:1; }
+.dock-tools { display:flex;gap:2px; }
+.dock-tool { width:22px;height:22px;border:0;background:transparent;color:var(--muted);border-radius:2px; }
+.dock-tool:hover { color:var(--text);background:var(--panel-hover); }
+.dock-meta { min-height:24px;display:flex;align-items:center;gap:9px;padding:0 7px;border-bottom:1px solid var(--border);font-size:9px;color:var(--muted);overflow:hidden;white-space:nowrap; }
+.dock-meta span { overflow:hidden;text-overflow:ellipsis; }
+.terminal-output { flex:1;min-height:92px;margin:0;padding:7px 8px;background:var(--terminal);color:var(--terminal-text);font:10.5px/1.45 var(--mono);white-space:pre-wrap;overflow:hidden; }
+.terminal-output .dim { color:#79818b; }.terminal-output .ok { color:#8bd49c; }.terminal-output .warn { color:#e5c07b; }.terminal-output .bad { color:#f48771; }.terminal-output .info { color:#75b8f3; }
+.dock-summary { flex:1;padding:8px;overflow:hidden;background:var(--panel); }
+.dock-summary-row { display:grid;grid-template-columns:85px minmax(0,1fr);gap:7px;padding:3px 0;border-bottom:1px solid var(--border); }
+.dock-summary-row:last-child { border-bottom:0; }
+.dock-summary-row dt { color:var(--muted); }.dock-summary-row dd { margin:0;overflow-wrap:anywhere; }
+.dock-footer { min-height:24px;display:flex;align-items:center;gap:9px;padding:0 7px;border-top:1px solid var(--border);background:var(--panel-alt);font:9px var(--mono);color:var(--muted);white-space:nowrap; }
+.dock-footer .progress { flex:1;height:3px;background:var(--border);overflow:hidden; }
+.dock-footer .progress i { display:block;height:100%;background:var(--accent); }
+.empty-workflow { height:100%;display:grid;place-items:center;padding:28px; }
+.empty-inner { width:min(720px,90%);border:1px solid var(--border);background:var(--panel);padding:22px; }
+.empty-inner h2 { margin:0 0 6px;font-size:18px;font-weight:650; }
+.empty-inner p { margin:0 0 18px;color:var(--muted); }
+.empty-composer { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px; }
+.empty-composer textarea { min-height:100px;border:1px solid var(--border);background:var(--panel-alt);padding:9px;resize:vertical; }
+.conversation-view,.plan-view,.history-view { height:100%;overflow:auto;padding:10px;background:var(--app); }
+.conversation-layout { max-width:900px;margin:0 auto;display:grid;grid-template-rows:auto auto;gap:8px; }
+.conversation-card,.plan-card,.history-card { border:1px solid var(--border);background:var(--panel); }
+.conversation-card .thread { max-height:none;min-height:480px; }
+.plan-layout { display:grid;grid-template-columns:minmax(260px,.75fr) minmax(0,1.4fr);gap:8px; }
+.plan-card-head { height:31px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid var(--border);background:var(--panel-alt);font-weight:600; }
+.plan-card-body { padding:8px; }
+.task-row { display:grid;grid-template-columns:68px minmax(0,1fr) 100px;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);align-items:center; }
+.task-row:last-child { border-bottom:0; }
+.task-id { font-family:var(--mono);color:var(--muted); }
+.task-status { justify-self:end; }
+.criteria-row { display:grid;grid-template-columns:60px minmax(0,1fr) 95px;gap:8px;padding:7px 0;border-bottom:1px solid var(--border); }
+.criteria-row:last-child { border-bottom:0; }
+.history-list { max-width:1000px;margin:0 auto;border:1px solid var(--border);background:var(--panel); }
+.history-row { display:grid;grid-template-columns:88px 110px minmax(0,1fr) auto;gap:10px;padding:7px 9px;border-bottom:1px solid var(--border);align-items:start; }
+.history-row:last-child { border-bottom:0; }
+.history-time { font-family:var(--mono);color:var(--muted); }.history-kind { font-family:var(--mono);font-size:10px;text-transform:uppercase; }
+.focus-overlay { position:fixed;inset:42px 34px 31px 292px;z-index:30;border:1px solid var(--border-strong);background:var(--panel);box-shadow:0 12px 40px rgb(0 0 0 / .35);display:none; }
+.focus-overlay.open { display:flex;flex-direction:column; }
+.focus-overlay .terminal-output { font-size:12px;min-height:0; }
+.status-bar { display:flex;align-items:center;gap:15px;padding:0 8px;border-top:1px solid var(--border);background:var(--panel);font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden; }
+.status-spacer { flex:1; }
+.toast { position:fixed;right:14px;bottom:36px;z-index:100;max-width:360px;padding:8px 10px;border:1px solid var(--border-strong);background:var(--panel);box-shadow:0 7px 24px rgb(0 0 0 / .25);display:none; }
+.toast.show { display:block; }
+@media (max-width:1150px) {
+  :root { --sidebar-w:220px; }
+  .workbench { grid-template-columns:300px minmax(0,1fr); }
+  .dock.span-4,.dock.span-5,.dock.span-7,.dock.span-8 { grid-column:span 6; }
+  .attention { grid-template-columns:auto minmax(0,1fr) auto; }
+  .attention .solution { display:none; }
+  .session-pulse { display:none; }
+}
+@media (max-width:850px) {
+  :root { --sidebar-w:185px; }
+  .project-select,.top-summary { display:none; }
+  .workbench { grid-template-columns:1fr; }
+  .thread-pane { display:none; }
+  .dock-grid { grid-template-columns:1fr; }
+  .dock[class*="span-"] { grid-column:span 1; }
+  .attention { grid-template-columns:auto minmax(0,1fr); }
+  .attention-actions { grid-column:1/-1;justify-content:flex-start; }
+  .session-actions .hide-small { display:none; }
+  .plan-layout { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Square</div>
+    <select class="project-select" aria-label="Project"><option>square-orchestrator · D:\WORK\10 - AI\SQUARE LAB</option><option>artcoustic-partner-portal</option></select>
+    <div class="top-spacer"></div>
+    <div class="top-summary"><span><i class="dot good"></i> daemon connected</span><span id="globalActive">5 active processes</span><span id="globalAttention">2 need you</span></div>
+    <button class="btn primary" id="newSessionTop">＋ New session</button>
+    <button class="btn ghost" id="themeToggle" aria-label="Toggle theme">◐</button>
+  </header>
+
+  <div class="main">
+    <aside class="sidebar">
+      <div class="sidebar-head"><span class="sidebar-title">Sessions</span><button class="btn small" id="newSessionSide">＋</button></div>
+      <input class="session-search" id="sessionSearch" placeholder="Search sessions…" aria-label="Search sessions">
+      <div class="filter-row" role="tablist" aria-label="Session filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="attention">Needs you</button>
+        <button class="filter-btn" data-filter="active">Active</button>
+        <button class="filter-btn" data-filter="done">Done</button>
+      </div>
+      <div class="session-list" id="sessionList"></div>
+    </aside>
+
+    <main class="workspace">
+      <div class="session-tabs" id="sessionTabs"></div>
+      <section class="session-root" id="sessionRoot" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <footer class="status-bar">
+    <span><i class="dot good"></i> AO runtime healthy</span>
+    <span>4 sessions</span>
+    <span>8 agent processes</span>
+    <span>1 writer lease</span>
+    <span class="status-spacer"></span>
+    <span>FAST profile</span>
+    <span>SQLite synced</span>
+    <span>Windows · process runtime</span>
+  </footer>
+</div>
+<div class="focus-overlay" id="focusOverlay"></div>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+  const sessions = [
+    {
+      id:'ui-session', title:'Session-focused workspace redesign', short:'Workspace redesign', state:'needs', stateText:'Needs you', group:'Needs you', attentionCount:1,
+      profile:'PLANNED', project:'square-orchestrator', branch:'square/session-workspace', pr:'No PR yet', started:'18 min ago', view:'workbench', selectedDock:'ui-worker',
+      summary:{working:2,waiting:1,review:0,done:2},
+      attention:{kind:'needs', label:'Needs your decision', problem:'The UI worker needs a virtualization dependency for long terminal history.', solution:'Approve @tanstack/react-virtual once; keep native overflow as the dependency-free fallback.', actions:['Approve once','Use fallback','Ask planner']},
+      workflow:[['Task manager','done'],['Planner','done'],['Orchestrator','current'],['Workers','current'],['Review','wait']], currentNote:'Implementation · 2 of 4 tasks active',
+      messages:[
+        {role:'You',kind:'user',time:'09:18',body:'Create a session-focused UI. Each task should feel like a chat session, then reveal its own planner, orchestrator, workers, terminals, decisions and history.'},
+        {role:'Task Manager',kind:'task-manager',time:'09:18',body:'Classified as PLANNED. I will preserve the original terminal-workspace language but make the session—not the global fleet—the primary unit.'},
+        {role:'Planner',kind:'orchestrator',time:'09:21',body:'Plan accepted: session rail + open tabs, conversation thread, glanceable attention strip, and per-session dock canvas. Deep plan/review/history remain optional views.'},
+        {role:'UI Orchestrator',kind:'orchestrator',time:'09:29',body:'Two workers are active. One decision is blocking terminal-history virtualization; the rest of the session can continue.'}
+      ],
+      docks:[
+        {id:'task-manager',span:4,role:'Task Manager',title:'Coordinate session and durable workflow',state:'working',stateText:'Running',route:'Square deterministic service',model:'No model',process:'svc · workflow-42',worktree:'authoritative session state',progress:64,bodyType:'terminal',lines:'[09:18:04] request accepted\n[09:18:04] profile = PLANNED\n[09:21:33] plan artifact accepted\n[09:22:10] dispatched ORCH-UI-03\n[09:29:18] interaction INT-084 opened\n[09:31:02] waiting on one owner decision',footer:'events 47 · scheduler awake'},
+        {id:'planner',span:4,role:'Planner',title:'Compile session workspace plan',state:'done',stateText:'Done',route:'Claude Code',model:'Opus 4.8',process:'ended · 6m12s',worktree:'read-only · base f79709d',progress:100,bodyType:'summary',summary:[['Outcome','Plan v2 accepted'],['Artifact','PLAN-UI-SESSION-002'],['Tasks','4 implementation + 1 review'],['Ended','09:21:33']],footer:'terminal history retained'},
+        {id:'ui-orchestrator',span:4,role:'UI Orchestrator',title:'Synthesize interaction and visual hierarchy',state:'working',stateText:'Working',route:'Codex CLI',model:'GPT-5.6',process:'PID 19424 · 12m',worktree:'square/session-workspace',progress:58,bodyType:'terminal',lines:'$ inspect original-reference.html\n[orchestrator] preserving flat dock chrome\n[orchestrator] session is the top-level context\n[orchestrator] delegating terminal history behavior\n[worker-1] layout shell ready\n[worker-2] approval required for dependency\n<span class="info">→ continuing non-blocked synthesis</span>',footer:'writer · 42.1K tokens'},
+        {id:'ui-worker',span:6,role:'UI Worker',title:'Build session rail, tabs and dock canvas',state:'needs',stateText:'Approval',route:'Codex CLI',model:'GPT-5.6 mini',process:'PID 21840 · 7m',worktree:'wt/session-shell',progress:47,bodyType:'terminal',lines:'$ npm test -- session-workspace\n<span class="ok">✓ session switch preserves dock layout</span>\n<span class="ok">✓ closed view keeps process alive</span>\n<span class="warn">! 40k terminal rows need virtualization</span>\n\nRequesting one-time dependency approval:\n  @tanstack/react-virtual\n\n<span class="warn">waiting for owner decision…</span>',footer:'writer lease · INT-084'},
+        {id:'interaction-worker',span:6,role:'Interaction Worker',title:'Keep problems and solutions visible at a glance',state:'working',stateText:'Working',route:'Claude Code',model:'Sonnet 4.6',process:'PID 23016 · 5m',worktree:'wt/session-attention',progress:72,bodyType:'terminal',lines:'[worker] attention strip implemented\n[worker] problem + solution shown together\n[worker] direct actions require zero drill-down\n[worker] session list grouped by attention state\n<span class="ok">✓ keyboard focus order</span>\n<span class="ok">✓ 200% zoom fixture</span>',footer:'writer · 18.7K tokens'},
+        {id:'reviewer',span:12,role:'Independent Reviewer',title:'Review session mental model and accessibility',state:'review',stateText:'Queued',route:'Claude Code',model:'Opus 4.8',process:'not started',worktree:'immutable result pending',progress:0,bodyType:'summary',summary:[['Starts when','T-UI-01 and T-UI-02 complete'],['Scope','Diff, behavior fixtures, keyboard path'],['Independence','Different model family'],['Input','No implementation transcript']],footer:'review packet pending'}
+      ],
+      tasks:[['T-UI-01','Session shell and switching','WORKING'],['T-UI-02','Attention and decisions','WORKING'],['T-UI-03','Terminal history virtualization','NEEDS YOU'],['T-UI-04','Responsive and accessibility pass','READY'],['T-UI-R1','Independent review','QUEUED']],
+      criteria:[['AC-UI-01','A user can switch sessions without losing that session’s dock state.','PENDING'],['AC-UI-02','Problems, suggested solutions and owner actions are visible without opening an inspector.','PASS'],['AC-UI-03','Every agent dock exposes role, task, process, route and state.','PASS'],['AC-UI-04','Closing a dock changes presentation only.','PASS'],['AC-UI-05','Completed terminals remain accessible from session history.','PENDING']],
+      history:[['09:18:04','request','Session created from user task'],['09:18:04','triage','PLANNED profile selected'],['09:21:33','plan','Plan v2 accepted'],['09:22:10','dispatch','UI Orchestrator started'],['09:24:08','dispatch','Two workers started'],['09:29:18','interaction','Dependency approval requested'],['09:31:02','workflow','Non-blocked work continues']]
+    },
+    {
+      id:'daemon-session', title:'Keep AO daemon alive when desktop closes', short:'Daemon lifetime', state:'blocked', stateText:'Blocked', group:'Needs you', attentionCount:1,
+      profile:'SYSTEMIC', project:'square-orchestrator', branch:'square/daemon-lifetime', pr:'#18 draft', started:'1h 06m ago', view:'workbench', selectedDock:'lifecycle-engineer',
+      summary:{working:1,waiting:0,review:0,done:2},
+      attention:{kind:'blocked',label:'Architecture blocker',problem:'The current Electron owner still terminates the app-owned daemon on window exit.',solution:'Detach the daemon into a per-user background process; desktop close releases subscriptions only.',actions:['Accept solution','Keep investigating','Stop session']},
+      workflow:[['Task manager','done'],['Planner','done'],['Orchestrator','current'],['Workers','current'],['Review','wait']], currentNote:'Architecture repair · owner decision required',
+      messages:[
+        {role:'You',kind:'user',time:'08:24',body:'Make closing the desktop harmless. Running sessions must continue and reconnect without duplication.'},
+        {role:'Task Manager',kind:'task-manager',time:'08:25',body:'SYSTEMIC because this changes process ownership and recovery. Architecture approval is required before implementation.'},
+        {role:'Windows Orchestrator',kind:'orchestrator',time:'09:03',body:'The existing Electron-owned daemon lifetime is incompatible. I recommend a detached per-user daemon with explicit reconnect and single-instance ownership.'}
+      ],
+      docks:[
+        {id:'daemon-manager',span:4,role:'Task Manager',title:'Hold architecture gate and session state',state:'working',stateText:'Running',route:'Square service',model:'No model',process:'svc · workflow-27',worktree:'session state only',progress:42,bodyType:'terminal',lines:'[08:25:10] architecture-sensitive request\n[08:27:42] context reports complete\n[08:41:09] plan v1 rejected\n[09:03:12] amendment proposed\n[09:03:13] gate GATE-DAEMON-07 opened\n[09:03:13] implementation paused',footer:'no writer active'},
+        {id:'windows-orchestrator',span:8,role:'Windows Orchestrator',title:'Define detached daemon ownership and reconnect',state:'blocked',stateText:'Blocked',route:'Claude Code',model:'Opus 4.8',process:'PID 15480 · waiting',worktree:'read-only architecture',progress:51,bodyType:'terminal',lines:'[analysis] desktop currently owns daemon child\n[analysis] BrowserWindow close triggers app shutdown\n[proposal] spawn detached per-user daemon\n[proposal] mutex + readiness handshake\n[proposal] UI reconnects by authenticated loopback API\n\n<span class="warn">STOP: owner must accept lifetime boundary</span>',footer:'read-only · GATE-DAEMON-07'},
+        {id:'lifecycle-engineer',span:6,role:'Lifecycle Engineer',title:'Prototype detached process and reconnect',state:'blocked',stateText:'Blocked',route:'Codex CLI',model:'GPT-5.6',process:'not launched',worktree:'wt/daemon-detach',progress:0,bodyType:'summary',summary:[['Blocked by','GATE-DAEMON-07'],['Write scope','backend runtime + Electron bootstrap'],['Proof','close UI, reconnect, no duplicate'],['Fallback','keep current behavior visibly unsupported']],footer:'waiting on architecture decision'},
+        {id:'windows-qa',span:6,role:'Windows QA',title:'Lifecycle matrix and descendant cleanup',state:'done',stateText:'Done',route:'Codex CLI',model:'GPT-5.6 mini',process:'ended · 18m',worktree:'read-only fixture',progress:100,bodyType:'summary',summary:[['Finding','UI closure kills active session'],['Paths','spaces + Unicode pass'],['Cancellation','child cleanup passes'],['Evidence','EVID-WIN-042']],footer:'finding retained'}
+      ],
+      tasks:[['T-WIN-01','Audit current lifetime','DONE'],['T-WIN-02','Choose ownership boundary','BLOCKED'],['T-WIN-03','Prototype detached daemon','WAITING'],['T-WIN-04','Reconnect and duplication tests','WAITING']],
+      criteria:[['AC-WIN-01','Closing the desktop does not terminate daemon-owned work.','FAIL'],['AC-WIN-02','Reopen reconnects to the exact session without duplication.','PENDING'],['AC-WIN-03','Exactly one daemon owns one database.','PENDING']],
+      history:[['08:24:10','request','Session created'],['08:27:42','context','Current lifecycle mapped'],['08:41:09','plan','Initial plan rejected: ownership unclear'],['09:03:12','amendment','Detached daemon proposed'],['09:03:13','gate','Owner architecture decision required']]
+    },
+    {
+      id:'memory-session', title:'Project and global memory promotion', short:'Memory promotion', state:'working', stateText:'Working', group:'Active', attentionCount:0,
+      profile:'PLANNED', project:'square-orchestrator', branch:'square/memory-promotion', pr:'#21 open', started:'43 min ago', view:'workbench', selectedDock:'memory-worker',
+      summary:{working:2,waiting:0,review:1,done:2}, attention:null,
+      workflow:[['Task manager','done'],['Planner','done'],['Orchestrator','done'],['Workers','current'],['Review','current']], currentNote:'Implementation + review in parallel',
+      messages:[
+        {role:'You',kind:'user',time:'08:47',body:'Add project memory, global memory, candidate practices and owner-controlled promotion.'},
+        {role:'Task Manager',kind:'task-manager',time:'08:48',body:'PLANNED. Memory entries must preserve provenance and never silently become authority.'},
+        {role:'Memory Orchestrator',kind:'orchestrator',time:'09:02',body:'Schema and workflow split into storage, promotion policy and UI browser. One reviewer is checking authority boundaries.'}
+      ],
+      docks:[
+        {id:'memory-manager',span:4,role:'Task Manager',title:'Coordinate memory implementation',state:'working',stateText:'Running',route:'Square service',model:'No model',process:'svc · workflow-31',worktree:'authoritative session state',progress:76,bodyType:'terminal',lines:'[08:48] plan required\n[09:02] plan accepted\n[09:04] workers dispatched\n[09:18] storage tests passed\n[09:24] reviewer started\n[09:29] promotion UI compiling',footer:'events 63'},
+        {id:'memory-orchestrator',span:4,role:'Memory Orchestrator',title:'Synthesize storage and authority rules',state:'done',stateText:'Done',route:'Claude Code',model:'Opus 4.8',process:'ended · 14m',worktree:'read-only baseline',progress:100,bodyType:'summary',summary:[['Artifact','PLAN-MEM-004'],['Decision','Promotion always owner-controlled'],['Scopes','Project / Global / Candidate / Deprecated'],['Conflicts','Resolved']],footer:'session archived'},
+        {id:'memory-worker',span:4,role:'Storage Worker',title:'Implement memory records and provenance',state:'working',stateText:'Working',route:'Codex CLI',model:'GPT-5.6',process:'PID 24208 · 17m',worktree:'wt/memory-store',progress:81,bodyType:'terminal',lines:'$ go test ./internal/service/squarememory/...\n<span class="ok">ok  promotion requires owner action</span>\n<span class="ok">ok  candidate retains evidence hashes</span>\n<span class="ok">ok  project/global scopes remain distinct</span>\n[worker] generating migration checksum\n[worker] updating OpenAPI types',footer:'writer · PR #21'},
+        {id:'memory-ui',span:6,role:'UI Worker',title:'Build memory browser and promotion review',state:'working',stateText:'Working',route:'Claude Code',model:'Sonnet 4.6',process:'PID 24911 · 11m',worktree:'wt/memory-ui',progress:66,bodyType:'terminal',lines:'[ui] project/global/candidate tabs ready\n[ui] provenance shown before promotion\n[ui] automatic promotion control removed\n<span class="ok">✓ candidate decision keyboard path</span>\n<span class="ok">✓ high contrast state labels</span>',footer:'writer · branch memory-ui'},
+        {id:'memory-reviewer',span:6,role:'Security Reviewer',title:'Verify memory cannot self-authorize policy',state:'review',stateText:'Reviewing',route:'Codex CLI',model:'GPT-5.6 mini',process:'PID 25540 · 6m',worktree:'immutable diff',progress:43,bodyType:'terminal',lines:'[review] checking trust boundary\n[review] project candidate cannot mutate global memory\n[review] owner promotion event is durable\n[review] testing stale evidence rejection\n<span class="info">→ 7/12 criteria checked</span>',footer:'read-only review'}
+      ],
+      tasks:[['T-MEM-01','Memory schema','DONE'],['T-MEM-02','Promotion policy','DONE'],['T-MEM-03','Storage implementation','WORKING'],['T-MEM-04','Memory browser','WORKING'],['T-MEM-R1','Authority review','IN REVIEW']],
+      criteria:[['AC-MEM-01','Project and global memory are distinct scopes.','PASS'],['AC-MEM-02','Candidate practice cannot promote itself.','PASS'],['AC-MEM-03','Promotion retains provenance and evidence.','PENDING'],['AC-MEM-04','Deprecated practices remain historically visible.','PENDING']],
+      history:[['08:47:02','request','Memory session created'],['09:02:18','plan','Plan accepted'],['09:04:31','dispatch','Storage and UI workers started'],['09:18:55','validation','Storage unit suite passed'],['09:24:14','review','Independent review started']]
+    },
+    {
+      id:'docs-session', title:'Clean up architecture handover documents', short:'Docs cleanup', state:'done', stateText:'Done', group:'Completed', attentionCount:0,
+      profile:'QUICK', project:'square-orchestrator', branch:'docs/handover-cleanup', pr:'#17 merged', started:'Yesterday', view:'workbench', selectedDock:'docs-worker',
+      summary:{working:0,waiting:0,review:0,done:2}, attention:null,
+      workflow:[['Task manager','done'],['Worker','done'],['Validation','done'],['Receipt','done']], currentNote:'Completed · receipt accepted',
+      messages:[
+        {role:'You',kind:'user',time:'Yesterday 16:02',body:'Remove duplicated architecture notes and repair the handover links. Do not change production code.'},
+        {role:'Task Manager',kind:'task-manager',time:'Yesterday 16:02',body:'QUICK. One documentation worker, narrow write scope and link validation only.'},
+        {role:'Documentation Worker',kind:'orchestrator',time:'Yesterday 16:14',body:'Completed. Four duplicates removed, three links repaired, no production file changed.'}
+      ],
+      docks:[
+        {id:'docs-manager',span:4,role:'Task Manager',title:'Compile QUICK contract and receipt',state:'done',stateText:'Done',route:'Square service',model:'No model',process:'ended',worktree:'session state',progress:100,bodyType:'summary',summary:[['Profile','QUICK'],['Task','One bounded worker'],['Validation','Markdown links + git diff'],['Receipt','RCPT-DOC-017']],footer:'completed yesterday'},
+        {id:'docs-worker',span:8,role:'Documentation Worker',title:'Repair handover documents and links',state:'done',stateText:'Done',route:'Codex CLI',model:'GPT-5.6 mini',process:'ended · 11m',worktree:'wt/docs-cleanup',progress:100,bodyType:'terminal',lines:'$ markdown-link-check docs/**/*.md\n<span class="ok">✓ 37 documents checked</span>\n<span class="ok">✓ 0 broken local links</span>\n$ git diff --stat\n 7 files changed, 42 insertions(+), 119 deletions(-)\n<span class="ok">receipt written: RCPT-DOC-017</span>',footer:'PR #17 merged · history retained'}
+      ],
+      tasks:[['T-DOC-01','Remove duplicates and repair links','DONE'],['T-DOC-V1','Validate links and non-change scope','DONE']],
+      criteria:[['AC-DOC-01','No production source file changes.','PASS'],['AC-DOC-02','All local Markdown links resolve.','PASS'],['AC-DOC-03','Completion receipt binds the merged commit.','PASS']],
+      history:[['Yesterday 16:02','request','QUICK session created'],['Yesterday 16:03','dispatch','Documentation worker started'],['Yesterday 16:12','validation','Link validation passed'],['Yesterday 16:14','receipt','Completion receipt accepted'],['Yesterday 16:18','merge','PR #17 merged']]
+    }
+  ];
+
+  let activeSessionId = sessions[0].id;
+  let openSessionIds = [sessions[0].id,sessions[1].id,sessions[2].id];
+  let filter = 'all';
+  let search = '';
+  const app = document.getElementById('app');
+  const listEl = document.getElementById('sessionList');
+  const tabsEl = document.getElementById('sessionTabs');
+  const rootEl = document.getElementById('sessionRoot');
+  const overlay = document.getElementById('focusOverlay');
+  const toast = document.getElementById('toast');
+
+  const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+  const statusClass = s => ['needs','blocked','working','review','done'].includes(s) ? s : 'working';
+  const dotClass = s => s==='needs'?'bad':s==='blocked'?'warn':s==='done'?'good':s==='review'?'review':'work';
+  const showToast = text => { toast.textContent=text;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200); };
+  const sessionById = id => sessions.find(s=>s.id===id);
+
+  function renderList(){
+    const groups=['Needs you','Active','Completed'];
+    const visible=sessions.filter(s=>{
+      const matchSearch=(s.title+' '+s.project).toLowerCase().includes(search.toLowerCase());
+      const matchFilter=filter==='all'||(filter==='attention'&&(s.state==='needs'||s.state==='blocked'))||(filter==='active'&&(s.state==='working'||s.state==='review'))||(filter==='done'&&s.state==='done');
+      return matchSearch&&matchFilter;
+    });
+    listEl.innerHTML=groups.map(group=>{
+      const items=visible.filter(s=>s.group===group);
+      if(!items.length)return '';
+      return `<div class="session-group-label">${group}</div>${items.map(s=>`
+        <button class="session-item ${s.id===activeSessionId?'selected':''}" data-session="${s.id}">
+          <i class="dot ${dotClass(s.state)}" style="margin-top:5px"></i>
+          <span><span class="session-item-title">${esc(s.title)}</span><span class="session-item-sub">${esc(s.profile)} · ${s.summary.working+s.summary.waiting+s.summary.review} active · ${esc(s.started)}</span></span>
+          ${s.attentionCount?`<span class="session-badge attn">${s.attentionCount}</span>`:`<span class="session-badge">${s.summary.done}</span>`}
+        </button>`).join('')}`;
+    }).join('') || `<div style="padding:18px;color:var(--muted)">No matching sessions.</div>`;
+    listEl.querySelectorAll('[data-session]').forEach(b=>b.addEventListener('click',()=>openSession(b.dataset.session)));
+  }
+
+  function renderTabs(){
+    tabsEl.innerHTML=openSessionIds.map(id=>{
+      const s=sessionById(id);if(!s)return '';
+      return `<button class="session-tab ${id===activeSessionId?'active':''}" data-tab="${id}"><i class="dot ${dotClass(s.state)}"></i><span class="session-tab-title">${esc(s.short)}</span><span class="tab-close" data-close="${id}" aria-label="Close tab">×</span></button>`;
+    }).join('')+`<button class="tab-plus" id="tabPlus" title="New session">＋</button>`;
+    tabsEl.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',e=>{if(e.target.dataset.close)return;openSession(b.dataset.tab);}));
+    tabsEl.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();closeTab(b.dataset.close);}));
+    document.getElementById('tabPlus').addEventListener('click',createNewSession);
+  }
+
+  function openSession(id){
+    if(!openSessionIds.includes(id))openSessionIds.push(id);
+    activeSessionId=id;renderAll();
+  }
+  function closeTab(id){
+    if(openSessionIds.length===1)return showToast('Keep at least one session tab open.');
+    openSessionIds=openSessionIds.filter(x=>x!==id);
+    if(activeSessionId===id)activeSessionId=openSessionIds[openSessionIds.length-1];
+    renderAll();
+  }
+  function createNewSession(){
+    const id='new-'+Date.now();
+    sessions.unshift({id,title:'Untitled session',short:'New session',state:'working',stateText:'Draft',group:'Active',attentionCount:0,profile:'AUTO',project:'square-orchestrator',branch:'not created',pr:'No PR',started:'just now',view:'workbench',selectedDock:null,summary:{working:0,waiting:0,review:0,done:0},attention:null,workflow:[],currentNote:'Describe the outcome to begin',messages:[],docks:[],tasks:[],criteria:[],history:[]});
+    openSessionIds.push(id);activeSessionId=id;renderAll();
+    setTimeout(()=>document.getElementById('emptyTask')?.focus(),50);
+  }
+
+  function stateLabel(s){ return `<span class="state-label ${statusClass(s.state)}"><i class="dot ${dotClass(s.state)}"></i>${esc(s.stateText)}</span>`; }
+  function renderAttention(s){
+    if(!s.attention)return '';
+    return `<div class="attention ${s.attention.kind==='needs'?'needs':''}">
+      <div class="attention-label">${esc(s.attention.label)}</div>
+      <div><strong>Problem</strong><p>${esc(s.attention.problem)}</p></div>
+      <div class="solution"><strong>Suggested solution</strong><p>${esc(s.attention.solution)}</p></div>
+      <div class="attention-actions">${s.attention.actions.map((a,i)=>`<button class="btn small ${i===0?'primary':''} ${a.includes('Stop')?'danger':''}" data-attention-action="${i}">${esc(a)}</button>`).join('')}</div>
+    </div>`;
+  }
+  function renderHeader(s){
+    return `<header class="session-header">
+      <div class="session-heading"><div class="session-title-row"><div class="session-title">${esc(s.title)}</div>${stateLabel(s)}</div><div class="session-meta">${esc(s.project)} · ${esc(s.profile)} · ${esc(s.branch)} · ${esc(s.pr)} · started ${esc(s.started)}</div></div>
+      <div class="session-pulse"><span class="pulse-item"><i class="dot work"></i><strong>${s.summary.working}</strong> working</span><span class="pulse-item"><i class="dot bad"></i><strong>${s.summary.waiting}</strong> waiting</span><span class="pulse-item"><i class="dot review"></i><strong>${s.summary.review}</strong> review</span><span class="pulse-item"><i class="dot good"></i><strong>${s.summary.done}</strong> done</span></div>
+      <div class="session-actions"><button class="btn small hide-small" data-session-action="pause">Ⅱ Pause</button><button class="btn small hide-small" data-session-action="history">History</button><button class="btn small danger" data-session-action="stop">Stop</button></div>
+    </header>`;
+  }
+  function renderNav(s){
+    return `<nav class="session-nav" aria-label="Session views">${[['workbench','Workbench'],['conversation','Conversation'],['plan','Plan & review'],['history','History']].map(([v,l])=>`<button class="session-view-btn ${s.view===v?'active':''}" data-view="${v}">${l}</button>`).join('')}</nav>`;
+  }
+  function renderMessages(s,full=false){
+    return s.messages.map(m=>`<article class="message ${m.kind}"><div class="message-head"><span class="message-role"><i class="dot ${m.kind==='user'?'work':m.kind==='task-manager'?'good':m.kind==='system'?'warn':'review'}"></i>${esc(m.role)}</span><time>${esc(m.time)}</time></div><div class="message-body">${esc(m.body)}</div></article>`).join('') || `<div style="color:var(--muted);padding:8px">This session has no messages yet.</div>`;
+  }
+  function renderWorkflowStrip(s){
+    return `<div class="workflow-strip">${s.workflow.map(([name,state])=>`<div class="workflow-step ${state}"><i class="dot ${state==='done'?'good':state==='current'?'work':''}"></i>${esc(name)}</div>`).join('')}<span class="workflow-spacer"></span><span class="workflow-note">${esc(s.currentNote)}</span></div>`;
+  }
+  function renderDockBody(d){
+    if(d.bodyType==='summary')return `<dl class="dock-summary">${d.summary.map(([k,v])=>`<div class="dock-summary-row"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
+    return `<pre class="terminal-output">${d.lines}</pre>`;
+  }
+  function renderDock(d,s){
+    return `<section class="dock span-${d.span} ${d.id===s.selectedDock?'selected':''}" data-dock="${d.id}">
+      <header class="dock-head"><span class="dock-role">${esc(d.role)}</span><span class="dock-title">${esc(d.title)}</span><span class="dock-head-spacer"></span><span class="state-label ${statusClass(d.state)}"><i class="dot ${dotClass(d.state)}"></i>${esc(d.stateText)}</span><span class="dock-tools"><button class="dock-tool" data-focus-dock="${d.id}" title="Focus terminal">□</button><button class="dock-tool" data-dock-history="${d.id}" title="Open history">⋯</button></span></header>
+      <div class="dock-meta"><span>${esc(d.route)} · ${esc(d.model)}</span><span>${esc(d.process)}</span><span>${esc(d.worktree)}</span></div>
+      ${renderDockBody(d)}
+      <footer class="dock-footer"><span>${esc(d.footer)}</span><span class="progress"><i style="width:${d.progress}%"></i></span><span>${d.progress}%</span></footer>
+    </section>`;
+  }
+  function renderWorkbench(s){
+    if(!s.docks.length)return `<div class="empty-workflow"><div class="empty-inner"><h2>Start a new Square session</h2><p>Describe the result you want as naturally as you would in a chat. Square will create the task manager, planning and agent workflow inside this session only.</p><div class="empty-composer"><textarea id="emptyTask" placeholder="Example: Review the AO fork and implement a session-focused workspace without changing the daemon lifecycle."></textarea><button class="btn primary" id="startEmptySession">Start session</button></div></div></div>`;
+    return `<div class="workbench">
+      <section class="thread-pane"><div class="pane-heading"><span>Session conversation</span><span style="color:var(--muted)">${s.messages.length} messages</span></div><div class="thread">${renderMessages(s)}</div><div class="composer"><textarea id="sessionComposer" placeholder="Message this session, change scope, answer a question…"></textarea><div class="composer-footer"><div class="quick-actions"><button class="btn small ghost" data-quick="status">Ask status</button><button class="btn small ghost" data-quick="scope">Change scope</button><button class="btn small ghost" data-quick="validate">Run checks</button></div><button class="btn small primary" id="sendSessionMessage">Send</button></div></div></section>
+      <section class="workflow-pane">${renderWorkflowStrip(s)}<div class="dock-scroll"><div class="dock-grid">${s.docks.map(d=>renderDock(d,s)).join('')}</div></div></section>
+    </div>`;
+  }
+  function renderConversation(s){
+    return `<div class="conversation-view"><div class="conversation-layout"><section class="conversation-card"><div class="pane-heading"><span>${esc(s.title)}</span><span>${esc(s.profile)} workflow</span></div><div class="thread">${renderMessages(s,true)}</div></section><div class="composer"><textarea id="sessionComposer" placeholder="Continue this session…"></textarea><div class="composer-footer"><span style="color:var(--muted)">Messages become durable session instructions.</span><button class="btn primary" id="sendSessionMessage">Send to session</button></div></div></div></div>`;
+  }
+  function renderPlan(s){
+    return `<div class="plan-view"><div class="plan-layout"><section class="plan-card"><div class="plan-card-head"><span>Task plan</span><span>${s.tasks.length} tasks</span></div><div class="plan-card-body">${s.tasks.map(t=>`<div class="task-row"><span class="task-id">${esc(t[0])}</span><span>${esc(t[1])}</span><span class="task-status state-label ${t[2]==='DONE'?'done':t[2].includes('BLOCK')||t[2].includes('NEEDS')?'blocked':t[2].includes('REVIEW')?'review':'working'}">${esc(t[2])}</span></div>`).join('')||'<p style="color:var(--muted)">No plan compiled yet.</p>'}</div></section><section class="plan-card"><div class="plan-card-head"><span>Acceptance & review</span><span>immutable result boundary</span></div><div class="plan-card-body">${s.criteria.map(c=>`<div class="criteria-row"><span class="task-id">${esc(c[0])}</span><span>${esc(c[1])}</span><span class="state-label ${c[2]==='PASS'?'done':c[2]==='FAIL'?'needs':'working'}">${esc(c[2])}</span></div>`).join('')||'<p style="color:var(--muted)">Acceptance criteria will appear after planning.</p>'}</div></section></div></div>`;
+  }
+  function renderHistory(s){
+    return `<div class="history-view"><div class="history-list"><div class="plan-card-head"><span>Durable session history</span><span>terminals remain attached to this session</span></div>${s.history.map(h=>`<div class="history-row"><span class="history-time">${esc(h[0])}</span><span class="history-kind">${esc(h[1])}</span><span>${esc(h[2])}</span><button class="btn small ghost">Open evidence</button></div>`).join('')||'<div style="padding:14px;color:var(--muted)">No history yet.</div>'}</div></div>`;
+  }
+  function renderContent(s){
+    if(s.view==='conversation')return renderConversation(s);
+    if(s.view==='plan')return renderPlan(s);
+    if(s.view==='history')return renderHistory(s);
+    return renderWorkbench(s);
+  }
+
+  function renderSession(){
+    const s=sessionById(activeSessionId);
+    rootEl.innerHTML=renderHeader(s)+renderAttention(s)+renderNav(s)+`<div class="session-content">${renderContent(s)}</div>`;
+    rootEl.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{s.view=b.dataset.view;renderSession();}));
+    rootEl.querySelectorAll('[data-session-action]').forEach(b=>b.addEventListener('click',()=>{
+      if(b.dataset.sessionAction==='history'){s.view='history';renderSession();}
+      else if(b.dataset.sessionAction==='pause')showToast('Dispatch paused for this session only. Running agent processes continue safely.');
+      else showToast('Stop requires an explicit confirmation in the production interface.');
+    }));
+    rootEl.querySelectorAll('[data-attention-action]').forEach(b=>b.addEventListener('click',()=>resolveAttention(s,Number(b.dataset.attentionAction))));
+    rootEl.querySelectorAll('[data-dock]').forEach(d=>d.addEventListener('click',e=>{if(e.target.closest('button'))return;s.selectedDock=d.dataset.dock;renderSession();}));
+    rootEl.querySelectorAll('[data-focus-dock]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openFocus(s,b.dataset.focusDock);}));
+    rootEl.querySelectorAll('[data-dock-history]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();s.view='history';renderSession();}));
+    rootEl.querySelectorAll('[data-quick]').forEach(b=>b.addEventListener('click',()=>{const c=document.getElementById('sessionComposer');if(c)c.value=b.dataset.quick==='status'?'Give me a concise status: progress, blockers, decisions and next step.':b.dataset.quick==='scope'?'I need to amend the scope: ': 'Run the currently authorized targeted checks and report only failures.';}));
+    document.getElementById('sendSessionMessage')?.addEventListener('click',()=>sendMessage(s));
+    document.getElementById('startEmptySession')?.addEventListener('click',()=>startEmpty(s));
+  }
+
+  function resolveAttention(s,index){
+    const action=s.attention?.actions[index];if(!action)return;
+    if(action.includes('Stop'))return showToast('The production action would show the exact stop scope before confirmation.');
+    s.messages.push({role:'You',kind:'user',time:'now',body:`Decision: ${action}.`});
+    s.messages.push({role:'Task Manager',kind:'task-manager',time:'now',body:`Decision acknowledged. The affected task has resumed; all other session history remains unchanged.`});
+    s.attention=null;s.attentionCount=0;s.state='working';s.stateText='Working';s.group='Active';
+    const affected=s.docks.find(d=>d.state==='needs'||d.state==='blocked');if(affected){affected.state='working';affected.stateText='Working';affected.footer='resumed after owner decision';affected.lines=(affected.lines||'')+'\n<span class="ok">owner decision acknowledged · resuming</span>';}
+    s.summary.waiting=0;s.summary.working=Math.max(1,s.summary.working+1);s.history.push(['now','decision',action+' accepted']);
+    renderAll();showToast(action+' — session resumed.');
+  }
+  function sendMessage(s){
+    const c=document.getElementById('sessionComposer');if(!c||!c.value.trim())return;
+    const text=c.value.trim();s.messages.push({role:'You',kind:'user',time:'now',body:text});s.messages.push({role:'Task Manager',kind:'task-manager',time:'now',body:'Instruction recorded for this session. I will amend only the affected task or open a decision if it changes architecture or scope.'});s.history.push(['now','instruction','User message added to session']);c.value='';renderSession();showToast('Message added to '+s.short+'.');
+  }
+  function startEmpty(s){
+    const c=document.getElementById('emptyTask');if(!c||!c.value.trim())return;
+    const text=c.value.trim();s.title=text.length>54?text.slice(0,54)+'…':text;s.short=s.title;s.profile='AUTO → PLANNED';s.branch='not created';s.state='working';s.stateText='Planning';s.messages=[{role:'You',kind:'user',time:'now',body:text},{role:'Task Manager',kind:'task-manager',time:'now',body:'Session created. I am compiling the Task Brief and deciding whether planning or a direct QUICK worker is appropriate.'}];s.workflow=[['Task manager','current'],['Planner','wait'],['Orchestrator','wait'],['Workers','wait'],['Review','wait']];s.currentNote='Intake and triage';s.summary={working:1,waiting:0,review:0,done:0};s.docks=[{id:'new-manager',span:12,role:'Task Manager',title:'Compile Task Brief and workflow profile',state:'working',stateText:'Running',route:'Square deterministic service',model:'No model',process:'svc · new workflow',worktree:'no worktree yet',progress:12,bodyType:'terminal',lines:'[now] user task accepted\n[now] canonical project context loaded\n[now] evaluating scope, risk and context need\n<span class="info">→ workflow will appear in this session</span>',footer:'intake · no writer active'}];s.tasks=[];s.criteria=[];s.history=[['now','request','Session created from chat task'],['now','triage','Task Brief compilation started']];renderAll();showToast('Session workflow started.');
+  }
+  function openFocus(s,dockId){
+    const d=s.docks.find(x=>x.id===dockId);if(!d)return;
+    overlay.innerHTML=`<header class="dock-head"><span class="dock-role">${esc(d.role)}</span><span class="dock-title">${esc(d.title)}</span><span class="dock-head-spacer"></span>${stateLabel({state:d.state,stateText:d.stateText})}<button class="btn small" id="closeFocus">Close</button></header><div class="dock-meta"><span>${esc(d.route)} · ${esc(d.model)}</span><span>${esc(d.process)}</span><span>${esc(d.worktree)}</span></div>${renderDockBody(d)}<footer class="dock-footer"><span>${esc(d.footer)}</span><span class="progress"><i style="width:${d.progress}%"></i></span><span>${d.progress}%</span></footer>`;
+    overlay.classList.add('open');document.getElementById('closeFocus').addEventListener('click',()=>overlay.classList.remove('open'));
+  }
+  function renderAll(){ renderList();renderTabs();renderSession();updateGlobal(); }
+  function updateGlobal(){ const active=sessions.reduce((n,s)=>n+s.summary.working+s.summary.waiting+s.summary.review,0);const att=sessions.reduce((n,s)=>n+s.attentionCount,0);document.getElementById('globalActive').textContent=active+' active processes';document.getElementById('globalAttention').textContent=att+' need you'; }
+
+  document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;renderList();}));
+  document.getElementById('sessionSearch').addEventListener('input',e=>{search=e.target.value;renderList();});
+  document.getElementById('newSessionTop').addEventListener('click',createNewSession);
+  document.getElementById('newSessionSide').addEventListener('click',createNewSession);
+  document.getElementById('themeToggle').addEventListener('click',()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';});
+  document.addEventListener('keydown',e=>{
+    if(e.ctrlKey&&e.key.toLowerCase()==='n'){e.preventDefault();createNewSession();}
+    if(e.ctrlKey&&['1','2','3','4'].includes(e.key)){e.preventDefault();const s=sessionById(activeSessionId);s.view=['workbench','conversation','plan','history'][Number(e.key)-1];renderSession();}
+    if(e.key==='Escape')overlay.classList.remove('open');
+  });
+  renderAll();
+})();
+</script>
+</body>
+</html>

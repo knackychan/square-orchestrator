@@ -1,0 +1,23 @@
+{
+  "schema_version": "square.new-session/v1",
+  "project_id": "PRJ_EXAMPLE",
+  "title": "Implement project memory promotion",
+  "message": "Add owner-controlled promotion from project memory candidates to global memory, with provenance and rollback.",
+  "workflow_profile": "AUTO",
+  "quality_preset": "BALANCED",
+  "role_overrides": {
+    "PLANNER": {
+      "selection": "PINNED",
+      "route": "claude-code/opus-planning"
+    },
+    "WORKER": {
+      "selection": "AUTO",
+      "route_class": "coding"
+    },
+    "REVIEWER": {
+      "selection": "AUTO",
+      "independence": "DIFFERENT_MODEL_FAMILY"
+    }
+  },
+  "idempotency_key": "REPLACE_WITH_GENERATED_ID"
+}

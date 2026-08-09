@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0",
+  "decision_id": "SP02-T01-SQLITE-DEP-001",
+  "decision": "BLOCKED",
+  "reviewed_utc": "<FILL_CANONICAL_UTC>",
+  "starting_commit": "<FILL>",
+  "authority_hashes": {},
+  "environment": {
+    "windows_product": "<FILL>",
+    "windows_build": "<FILL>",
+    "architecture": "x64",
+    "elevated": false,
+    "dotnet_sdk": "10.0.302",
+    "target_framework": "net10.0",
+    "runtime_identifier": "win-x64"
+  },
+  "direct_packages": [
+    {
+      "id": "Microsoft.Data.Sqlite.Core",
+      "version": "10.0.10",
+      "role": "managed ADO.NET provider",
+      "license": "MIT",
+      "source": "nuget.org",
+      "sha256": "sha256:<FILL>",
+      "nuget_content_hash": "<FILL>",
+      "signature_result": "<FILL>"
+    },
+    {
+      "id": "SQLitePCLRaw.config.e_sqlite3",
+      "version": "3.0.5",
+      "role": "provider configuration/initialization",
+      "license": "Apache-2.0",
+      "source": "nuget.org",
+      "sha256": "sha256:<FILL>",
+      "nuget_content_hash": "<FILL>",
+      "signature_result": "<FILL>"
+    },
+    {
+      "id": "SourceGear.sqlite3",
+      "version": "3.53.4",
+      "role": "native SQLite builds",
+      "license": "SQLite is Public Domain",
+      "source": "nuget.org",
+      "sha256": "sha256:<FILL>",
+      "nuget_content_hash": "<FILL>",
+      "signature_result": "<FILL>"
+    }
+  ],
+  "transitive_packages": [
+    {
+      "id": "SQLitePCLRaw.provider.e_sqlite3",
+      "version": "3.0.5",
+      "license": "Apache-2.0",
+      "sha256": "sha256:<FILL>",
+      "nuget_content_hash": "<FILL>",
+      "signature_result": "<FILL>"
+    },
+    {
+      "id": "SQLitePCLRaw.core",
+      "version": "3.0.5",
+      "license": "Apache-2.0",
+      "sha256": "sha256:<FILL>",
+      "nuget_content_hash": "<FILL>",
+      "signature_result": "<FILL>"
+    }
+  ],
+  "unexpected_packages": [],
+  "forbidden_packages_present": [],
+  "lock_files": [
+    {
+      "path": "tests/Persistence.Tests/packages.lock.json",
+      "sha256": "sha256:<FILL>",
+      "locked_restore_passed": false,
+      "negative_drift_test_passed": false
+    }
+  ],
+  "nuget_audit": {
+    "enabled": true,
+    "mode": "all",
+    "level": "low",
+    "audit_source": "nuget.org",
+    "warnings": [],
+    "report_sha256": "sha256:<FILL>"
+  },
+  "advisory_review": {
+    "reviewed_utc": "<FILL>",
+    "cve_2025_6965_excluded": false,
+    "selected_versions_have_known_advisories": null,
+    "sources": []
+  },
+  "native_assets": [
+    {
+      "package": "SourceGear.sqlite3@3.53.4",
+      "rid": "win-x64",
+      "path_in_package": "<FILL>",
+      "published_path": "<FILL>",
+      "pe_architecture": "x64",
+      "byte_length": 0,
+      "sha256": "sha256:<FILL>",
+      "loaded_runtime_version": "<FILL>"
+    }
+  ],
+  "runtime": {
+    "sqlite_version": "<FILL>",
+    "batteries_init_passed": false,
+    "json_valid_passed": false,
+    "foreign_keys_passed": false,
+    "wal_passed": false,
+    "transaction_commit_rollback_passed": false,
+    "integrity_check_passed": false,
+    "online_backup_passed": false,
+    "framework_dependent_run_passed": false,
+    "self_contained_win_x64_run_passed": false
+  },
+  "license_review_complete": false,
+  "package_content_review_complete": false,
+  "evidence_directory": "<FILL>",
+  "evidence_manifest_sha256": "sha256:<FILL>",
+  "known_risks": [],
+  "conditions": [],
+  "technical_recommendation": "BLOCKED",
+  "reviewer": "<FILL>",
+  "reviewer_approval": false
+}

@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="referrer" content="no-referrer">
+<title>Square Orchestrator — Hierarchical Agent Fleet</title>
+<style>
+:root {
+  --bg: #f5f5f5;
+  --panel: #ffffff;
+  --panel-2: #f1f1f1;
+  --panel-3: #e9e9e9;
+  --terminal: #fbfbfb;
+  --terminal-text: #212121;
+  --border: #d8d8d8;
+  --border-strong: #b8b8b8;
+  --text: #222222;
+  --muted: #6f6f6f;
+  --dim: #969696;
+  --accent: #1677d2;
+  --accent-soft: #e5f2ff;
+  --good: #19743c;
+  --good-bg: #e8f5ec;
+  --work: #1268a8;
+  --work-bg: #e5f2fb;
+  --warn: #8b6200;
+  --warn-bg: #fff3cd;
+  --bad: #b3261e;
+  --bad-bg: #fde8e7;
+  --review: #6e4d9b;
+  --review-bg: #f1eafa;
+  --done: #41624b;
+  --done-bg: #edf4ef;
+  --mono: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --nav-w: 205px;
+  --rail-w: 310px;
+  --top-h: 38px;
+  --sub-h: 38px;
+  --status-h: 24px;
+}
+html[data-theme="dark"] {
+  --bg: #1b1b1c;
+  --panel: #252526;
+  --panel-2: #2d2d30;
+  --panel-3: #36363a;
+  --terminal: #111418;
+  --terminal-text: #d7dce2;
+  --border: #3d3d40;
+  --border-strong: #5a5a5e;
+  --text: #dedede;
+  --muted: #a2a2a5;
+  --dim: #77777c;
+  --accent: #75b8f3;
+  --accent-soft: #17364c;
+  --good: #8ad29b;
+  --good-bg: #173d26;
+  --work: #78bff2;
+  --work-bg: #173449;
+  --warn: #f0c66e;
+  --warn-bg: #4a3c18;
+  --bad: #ff8b82;
+  --bad-bg: #4b2422;
+  --review: #c2a5ea;
+  --review-bg: #382b4d;
+  --done: #9fc5aa;
+  --done-bg: #25382b;
+}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { color: var(--text); background: var(--bg); font: 12px/1.35 var(--sans); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+}
+code, pre, .mono { font-family: var(--mono); }
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: var(--top-h) var(--sub-h) minmax(0,1fr) var(--status-h);
+  background: var(--bg);
+}
+.topbar, .subbar, .statusbar {
+  display: flex; align-items: center; min-width: 0;
+  border-bottom: 1px solid var(--border); background: var(--panel);
+}
+.topbar { padding: 0 8px; gap: 8px; }
+.brand { display: flex; align-items: center; gap: 7px; font-weight: 650; white-space: nowrap; }
+.brand-mark {
+  width: 16px; height: 16px; display: grid; grid-template-columns: repeat(2,1fr); gap: 2px;
+}
+.brand-mark i { border: 1px solid currentColor; display: block; }
+.project-select, .command-input {
+  height: 27px; border: 1px solid var(--border-strong); background: var(--panel-2); border-radius: 3px;
+}
+.project-select { width: 205px; padding: 0 24px 0 7px; }
+.command-input { min-width: 220px; flex: 1 1 auto; padding: 0 9px; }
+.btn {
+  min-height: 27px; padding: 0 9px; border: 1px solid var(--border-strong); border-radius: 3px;
+  background: var(--panel); white-space: nowrap;
+}
+.btn:hover { background: var(--panel-2); }
+.btn.primary { color: white; background: var(--accent); border-color: var(--accent); }
+html[data-theme="dark"] .btn.primary { color: #101214; }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.small { min-height: 23px; padding: 0 7px; }
+.btn.danger { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, var(--border)); }
+.toolbar-spacer { flex: 1; }
+.view-switch { display: flex; align-self: stretch; border-left: 1px solid var(--border); }
+.view-switch button {
+  border: 0; border-right: 1px solid var(--border); padding: 0 12px; background: transparent; color: var(--muted);
+}
+.view-switch button[aria-pressed="true"] { background: var(--panel-2); color: var(--text); box-shadow: inset 0 -2px var(--accent); }
+.theme-button { width: 29px; padding: 0; }
+.subbar { padding: 0 8px; gap: 6px; }
+.subbar-label { margin-right: 4px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.filter {
+  height: 25px; display: inline-flex; align-items: center; gap: 6px; padding: 0 8px;
+  border: 1px solid var(--border); border-radius: 3px; background: var(--panel); color: var(--muted);
+}
+.filter[aria-pressed="true"] { color: var(--text); border-color: var(--border-strong); background: var(--panel-2); }
+.filter .count { font: 600 10px var(--mono); }
+.filter.needs .count { color: var(--warn); }
+.filter.blocked .count { color: var(--bad); }
+.filter.working .count { color: var(--work); }
+.filter.review .count { color: var(--review); }
+.filter.done .count { color: var(--good); }
+.global-note { margin-left: auto; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shell {
+  min-height: 0; display: grid; grid-template-columns: var(--nav-w) minmax(0,1fr) var(--rail-w);
+}
+.navigator, .attention-rail { min-height: 0; overflow: auto; background: var(--panel); }
+.navigator { border-right: 1px solid var(--border); }
+.attention-rail { border-left: 1px solid var(--border); }
+.panel-title {
+  height: 29px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 0 9px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 10px;
+  text-transform: uppercase; letter-spacing: .07em; position: sticky; top: 0; background: var(--panel); z-index: 3;
+}
+.nav-section { padding: 8px 8px 4px; color: var(--dim); font-size: 9px; text-transform: uppercase; letter-spacing: .11em; }
+.nav-item {
+  width: 100%; min-height: 27px; display: flex; align-items: center; gap: 7px; padding: 0 9px;
+  border: 0; background: transparent; text-align: left; color: var(--muted);
+}
+.nav-item:hover { background: var(--panel-2); color: var(--text); }
+.nav-item.active { color: var(--text); background: var(--accent-soft); box-shadow: inset 2px 0 var(--accent); }
+.nav-item .nav-count { margin-left: auto; font: 10px var(--mono); color: var(--dim); }
+.nav-tree { margin: 0; padding: 0 0 7px; list-style: none; }
+.nav-tree .nav-item { padding-left: 11px; }
+.nav-tree .child { padding-left: 28px; font-size: 11px; }
+.nav-tree .child::before { content: "↳"; color: var(--dim); margin-left: -14px; width: 9px; }
+.nav-state { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex: 0 0 auto; }
+.nav-state.needs { background: var(--warn); }
+.nav-state.blocked { background: var(--bad); }
+.nav-state.working { background: var(--work); }
+.nav-state.review { background: var(--review); }
+.nav-state.done { background: var(--good); }
+.canvas { min-width: 0; min-height: 0; overflow: auto; padding: 8px; background: var(--bg); }
+.view { display: none; min-height: 100%; }
+.view.active { display: block; }
+.fleet-grid {
+  min-height: calc(100% - 118px); display: grid; gap: 8px;
+  grid-template-columns: minmax(560px, 1.55fr) minmax(390px, 1fr);
+  grid-template-rows: minmax(340px, 1.2fr) minmax(245px, .82fr);
+  grid-template-areas: "ui win" "ui standalone";
+}
+.mission {
+  min-width: 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--border-strong);
+  background: var(--panel); border-radius: 4px; overflow: hidden;
+}
+.mission[data-mission="ui"] { grid-area: ui; }
+.mission[data-mission="win"] { grid-area: win; }
+.mission[data-mission="standalone"] { grid-area: standalone; }
+.mission-header {
+  min-height: 48px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center;
+  padding: 6px 8px; border-bottom: 1px solid var(--border-strong); background: var(--panel-2);
+}
+.mission-title { min-width: 0; }
+.mission-title strong { display: block; font-size: 12px; }
+.mission-goal { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mission-summary { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+.summary-token { padding: 2px 5px; border: 1px solid var(--border); border-radius: 2px; background: var(--panel); font: 9px var(--mono); }
+.mission-body { min-height: 0; flex: 1; padding: 6px; overflow: auto; }
+.mission-body.ui-layout { display: grid; grid-template-rows: minmax(158px,.9fr) minmax(195px,1fr); gap: 6px; }
+.children-3 { min-height: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
+.mission-body.win-layout { display: grid; grid-template-rows: minmax(134px,.9fr) minmax(122px,1fr); gap: 6px; }
+.children-2 { min-height: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+.standalone-layout { min-height: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+.agent {
+  min-width: 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--border);
+  background: var(--panel); border-radius: 3px; overflow: hidden; position: relative;
+}
+.agent:hover { border-color: var(--border-strong); }
+.agent.selected { box-shadow: inset 0 0 0 1px var(--accent); border-color: var(--accent); }
+.agent[data-status="needs"] { border-left: 3px solid var(--warn); }
+.agent[data-status="blocked"] { border-left: 3px solid var(--bad); }
+.agent[data-status="working"] { border-left: 3px solid var(--work); }
+.agent[data-status="review"] { border-left: 3px solid var(--review); }
+.agent[data-status="done"] { border-left: 3px solid var(--good); }
+.agent-header {
+  min-height: 43px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 6px; align-items: start;
+  padding: 5px 6px; border-bottom: 1px solid var(--border); background: var(--panel-2);
+}
+.agent.is-child .agent-header::before { content: "SUBAGENT"; position: absolute; right: 6px; top: 27px; color: var(--dim); font: 8px var(--mono); letter-spacing: .08em; }
+.agent-role { min-width: 0; }
+.agent-role strong { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.agent-task { color: var(--muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.state {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 5px; border: 1px solid currentColor;
+  border-radius: 2px; font: 600 8px var(--mono); letter-spacing: .04em; white-space: nowrap;
+}
+.state::before { content: "●"; font-size: 7px; }
+.state.needs { color: var(--warn); background: var(--warn-bg); }
+.state.blocked { color: var(--bad); background: var(--bad-bg); }
+.state.working { color: var(--work); background: var(--work-bg); }
+.state.review { color: var(--review); background: var(--review-bg); }
+.state.done { color: var(--good); background: var(--good-bg); }
+.state.queued { color: var(--muted); background: var(--panel); }
+.agent-meta {
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 4px 6px; border-bottom: 1px solid var(--border);
+  color: var(--muted); font: 9px var(--mono);
+}
+.agent-meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.terminal-preview {
+  min-height: 0; flex: 1; margin: 0; padding: 6px 7px; overflow: hidden; white-space: pre-wrap;
+  background: var(--terminal); color: var(--terminal-text); font: 10px/1.45 var(--mono);
+}
+.terminal-preview .ok { color: var(--good); }
+.terminal-preview .warn { color: var(--warn); }
+.terminal-preview .bad { color: var(--bad); }
+.terminal-preview .dim { color: var(--dim); }
+.insight {
+  padding: 5px 6px; border-top: 1px solid var(--border); background: var(--panel-2); font-size: 10px;
+}
+.insight strong { display: block; margin-bottom: 1px; }
+.insight.recommend { background: var(--warn-bg); color: var(--text); }
+.insight.blocker { background: var(--bad-bg); }
+.insight.done { background: var(--good-bg); }
+.agent-footer {
+  min-height: 25px; display: flex; align-items: center; gap: 6px; padding: 0 6px; border-top: 1px solid var(--border);
+  color: var(--muted); font: 9px var(--mono); background: var(--panel);
+}
+.agent-footer .push { margin-left: auto; }
+.agent-footer button { min-height: 20px; padding: 0 5px; font-size: 9px; }
+.parent-agent .terminal-preview { font-size: 10.5px; }
+.global-events { margin-top: 8px; border: 1px solid var(--border-strong); background: var(--panel); border-radius: 4px; overflow: hidden; }
+.events-header { height: 28px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; border-bottom: 1px solid var(--border); background: var(--panel-2); }
+.event-row { display: grid; grid-template-columns: 62px 78px minmax(0,1fr) 120px; gap: 7px; align-items: center; min-height: 25px; padding: 0 8px; border-bottom: 1px solid var(--border); }
+.event-row:last-child { border-bottom: 0; }
+.event-row time, .event-id { font: 9px var(--mono); color: var(--muted); }
+.event-kind { font: 8px var(--mono); }
+.attention-rail .rail-section { border-bottom: 1px solid var(--border-strong); }
+.rail-heading { height: 30px; display: flex; align-items: center; justify-content: space-between; padding: 0 9px; background: var(--panel-2); border-bottom: 1px solid var(--border); font-weight: 650; }
+.rail-heading .rail-count { font: 10px var(--mono); color: var(--muted); }
+.decision { padding: 8px 9px; border-bottom: 1px solid var(--border); }
+.decision:last-child { border-bottom: 0; }
+.decision.needs { box-shadow: inset 3px 0 var(--warn); }
+.decision.blocked { box-shadow: inset 3px 0 var(--bad); }
+.decision.done { box-shadow: inset 3px 0 var(--good); }
+.decision-meta { color: var(--muted); font: 9px var(--mono); margin-bottom: 3px; }
+.decision strong { display: block; margin-bottom: 3px; }
+.decision p { margin: 0 0 5px; color: var(--muted); }
+.solution { padding: 5px 6px; margin: 5px 0; border: 1px solid var(--border); background: var(--panel-2); color: var(--text) !important; }
+.decision-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+.compact-outcome { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 6px; align-items: start; }
+.selected-panel { padding: 8px 9px; }
+.selected-panel dl { margin: 0; }
+.selected-panel dl div { display: grid; grid-template-columns: 76px minmax(0,1fr); gap: 6px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.selected-panel dt { color: var(--muted); }
+.selected-panel dd { margin: 0; overflow-wrap: anywhere; }
+.statusbar {
+  border-top: 1px solid var(--border-strong); border-bottom: 0; padding: 0 8px; gap: 16px; color: var(--muted); font: 9px var(--mono);
+}
+.statusbar span { white-space: nowrap; }
+.statusbar .right { margin-left: auto; }
+.hidden-by-filter { display: none !important; }
+.mission.all-hidden { display: none !important; }
+/* Terminal wall */
+.terminal-wall { display: grid; grid-template-columns: repeat(3,minmax(300px,1fr)); grid-auto-rows: minmax(250px,1fr); gap: 8px; }
+.wall-terminal { border: 1px solid var(--border-strong); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+.wall-terminal .agent-header { flex: 0 0 auto; }
+.wall-terminal .terminal-preview { min-height: 185px; }
+/* Review board */
+.review-board { min-height: 100%; display: grid; grid-template-columns: repeat(5,minmax(210px,1fr)); gap: 8px; }
+.board-column { min-width: 0; border: 1px solid var(--border-strong); background: var(--panel); border-radius: 4px; overflow: hidden; }
+.board-header { min-height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; border-bottom: 1px solid var(--border-strong); background: var(--panel-2); font-weight: 650; }
+.board-card { margin: 6px; padding: 7px; border: 1px solid var(--border); background: var(--panel); border-radius: 3px; }
+.board-card:hover { border-color: var(--border-strong); }
+.board-card .card-group { color: var(--muted); font: 8px var(--mono); text-transform: uppercase; letter-spacing: .07em; }
+.board-card strong { display: block; margin: 3px 0; }
+.board-card .branch { color: var(--muted); font: 9px var(--mono); overflow-wrap: anywhere; }
+.board-card .card-stats { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.board-card .card-stats span { padding: 2px 4px; background: var(--panel-2); border: 1px solid var(--border); font: 8px var(--mono); }
+.board-card .card-activity { margin-top: 6px; color: var(--muted); }
+.empty-filter { display: none; padding: 28px; text-align: center; color: var(--muted); border: 1px dashed var(--border-strong); background: var(--panel); }
+@media (max-width: 1250px) {
+  :root { --rail-w: 280px; --nav-w: 180px; }
+  .fleet-grid { grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "ui" "win" "standalone"; }
+  .mission-body.ui-layout { grid-template-rows: auto auto; }
+  .children-3 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .terminal-wall { grid-template-columns: repeat(2,minmax(300px,1fr)); }
+  .review-board { grid-template-columns: repeat(3,minmax(220px,1fr)); }
+}
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 160px minmax(0,1fr); }
+  .attention-rail { display: none; }
+  .project-select { width: 150px; }
+  .children-3, .children-2, .standalone-layout { grid-template-columns: 1fr; }
+  .terminal-wall { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Square Orchestrator</div>
+    <select class="project-select" aria-label="Project">
+      <option>square-on-agent-orchestrator</option>
+      <option>content-manager</option>
+      <option>partner-portal</option>
+    </select>
+    <input class="command-input" aria-label="New request" value="Integrate Square workflows and memory into Agent Orchestrator" spellcheck="false">
+    <button class="btn primary" type="button">New request</button>
+    <div class="view-switch" role="group" aria-label="Workspace view">
+      <button type="button" data-view="fleet" aria-pressed="true">Fleet</button>
+      <button type="button" data-view="wall" aria-pressed="false">Terminal wall</button>
+      <button type="button" data-view="board" aria-pressed="false">Review board</button>
+    </div>
+    <button class="btn theme-button" id="themeButton" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
+  </header>
+
+  <div class="subbar" aria-label="Status filters">
+    <span class="subbar-label">At a glance</span>
+    <button class="filter all" data-filter="all" aria-pressed="true"><span>All</span><span class="count" data-count="all">9</span></button>
+    <button class="filter needs" data-filter="needs" aria-pressed="false"><span>Needs you</span><span class="count" data-count="needs">2</span></button>
+    <button class="filter blocked" data-filter="blocked" aria-pressed="false"><span>Blocked</span><span class="count" data-count="blocked">2</span></button>
+    <button class="filter working" data-filter="working" aria-pressed="false"><span>Working</span><span class="count" data-count="working">3</span></button>
+    <button class="filter review" data-filter="review" aria-pressed="false"><span>In review</span><span class="count" data-count="review">1</span></button>
+    <button class="filter done" data-filter="done" aria-pressed="false"><span>Done</span><span class="count" data-count="done">1</span></button>
+    <span class="global-note"><strong>2 decisions</strong> · 1 fix proposed · 3 worktrees writing · 0 unowned sessions</span>
+  </div>
+
+  <div class="shell">
+    <nav class="navigator" aria-label="Project navigation">
+      <div class="panel-title"><span>Navigator</span><span>REQ-031</span></div>
+      <div class="nav-section">Overview</div>
+      <button class="nav-item active" type="button" data-nav-filter="all"><span>▦</span>Fleet overview<span class="nav-count">9</span></button>
+      <button class="nav-item" type="button" data-nav-filter="needs"><span>!</span>Needs me<span class="nav-count">2</span></button>
+      <button class="nav-item" type="button" data-nav-filter="blocked"><span>×</span>Stuck / blocked<span class="nav-count">2</span></button>
+      <button class="nav-item" type="button" data-nav-filter="review"><span>◇</span>In review<span class="nav-count">1</span></button>
+      <button class="nav-item" type="button" data-nav-filter="done"><span>✓</span>Done recently<span class="nav-count">1</span></button>
+
+      <div class="nav-section">Orchestrated work</div>
+      <ul class="nav-tree">
+        <li><button class="nav-item" type="button" data-select-agent="orch-ui"><span class="nav-state needs"></span><strong>ORCH-UI</strong><span class="nav-count">4</span></button></li>
+        <li><button class="nav-item child" type="button" data-select-agent="ui-01"><span class="nav-state working"></span>UI Engineer</button></li>
+        <li><button class="nav-item child" type="button" data-select-agent="ui-02"><span class="nav-state needs"></span>Component Engineer</button></li>
+        <li><button class="nav-item child" type="button" data-select-agent="ui-rv"><span class="nav-state review"></span>Design Reviewer</button></li>
+        <li><button class="nav-item" type="button" data-select-agent="orch-win"><span class="nav-state blocked"></span><strong>ORCH-WIN</strong><span class="nav-count">3</span></button></li>
+        <li><button class="nav-item child" type="button" data-select-agent="win-01"><span class="nav-state blocked"></span>Lifecycle Engineer</button></li>
+        <li><button class="nav-item child" type="button" data-select-agent="win-qa"><span class="nav-state working"></span>Windows QA</button></li>
+      </ul>
+      <div class="nav-section">Standalone sessions</div>
+      <ul class="nav-tree">
+        <li><button class="nav-item" type="button" data-select-agent="mem-01"><span class="nav-state working"></span>Memory Curator</button></li>
+        <li><button class="nav-item" type="button" data-select-agent="doc-01"><span class="nav-state done"></span>Documentation</button></li>
+      </ul>
+      <div class="nav-section">Agent Orchestrator</div>
+      <button class="nav-item" type="button"><span>S</span>Sessions<span class="nav-count">9</span></button>
+      <button class="nav-item" type="button"><span>W</span>Worktrees<span class="nav-count">5</span></button>
+      <button class="nav-item" type="button"><span>P</span>Pull requests<span class="nav-count">3</span></button>
+      <button class="nav-item" type="button"><span>R</span>Review runs<span class="nav-count">2</span></button>
+    </nav>
+
+    <main class="canvas" id="canvas">
+      <section class="view active" data-view-panel="fleet" aria-label="Hierarchical agent fleet">
+        <div class="fleet-grid" id="fleetGrid">
+          <section class="mission" data-mission="ui">
+            <header class="mission-header">
+              <div class="mission-title">
+                <strong><span class="mono">ORCH-UI-01</span> · Product & UI Orchestrator</strong>
+                <div class="mission-goal">Mission: adapt Agent Orchestrator into the Square workflow workspace without losing its session board.</div>
+              </div>
+              <div class="mission-summary"><span class="summary-token">1 NEEDS YOU</span><span class="summary-token">1 WORKING</span><span class="summary-token">1 REVIEW</span><span class="summary-token">3 WORKTREES</span></div>
+            </header>
+            <div class="mission-body ui-layout">
+              <article class="agent parent-agent selected" tabindex="0" data-agent-id="orch-ui" data-status="needs" data-needs="true" data-role="Product Orchestrator" data-task="Coordinate Square UI and workflow integration" data-route="Claude Code · Opus" data-worktree="~/ao/square/orchestrator" data-branch="square/ui-orchestration" data-pr="No PR · coordination session">
+                <header class="agent-header">
+                  <div class="agent-role"><strong><span class="mono">ORCH-UI</span> · Product Orchestrator</strong><div class="agent-task">Coordinate Square UI and workflow integration</div></div>
+                  <span class="state needs">NEEDS YOU</span>
+                </header>
+                <div class="agent-meta"><span>Claude Code · Opus</span><span>project orchestrator</span><span>3 subagents</span><span>12:44</span></div>
+                <pre class="terminal-preview">[orchestrator] UI fleet canvas is ready for integration
+[ui-01] terminal hierarchy implemented · 18/18 tests
+[ui-02] dependency approval required for virtualized session list
+[ui-rv] 2 visual findings, neither blocks implementation
+<span class="warn">[decision] approve one reviewed dependency or use native overflow</span></pre>
+                <div class="insight recommend"><strong>Decision needed</strong>Recommended: approve <span class="mono">@tanstack/react-virtual</span> once. It is already used by AO patterns and avoids a custom list implementation.</div>
+                <footer class="agent-footer"><span>Square authority: task manager</span><span>AO session: ses_orch_ui</span><span class="push">WAITING</span><button class="btn small" type="button" data-action="approve-ui">Approve once</button></footer>
+              </article>
+
+              <div class="children-3">
+                <article class="agent is-child" tabindex="0" data-agent-id="ui-01" data-status="working" data-role="UI Engineer" data-task="Implement hierarchical fleet and terminal docks" data-route="Codex · GPT-5.6" data-worktree="wt_ui_fleet" data-branch="square/hierarchical-fleet" data-pr="#342 · 18/18 checks">
+                  <header class="agent-header"><div class="agent-role"><strong><span class="mono">UI-01</span> · UI Engineer</strong><div class="agent-task">Hierarchical fleet and docked terminals</div></div><span class="state working">WORKING</span></header>
+                  <div class="agent-meta"><span>Codex · GPT-5.6</span><span>writer</span><span>wt_ui_fleet</span></div>
+                  <pre class="terminal-preview">$ npm test -- fleet-workspace
+<span class="ok">✓</span> agent groups preserve hierarchy
+<span class="ok">✓</span> needs-you states remain visible
+… validating 200% scaling</pre>
+                  <footer class="agent-footer"><span>18/20 checks</span><span class="push">PR #342</span><button class="btn small" type="button" data-focus-agent="ui-01">Focus</button></footer>
+                </article>
+
+                <article class="agent is-child" tabindex="0" data-agent-id="ui-02" data-status="needs" data-needs="true" data-role="Component Engineer" data-task="Virtualize the AO session and worktree lists" data-route="OpenCode · Sonnet" data-worktree="wt_session_list" data-branch="square/session-list" data-pr="Draft · dependency gate">
+                  <header class="agent-header"><div class="agent-role"><strong><span class="mono">UI-02</span> · Component Engineer</strong><div class="agent-task">Virtualized AO session/worktree list</div></div><span class="state needs">NEEDS YOU</span></header>
+                  <div class="agent-meta"><span>OpenCode · Sonnet</span><span>writer queued</span><span>wt_session_list</span></div>
+                  <pre class="terminal-preview">[agent] list fixture reaches 1,800 rows
+[agent] custom scroll path fails keyboard test
+<span class="warn">[approval] add @tanstack/react-virtual</span>
+[agent] safe fallback: native overflow</pre>
+                  <div class="insight recommend"><strong>Best solution</strong>Approve once; preserve native overflow as fallback.</div>
+                  <footer class="agent-footer"><span>expires 14:32</span><span class="push">BLOCKS 1 TASK</span><button class="btn small" type="button" data-action="approve-ui">Approve</button></footer>
+                </article>
+
+                <article class="agent is-child" tabindex="0" data-agent-id="ui-rv" data-status="review" data-role="Design Reviewer" data-task="Review hierarchy, density, and glanceability" data-route="Claude Code · Sonnet" data-worktree="read-only baseline" data-branch="review/fleet-layout" data-pr="#342 · 2 findings">
+                  <header class="agent-header"><div class="agent-role"><strong><span class="mono">UI-RV</span> · Design Reviewer</strong><div class="agent-task">Hierarchy, density, and glanceability</div></div><span class="state review">IN REVIEW</span></header>
+                  <div class="agent-meta"><span>Claude · Sonnet</span><span>read-only</span><span>independent</span></div>
+                  <pre class="terminal-preview">[review] agent hierarchy is readable
+[review] action rail resolves click depth
+<span class="warn">F-02</span> terminal headers need task title
+<span class="warn">F-03</span> done state should remain visible 24h</pre>
+                  <footer class="agent-footer"><span>2 minor findings</span><span class="push">NO BLOCKER</span><button class="btn small" type="button" data-focus-agent="ui-rv">Review</button></footer>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="mission" data-mission="win">
+            <header class="mission-header">
+              <div class="mission-title"><strong><span class="mono">ORCH-WIN-02</span> · Windows Foundation Orchestrator</strong><div class="mission-goal">Mission: guarantee that UI closure never terminates the daemon or live worker sessions.</div></div>
+              <div class="mission-summary"><span class="summary-token">1 BLOCKED</span><span class="summary-token">1 WORKING</span><span class="summary-token">2 WORKTREES</span></div>
+            </header>
+            <div class="mission-body win-layout">
+              <article class="agent parent-agent" tabindex="0" data-agent-id="orch-win" data-status="blocked" data-needs="true" data-role="Windows Orchestrator" data-task="Separate Electron UI lifetime from the AO daemon" data-route="Codex · GPT-5.6" data-worktree="~/ao/square/windows-orchestrator" data-branch="square/daemon-lifetime" data-pr="#347 · design blocked">
+                <header class="agent-header"><div class="agent-role"><strong><span class="mono">ORCH-WIN</span> · Windows Orchestrator</strong><div class="agent-task">Separate UI and daemon lifetimes</div></div><span class="state blocked">BLOCKED</span></header>
+                <div class="agent-meta"><span>Codex · GPT-5.6</span><span>orchestrator</span><span>2 subagents</span></div>
+                <pre class="terminal-preview">[probe] closing Electron ends app-owned daemon
+[analysis] worker survives 4.2s, then controller reaper stops it
+<span class="bad">[blocker] UI process remains daemon parent</span>
+[proposal] per-user detached daemon + reconnect token</pre>
+                <div class="insight blocker"><strong>Proposed fix</strong>Launch one detached per-user daemon; Electron reconnects instead of owning its lifetime.</div>
+                <footer class="agent-footer"><span>architecture choice</span><span class="push">OWNER DECISION</span><button class="btn small" type="button" data-action="accept-win-solution">Accept fix</button></footer>
+              </article>
+              <div class="children-2">
+                <article class="agent is-child" tabindex="0" data-agent-id="win-01" data-status="blocked" data-role="Lifecycle Engineer" data-task="Implement detached daemon bootstrap and reconnect" data-route="Claude Code · Opus" data-worktree="wt_daemon_lifetime" data-branch="square/detached-daemon" data-pr="#347 · blocked">
+                  <header class="agent-header"><div class="agent-role"><strong><span class="mono">WIN-01</span> · Lifecycle Engineer</strong><div class="agent-task">Detached daemon bootstrap</div></div><span class="state blocked">BLOCKED</span></header>
+                  <div class="agent-meta"><span>Claude · Opus</span><span>writer</span><span>wt_daemon_lifetime</span></div>
+                  <pre class="terminal-preview">[agent] bootstrap code staged
+<span class="bad">STOP:</span> daemon ownership policy unresolved
+[agent] no files committed beyond fixture</pre>
+                  <footer class="agent-footer"><span>0/7 checks</span><span class="push">WAITING ON ORCH</span></footer>
+                </article>
+                <article class="agent is-child" tabindex="0" data-agent-id="win-qa" data-status="working" data-role="Windows QA" data-task="Build UI-close and restart acceptance matrix" data-route="OpenCode · GPT-5.1" data-worktree="wt_win_qa" data-branch="test/windows-lifecycle" data-pr="No PR · test fixture">
+                  <header class="agent-header"><div class="agent-role"><strong><span class="mono">WIN-QA</span> · Windows QA</strong><div class="agent-task">UI-close and restart matrix</div></div><span class="state working">WORKING</span></header>
+                  <div class="agent-meta"><span>OpenCode · GPT-5.1</span><span>read-only tests</span><span>wt_win_qa</span></div>
+                  <pre class="terminal-preview">[test] UI close with 1 worker <span class="bad">FAIL</span>
+[test] daemon restart no duplicate <span class="ok">PASS</span>
+[test] spaces + Unicode path <span class="ok">PASS</span></pre>
+                  <footer class="agent-footer"><span>9/12 cases</span><span class="push">ACTIVE</span></footer>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="mission" data-mission="standalone">
+            <header class="mission-header">
+              <div class="mission-title"><strong>Standalone sessions</strong><div class="mission-goal">Independent tasks that do not require an orchestrator hierarchy.</div></div>
+              <div class="mission-summary"><span class="summary-token">1 WORKING</span><span class="summary-token">1 DONE</span></div>
+            </header>
+            <div class="mission-body standalone-layout">
+              <article class="agent" tabindex="0" data-agent-id="mem-01" data-status="working" data-role="Memory Curator" data-task="Import accepted Square practices into project memory" data-route="Codex · GPT-5.6" data-worktree="wt_memory_import" data-branch="square/memory-seed" data-pr="#350 · 6/8 checks">
+                <header class="agent-header"><div class="agent-role"><strong><span class="mono">MEM-01</span> · Memory Curator</strong><div class="agent-task">Seed project memory from accepted records</div></div><span class="state working">WORKING</span></header>
+                <div class="agent-meta"><span>Codex · GPT-5.6</span><span>standalone</span><span>wt_memory_import</span></div>
+                <pre class="terminal-preview">[memory] 14 accepted practices found
+[dedupe] 3 duplicates merged
+[verify] provenance hashes 11/14</pre>
+                <footer class="agent-footer"><span>11/14</span><span class="push">PR #350</span></footer>
+              </article>
+              <article class="agent" tabindex="0" data-agent-id="doc-01" data-status="done" data-role="Documentation Agent" data-task="Update fork adoption and upstream sync guide" data-route="Claude Code · Haiku" data-worktree="wt_docs_sync" data-branch="docs/upstream-sync" data-pr="#339 · approved">
+                <header class="agent-header"><div class="agent-role"><strong><span class="mono">DOC-01</span> · Documentation</strong><div class="agent-task">Fork adoption and upstream sync guide</div></div><span class="state done">DONE</span></header>
+                <div class="agent-meta"><span>Claude · Haiku</span><span>standalone</span><span>merged</span></div>
+                <pre class="terminal-preview"><span class="ok">✓</span> upstream remote workflow
+<span class="ok">✓</span> telemetry/updater checklist
+<span class="ok">✓</span> Apache attribution section</pre>
+                <div class="insight done"><strong>Outcome</strong>Merged as PR #339 · all 7 documentation checks passed.</div>
+                <footer class="agent-footer"><span>completed 18m ago</span><span class="push">MERGED</span></footer>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <section class="global-events" aria-label="Events and problems">
+          <div class="events-header"><strong>Events & problems</strong><span class="mono" style="color:var(--muted)">semantic events · not raw terminal lines</span></div>
+          <div class="event-row"><time>10:31:18</time><span class="event-kind" style="color:var(--warn)">NEEDS YOU</span><span><span class="mono">UI-02</span> requested reviewed dependency approval; orchestrator recommends approve once.</span><span class="event-id">SQ-E-1452</span></div>
+          <div class="event-row"><time>10:29:42</time><span class="event-kind" style="color:var(--bad)">BLOCKED</span><span><span class="mono">ORCH-WIN</span> proposed detached daemon lifetime after UI-close probe failed.</span><span class="event-id">SQ-E-1451</span></div>
+          <div class="event-row"><time>10:26:07</time><span class="event-kind" style="color:var(--good)">DONE</span><span><span class="mono">DOC-01</span> merged fork adoption guide; PR #339 approved.</span><span class="event-id">SQ-E-1448</span></div>
+        </section>
+        <div class="empty-filter" id="emptyFilter">No agents match this filter.</div>
+      </section>
+
+      <section class="view" data-view-panel="wall" aria-label="Terminal wall">
+        <div class="terminal-wall">
+          <article class="wall-terminal" data-wall-agent="orch-ui"><header class="agent-header"><div class="agent-role"><strong>ORCH-UI · Product Orchestrator</strong><div class="agent-task">Coordinate Square UI and workflow integration</div></div><span class="state needs">NEEDS YOU</span></header><pre class="terminal-preview">[orchestrator] UI fleet canvas ready
+[ui-01] 18/20 checks
+[ui-02] dependency approval required
+[ui-rv] two minor findings
+
+<span class="warn">Recommended: approve @tanstack/react-virtual once.</span></pre><footer class="agent-footer"><span>Claude · Opus</span><span class="push">3 subagents</span></footer></article>
+          <article class="wall-terminal" data-wall-agent="ui-01"><header class="agent-header"><div class="agent-role"><strong>UI-01 · UI Engineer</strong><div class="agent-task">Hierarchical fleet and docked terminals</div></div><span class="state working">WORKING</span></header><pre class="terminal-preview">$ npm test -- fleet-workspace
+<span class="ok">✓</span> hierarchy
+<span class="ok">✓</span> status filters
+<span class="ok">✓</span> action rail
+… 200% scaling</pre><footer class="agent-footer"><span>Codex · GPT-5.6</span><span class="push">PR #342</span></footer></article>
+          <article class="wall-terminal" data-wall-agent="ui-02"><header class="agent-header"><div class="agent-role"><strong>UI-02 · Component Engineer</strong><div class="agent-task">Virtualized session/worktree list</div></div><span class="state needs">NEEDS YOU</span></header><pre class="terminal-preview">[agent] 1,800 row fixture
+[agent] custom scroll fails keyboard test
+<span class="warn">[approval] @tanstack/react-virtual</span>
+Waiting for owner…</pre><footer class="agent-footer"><span>OpenCode · Sonnet</span><span class="push">blocks 1 task</span></footer></article>
+          <article class="wall-terminal" data-wall-agent="orch-win"><header class="agent-header"><div class="agent-role"><strong>ORCH-WIN · Windows Orchestrator</strong><div class="agent-task">Separate UI and daemon lifetime</div></div><span class="state blocked">BLOCKED</span></header><pre class="terminal-preview">[probe] Electron close ends daemon
+[analysis] controller reaper stops worker
+<span class="bad">[blocker] app remains daemon parent</span>
+[proposal] detached per-user daemon</pre><footer class="agent-footer"><span>Codex · GPT-5.6</span><span class="push">owner decision</span></footer></article>
+          <article class="wall-terminal" data-wall-agent="win-qa"><header class="agent-header"><div class="agent-role"><strong>WIN-QA · Windows QA</strong><div class="agent-task">UI-close and restart matrix</div></div><span class="state working">WORKING</span></header><pre class="terminal-preview">[test] UI close + live worker <span class="bad">FAIL</span>
+[test] daemon restart <span class="ok">PASS</span>
+[test] Unicode path <span class="ok">PASS</span>
+… 9/12 cases</pre><footer class="agent-footer"><span>OpenCode · GPT-5.1</span><span class="push">active</span></footer></article>
+          <article class="wall-terminal" data-wall-agent="mem-01"><header class="agent-header"><div class="agent-role"><strong>MEM-01 · Memory Curator</strong><div class="agent-task">Seed project memory</div></div><span class="state working">WORKING</span></header><pre class="terminal-preview">[memory] 14 accepted practices
+[dedupe] 3 merged
+[verify] 11/14 provenance hashes
+… preparing receipt</pre><footer class="agent-footer"><span>Codex · GPT-5.6</span><span class="push">PR #350</span></footer></article>
+        </div>
+      </section>
+
+      <section class="view" data-view-panel="board" aria-label="Review board">
+        <div class="review-board">
+          <section class="board-column"><header class="board-header"><span>Needs you</span><span class="mono">2</span></header>
+            <article class="board-card"><div class="card-group">ORCH-UI / UI-02</div><strong>Virtualize AO session list</strong><div class="branch">square/session-list</div><div class="card-stats"><span>dependency approval</span><span>1 task blocked</span></div><div class="card-activity">Suggested: approve once · 4m ago</div></article>
+            <article class="board-card"><div class="card-group">ORCH-WIN</div><strong>Separate daemon lifetime</strong><div class="branch">square/daemon-lifetime</div><div class="card-stats"><span>architecture choice</span><span>proposal ready</span></div><div class="card-activity">Suggested: accept detached daemon · 7m ago</div></article>
+          </section>
+          <section class="board-column"><header class="board-header"><span>Working</span><span class="mono">3</span></header>
+            <article class="board-card"><div class="card-group">ORCH-UI / UI-01</div><strong>Hierarchical fleet workspace</strong><div class="branch">square/hierarchical-fleet</div><div class="card-stats"><span>PR #342</span><span>18/20 checks</span></div><div class="card-activity">Testing 200% scaling · 2m ago</div></article>
+            <article class="board-card"><div class="card-group">ORCH-WIN / WIN-QA</div><strong>Windows lifecycle matrix</strong><div class="branch">test/windows-lifecycle</div><div class="card-stats"><span>9/12 cases</span><span>no PR</span></div><div class="card-activity">Running UI-close fixture · 1m ago</div></article>
+            <article class="board-card"><div class="card-group">STANDALONE / MEM-01</div><strong>Seed project memory</strong><div class="branch">square/memory-seed</div><div class="card-stats"><span>PR #350</span><span>11/14 verified</span></div><div class="card-activity">Checking provenance · 3m ago</div></article>
+          </section>
+          <section class="board-column"><header class="board-header"><span>In review</span><span class="mono">1</span></header>
+            <article class="board-card"><div class="card-group">ORCH-UI / UI-RV</div><strong>Review fleet hierarchy</strong><div class="branch">review/fleet-layout</div><div class="card-stats"><span>2 comments</span><span>0 blockers</span></div><div class="card-activity">Awaiting UI-01 response · 5m ago</div></article>
+          </section>
+          <section class="board-column"><header class="board-header"><span>Ready to merge</span><span class="mono">0</span></header><div style="padding:16px;color:var(--muted)">Nothing is mergeable yet.</div></section>
+          <section class="board-column"><header class="board-header"><span>Done</span><span class="mono">1</span></header>
+            <article class="board-card"><div class="card-group">STANDALONE / DOC-01</div><strong>Fork adoption guide</strong><div class="branch">docs/upstream-sync</div><div class="card-stats"><span>PR #339</span><span>7/7 checks</span><span>approved</span></div><div class="card-activity">Merged 18m ago</div></article>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <aside class="attention-rail" aria-label="Attention and outcomes">
+      <div class="panel-title"><span>Attention</span><span>live</span></div>
+      <section class="rail-section" id="needsSection">
+        <div class="rail-heading"><span>Needs you</span><span class="rail-count" id="needsRailCount">2</span></div>
+        <article class="decision needs" data-decision="ui-approval">
+          <div class="decision-meta">ORCH-UI → UI-02 · dependency gate</div>
+          <strong>Approve the session-list dependency?</strong>
+          <p>Keyboard-safe virtualization is blocked. The custom alternative already failed one accessibility test.</p>
+          <p class="solution"><strong>Suggested solution</strong>Approve <span class="mono">@tanstack/react-virtual</span> once; keep native overflow as fallback.</p>
+          <div class="decision-actions"><button class="btn primary small" type="button" data-action="approve-ui">Approve once</button><button class="btn small" type="button">Use fallback</button><button class="btn danger small" type="button">Deny</button></div>
+        </article>
+        <article class="decision needs" data-decision="win-choice">
+          <div class="decision-meta">ORCH-WIN · architecture boundary</div>
+          <strong>Choose the daemon-lifetime fix</strong>
+          <p>Closing Electron currently stops the AO daemon and later stops live workers.</p>
+          <p class="solution"><strong>Suggested solution</strong>Use one detached per-user daemon and reconnect Electron through a startup token.</p>
+          <div class="decision-actions"><button class="btn primary small" type="button" data-action="accept-win-solution">Accept solution</button><button class="btn small" type="button">Inspect evidence</button></div>
+        </article>
+      </section>
+
+      <section class="rail-section" id="blockedSection">
+        <div class="rail-heading"><span>Stuck / blocked</span><span class="rail-count">2</span></div>
+        <article class="decision blocked" data-blocked-card="win">
+          <div class="decision-meta">ORCH-WIN / WIN-01 · 7m</div>
+          <strong>Detached daemon implementation stopped</strong>
+          <p>Worker correctly hit its STOP condition because daemon ownership policy is not yet accepted.</p>
+          <p class="solution"><strong>Unblock path</strong>Accept the proposed lifetime boundary; WIN-01 can continue without changing scope.</p>
+        </article>
+      </section>
+
+      <section class="rail-section">
+        <div class="rail-heading"><span>Done recently</span><span class="rail-count">2</span></div>
+        <article class="decision done compact-outcome"><div><div class="decision-meta">DOC-01 · PR #339</div><strong>Fork adoption guide merged</strong><p>7/7 checks · Apache attribution and updater rules included.</p></div><span class="state done">DONE</span></article>
+        <article class="decision done compact-outcome"><div><div class="decision-meta">UI-01 · partial milestone</div><strong>Hierarchy and status filters pass</strong><p>18/20 checks; remaining work is scaling only.</p></div><span class="state done">18/20</span></article>
+      </section>
+
+      <section class="rail-section">
+        <div class="rail-heading"><span>Selected session</span><span class="rail-count" id="selectedId">ORCH-UI</span></div>
+        <div class="selected-panel">
+          <dl>
+            <div><dt>Role</dt><dd id="selectedRole">Product Orchestrator</dd></div>
+            <div><dt>Task</dt><dd id="selectedTask">Coordinate Square UI and workflow integration</dd></div>
+            <div><dt>Route</dt><dd id="selectedRoute">Claude Code · Opus</dd></div>
+            <div><dt>Worktree</dt><dd id="selectedWorktree" class="mono">~/ao/square/orchestrator</dd></div>
+            <div><dt>Branch / PR</dt><dd id="selectedPr">square/ui-orchestration · No PR</dd></div>
+          </dl>
+          <div class="decision-actions" style="margin-top:8px"><button class="btn small" type="button">Attach</button><button class="btn small" type="button">Checkpoint</button><button class="btn small" type="button">Open evidence</button></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <footer class="statusbar" role="status">
+    <span>DAEMON connected</span><span>AO v0.12.x foundation</span><span>SESSIONS 9</span><span>WRITERS 3/3</span><span>WORKTREES 5</span><span>PROFILE NORMAL</span><span class="right">Square semantic state is authoritative · UI closure is harmless</span>
+  </footer>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('app');
+  const viewButtons = [...root.querySelectorAll('[data-view]')];
+  const views = [...root.querySelectorAll('[data-view-panel]')];
+  const filterButtons = [...root.querySelectorAll('[data-filter]')];
+  const agents = [...root.querySelectorAll('.agent[data-agent-id]')];
+  const missions = [...root.querySelectorAll('.mission')];
+  const empty = document.getElementById('emptyFilter');
+
+  function setView(name) {
+    viewButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === name)));
+    views.forEach(view => view.classList.toggle('active', view.dataset.viewPanel === name));
+  }
+  viewButtons.forEach(button => button.addEventListener('click', () => setView(button.dataset.view)));
+
+  function setFilter(status) {
+    filterButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.filter === status)));
+    let visible = 0;
+    agents.forEach(agent => {
+      const show = status === 'all' || (status === 'needs' ? (agent.dataset.status === 'needs' || agent.dataset.needs === 'true') : agent.dataset.status === status);
+      agent.classList.toggle('hidden-by-filter', !show);
+      if (show) visible++;
+    });
+    missions.forEach(mission => {
+      const missionAgents = [...mission.querySelectorAll('.agent[data-agent-id]')];
+      mission.classList.toggle('all-hidden', missionAgents.every(agent => agent.classList.contains('hidden-by-filter')));
+    });
+    empty.style.display = visible === 0 ? 'block' : 'none';
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    const matchingNav = root.querySelector(`[data-nav-filter="${status}"]`);
+    if (matchingNav) matchingNav.classList.add('active');
+    setView('fleet');
+  }
+  filterButtons.forEach(button => button.addEventListener('click', () => setFilter(button.dataset.filter)));
+  root.querySelectorAll('[data-nav-filter]').forEach(button => button.addEventListener('click', () => setFilter(button.dataset.navFilter)));
+
+  function selectAgent(id) {
+    const agent = root.querySelector(`.agent[data-agent-id="${id}"]`);
+    if (!agent) return;
+    agents.forEach(item => item.classList.toggle('selected', item === agent));
+    document.getElementById('selectedId').textContent = id.toUpperCase();
+    document.getElementById('selectedRole').textContent = agent.dataset.role;
+    document.getElementById('selectedTask').textContent = agent.dataset.task;
+    document.getElementById('selectedRoute').textContent = agent.dataset.route;
+    document.getElementById('selectedWorktree').textContent = agent.dataset.worktree;
+    document.getElementById('selectedPr').textContent = `${agent.dataset.branch} · ${agent.dataset.pr}`;
+  }
+  agents.forEach(agent => agent.addEventListener('click', event => {
+    if (event.target.closest('button')) return;
+    selectAgent(agent.dataset.agentId);
+  }));
+  root.querySelectorAll('[data-select-agent]').forEach(button => button.addEventListener('click', () => selectAgent(button.dataset.selectAgent)));
+  root.querySelectorAll('[data-focus-agent]').forEach(button => button.addEventListener('click', () => { selectAgent(button.dataset.focusAgent); setView('wall'); }));
+
+  function setAgentStatus(id, status, label) {
+    const agent = root.querySelector(`.agent[data-agent-id="${id}"]`);
+    if (!agent) return;
+    agent.dataset.status = status;
+    const badge = agent.querySelector('.state');
+    badge.className = `state ${status}`;
+    badge.textContent = label;
+  }
+
+  function updateCounts() {
+    const statuses = ['needs','blocked','working','review','done'];
+    const counts = {all: agents.length};
+    statuses.forEach(status => counts[status] = agents.filter(agent => agent.dataset.status === status).length);
+    counts.needs = root.querySelectorAll('.decision.needs:not([data-resolved="true"])').length;
+    Object.entries(counts).forEach(([key,value]) => {
+      const element = root.querySelector(`[data-count="${key}"]`);
+      if (element) element.textContent = value;
+    });
+    const needsRail = root.querySelectorAll('.decision.needs:not([data-resolved="true"])').length;
+    document.getElementById('needsRailCount').textContent = needsRail;
+  }
+
+  root.querySelectorAll('[data-action="approve-ui"]').forEach(button => button.addEventListener('click', () => {
+    setAgentStatus('ui-02','working','WORKING');
+    root.querySelector('[data-agent-id="ui-02"]').dataset.needs = 'false';
+    root.querySelector('[data-agent-id="orch-ui"]').dataset.needs = 'false';
+    root.querySelectorAll('[data-decision="ui-approval"]').forEach(card => { card.dataset.resolved = 'true'; card.style.display = 'none'; });
+    const insight = root.querySelector('[data-agent-id="ui-02"] .insight');
+    if (insight) { insight.className = 'insight done'; insight.innerHTML = '<strong>Approved</strong>Dependency admitted for this task; keyboard fallback remains required.'; }
+    const parentInsight = root.querySelector('[data-agent-id="orch-ui"] .insight');
+    if (parentInsight) { parentInsight.className = 'insight done'; parentInsight.innerHTML = '<strong>Decision recorded</strong>UI-02 resumed; orchestrator is waiting only for reviewer findings.'; }
+    setAgentStatus('orch-ui','working','WORKING');
+    updateCounts();
+  }));
+
+  root.querySelectorAll('[data-action="accept-win-solution"]').forEach(button => button.addEventListener('click', () => {
+    setAgentStatus('orch-win','working','WORKING');
+    root.querySelector('[data-agent-id="orch-win"]').dataset.needs = 'false';
+    setAgentStatus('win-01','working','WORKING');
+    root.querySelectorAll('[data-decision="win-choice"], [data-blocked-card="win"]').forEach(card => { card.dataset.resolved = 'true'; card.style.display = 'none'; });
+    const insight = root.querySelector('[data-agent-id="orch-win"] .insight');
+    if (insight) { insight.className = 'insight done'; insight.innerHTML = '<strong>Solution accepted</strong>WIN-01 may implement the detached per-user daemon boundary.'; }
+    updateCounts();
+  }));
+
+  document.getElementById('themeButton').addEventListener('click', () => {
+    document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.ctrlKey && event.key === '1') setView('fleet');
+    if (event.ctrlKey && event.key === '2') setView('wall');
+    if (event.ctrlKey && event.key === '3') setView('board');
+  });
+  updateCounts();
+})();
+</script>
+</body>
+</html>
