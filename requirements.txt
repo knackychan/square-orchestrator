@@ -1,0 +1,197 @@
+# Square Orchestrator — Dependency Manifest for Clean Environment Export
+#
+# This repository is mid-pivot: the active line is a downstream fork of
+# Agent Orchestrator v0.12.1. The archived pre-fork lines (Python sqorch,
+# .NET M1, pnpm toolchain) are frozen trace/history.  See STATUS.md for
+# what is currently authorized to run.
+#
+# Generated: 2026-08-10
+# State:     planning / fork-adoption baseline (SA00 phase)
+
+# =============================================================================
+# 1. SYSTEM RUNTIMES (active fork — required)
+# =============================================================================
+
+# Go toolchain — backend build
+golang==1.25.7
+
+# Node.js — frontend build and Electron runtime
+nodejs>=20.19.0
+
+# npm — ships with Node; required by both root and frontend
+npm>=10
+
+# git — worktree, agent integration, authority verification
+git>=2.40
+
+# Windows Terminal (wt.exe) — visible foreground worker surface on Windows
+# ConPTY — built into Windows 10 1809+; required for PTY support
+# tmux — terminal multiplexing on Darwin/Linux (via os/exec)
+
+# =============================================================================
+# 2. GO MODULES (active fork — backend/go.mod)
+# =============================================================================
+
+# Direct
+github.com/Microsoft/go-winio==0.6.2
+github.com/aymanbagabas/go-pty==0.2.3
+github.com/coder/websocket==1.8.14
+github.com/creack/pty==1.1.24
+github.com/fsnotify/fsnotify==1.10.1
+github.com/go-chi/chi/v5==5.1.0
+github.com/google/uuid==1.6.0
+github.com/pressly/goose/v3==3.27.1
+github.com/spf13/cobra==1.10.1
+github.com/spf13/pflag==1.0.9
+github.com/swaggest/jsonschema-go==0.3.79
+github.com/swaggest/openapi-go==0.2.61
+github.com/yuin/goldmark==1.8.2
+golang.org/x/sys==0.44.0
+gopkg.in/yaml.v3==3.0.1
+modernc.org/sqlite==1.51.0
+
+# Tooling (go run / go install)
+github.com/golangci/golangci-lint/v2/cmd/golangci-lint==2.12.2
+github.com/sqlc-dev/sqlc/cmd/sqlc==1.31.1
+
+# =============================================================================
+# 3. NODE / npm PACKAGES (active fork — root + frontend)
+# =============================================================================
+
+# Root — devDependency
+openapi-typescript==7.4.4
+
+# Frontend — runtime
+@fontsource-variable/geist>=5.3.0
+@fontsource-variable/geist-mono>=5.3.0
+@radix-ui/react-accordion>=1.2.13
+@radix-ui/react-dialog>=1.1.16
+@radix-ui/react-slot>=1.2.5
+@radix-ui/react-tabs>=1.1.14
+@radix-ui/react-tooltip>=1.2.9
+@tanstack/react-query>=5.101.0
+@tanstack/react-router>=1.170.15
+@xterm/addon-canvas>=0.7.0
+@xterm/addon-fit>=0.10.0
+@xterm/addon-search>=0.15.0
+@xterm/addon-unicode11>=0.9.0
+@xterm/addon-web-links>=0.11.0
+@xterm/addon-webgl>=0.19.0
+@xterm/xterm>=5.5.0
+class-variance-authority>=0.7.1
+clsx>=2.1.1
+cmdk>=1.1.1
+electron-updater>=6.8.9
+i18next>=26.3.6
+lucide-react>=1.17.0
+motion>=12.43.0
+openapi-fetch>=0.17.0
+posthog-js>=1.390.2
+qrcode.react>=4.2.0
+radix-ui>=1.5.0
+react>=19.2.7
+react-dom>=19.2.7
+react-i18next>=17.0.11
+react-markdown>=10.1.0
+react-resizable-panels>=4.11.2
+remark-gfm>=4.0.1
+semver>=7.8.5
+tailwind-merge>=3.6.0
+zustand>=5.0.14
+
+# Frontend — devDependencies
+@electron-forge/cli>=7.8.0
+@electron-forge/maker-base>=7.8.0
+@electron-forge/maker-deb>=7.8.0
+@electron-forge/maker-rpm>=7.8.0
+@electron-forge/maker-zip>=7.8.0
+@electron-forge/plugin-vite>=7.8.0
+@electron-forge/publisher-github>=7.8.0
+@playwright/test>=1.60.0
+@tailwindcss/vite>=4.3.0
+@tanstack/router-plugin>=1.168.18
+@testing-library/jest-dom>=6.9.1
+@testing-library/react>=16.3.2
+@testing-library/user-event>=14.6.1
+@types/react>=19.2.17
+@types/react-dom>=19.2.3
+@types/semver>=7.7.1
+@vitejs/plugin-react>=6.0.2
+app-builder-lib>=26.15.3
+electron>=33.0.0
+jsdom>=29.1.1
+openapi-typescript>=7.13.0
+playwright>=1.60.0
+tailwindcss>=4.3.0
+typescript>=5.6.0
+vite>=8.0.16
+vitest>=4.1.8
+
+# Frontend — optional packaging
+electron-installer-debian>=3.2.0
+electron-installer-redhat>=3.4.0
+
+# =============================================================================
+# 4. AGENT CLIENT CLIs (active fork — runtime, not build deps)
+# =============================================================================
+
+# These are shelled out to by the fork daemon at task-launch time.
+# They are not build or test dependencies but must be installed and on PATH
+# for the fork to function as a worker launcher.
+
+# cmdc        — Command Code (npm install -g @anthropic-ai/cmdc)
+# opencode    — OpenCode (npm install -g @opencode-ai/opencode)
+# claude      — Claude Code (npm install -g @anthropic-ai/claude-code)
+# codex       — Codex CLI (npm install -g @openai/codex)
+
+# =============================================================================
+# 5. OPTIONAL SYSTEM TOOLS
+# =============================================================================
+
+# Nix — provides all deps via flake.nix (nix develop)
+# rpm / rpmbuild — Linux RPM packaging for Electron Forge
+# Python — needed by node-gyp for native Node module builds
+# C++ build tools — needed by node-gyp on Windows
+# goreleaser — planned cross-platform release automation (not yet activated)
+
+# =============================================================================
+# 6. PLANNING PACK PYTHON (docs/superpowers/ plans — stdlib + optional)
+# =============================================================================
+
+python>=3.8
+# jsonschema    — optional, for validate-pack.py (pip install jsonschema referencing)
+# referencing   — optional, schema registry resolution (pip install referencing)
+
+# =============================================================================
+# 7. ARCHIVED PRE-FORK STACKS (frozen — not required for active work)
+# =============================================================================
+
+# --- Python sqorch CLI (archive/src/sqorch/): Python 3.11+, zero third-party
+#     packages.  Stdlib only: argparse json sys os pathlib platform subprocess
+#     uuid datetime hashlib re tomllib sqlite3.
+
+# --- .NET M1 line (archive/tooling/): .NET SDK 10.0.302, zero admitted NuGet
+#     packages.  Candidate pair (blocked, pending SP02-T01 admission proof):
+#       Microsoft.Data.Sqlite.Core==10.0.10  (MIT)
+#       SQLitePCLRaw.bundle_e_sqlite3==3.0.5  (Apache-2.0)
+#     The Microsoft.Data.Sqlite meta-package is explicitly rejected
+#     (transitive CVE-2025-6965 via SQLitePCLRaw.lib.e_sqlite3 <= 2.1.11).
+
+# --- pnpm toolchain (archive/tooling/): Node 24.19.0, pnpm 11.20.0,
+#     TypeScript 6.0.3.  Workspace packages are shell-only with zero external
+#     deps except @xterm/xterm 6.0.0 and @xterm/addon-fit 0.11.0 (MIT) in the
+#     prototypes/SharedUiProof proof.
+
+# =============================================================================
+# 8. QUICK-START (active fork only)
+# =============================================================================
+
+# After installing Go 1.25.7 and Node >= 20.19.0:
+#
+#   git clone <this-repo>
+#   git checkout square/main
+#   npm ci
+#   cd frontend
+#   npm install
+#   cd ../backend
+#   go build ./...
