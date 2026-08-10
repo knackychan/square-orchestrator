@@ -9,11 +9,12 @@
 - Active planning subplan: `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/`
 - Superseded planning subplans (trace/history only, no longer active): `archive/plans/2026-08-05-m1-dry-run-foundation/`, `archive/plans/2026-08-07-square-orchestrator-design/`, `archive/plans/2026-08-08-fork/`
 - Application implementation authorized: **no** (SA00 fork-adoption/baseline sequence only; see pivot record — no Square product code)
-- Worktree state: **dirty — pre-existing uncommitted TerminalProof WIP remains at its new `archive/src/prototypes/TerminalProof/` path, exactly as it was before this pivot, untouched and uncommitted**
-- Delegated agent launch authorized: **no**
-- Dependency installation authorized: **no**
-- External or provider calls authorized: **none, except the read-only `git fetch` of the pinned public Agent Orchestrator upstream tag already performed under the fork pivot record below**
-- `SA00-T01` status: **technically complete (inline, owner exception) at `square/main` commit `8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b`; receipt at `docs/square/receipts/SA00-T01.json` on that branch; owner review/acceptance pending; `SA00-T02` is the next eligible task**
+- Worktree state: **the cleanup result is accepted; the current `main` checkout has only a runtime-only Python `__pycache__/` artifact, while SA00-T02 must preflight its own clean `square/main` starting state**
+- Delegated agent launch authorized: **yes for one SA00-T02 attempt only, after client/model and repository preflight**
+- Dependency installation authorized: **only the documented clean-install commands required by SA00-T02 baseline capture; no dependency changes are authorized**
+- External or provider calls authorized: **no model-provider or remote-service calls; SA00-T02 may use network access required by the documented dependency-install baseline and must record it**
+- `SA00-T01` status: **owner-accepted on 2026-08-10 at `square/main` commit `8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b`; receipt at `docs/square/receipts/SA00-T01.json`; `SA00-T02` is activated as the next task**
+- `SA00-T02` status: **owner-activated on 2026-08-10 for one baseline-evidence attempt; planned route `cmdc` / `deepseek/deepseek-v4-flash`; latest preflight STOPPED_FOR_OWNER_DECISION at 2026-08-10T03:21:00Z before launch; kickoff prompt at `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/plans/KICKOFF_PROMPT_SA00-T02.md`**
 - M0/M1 detailed status below (through T-M1-05) remains historically accurate and is retained for
   trace/history; **superseded by the fork pivot below — no further M0/M1/REM task will be dispatched**
 - M0 status: **accepted by the owner on 2026-08-05**
@@ -35,7 +36,7 @@
 
 ### ARCHIVE-TIDY-01 — archive tidy and cleanup (activated 2026-08-10)
 
-The owner accepted and activated `docs/superpowers/plans/2026-08-09-archive-tidy-and-cleanup/PLAN.md`
+The owner accepted and activated `archive/plans/2026-08-09-archive-tidy-and-cleanup/PLAN.md`
 for this primary session at starting HEAD `11d7ed4d`. The exact scope is the plan's move manifest,
 context-pair updates, reference updates, and validation. This is an inline primary-session owner
 exception: no delegated worker or client route is used for this documentation/archive operation.
@@ -49,8 +50,17 @@ working tree from `11d7ed4d`. The active fork pack validator reports `PASS` with
 `git diff --check` is clean. No worker, client route, dependency installation, external/provider
 call, credential handling, destructive deletion, or push occurred. Pre-existing tracked Python
 `__pycache__/` runtime files were deliberately left at their original paths and excluded from the
-move set under the repository's no-read/no-stage/no-commit runtime rule. Owner acceptance of this
-technical result remains the final gate for `ARCHIVE-TIDY-01`.
+move set under the repository's no-read/no-stage/no-commit runtime rule. The owner accepted this
+technical result on 2026-08-10. `ARCHIVE-TIDY-01` is closed.
+
+The first SA00-T02 preflight stopped before worker launch. The primary session was on `main`
+instead of `square/main`, the current tree contained the primary session's uncommitted status and
+kickoff-prompt edits plus runtime-only `__pycache__/` state, and no approved catalogue/allowance
+procedure was available for the selected Command Code route. The preflight also reported that
+`wt.exe` was unavailable. These are launch gates only. The kickoff prompt's earlier requirement
+that HEAD itself begin with `1df40e9` was over-strict and has been corrected. SA00-T02 must start
+from the accepted `square/main` SA00-T01 tip while verifying that `square-base-v0.12.1` and
+`v0.12.1` resolve to the expected upstream commit and that product source is unchanged.
 
 The owner accepted the planning-only M0 baseline on 2026-08-05. M0 acceptance closes the bootstrap
 milestone; it does not activate another milestone or authorize application code, package metadata,
