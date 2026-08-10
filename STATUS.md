@@ -4,13 +4,13 @@
 
 ## Current state
 
-- Phase: **architecture pivot — Square Orchestrator is now a maintained downstream fork of Agent Orchestrator `v0.12.1`**; `SA00-T01` and `SA00-T02` owner-accepted, `SA00-T03` next eligible
+- Phase: **architecture pivot — Square Orchestrator is now a maintained downstream fork of Agent Orchestrator `v0.12.1`**; `SA00-T01` and `SA00-T02` owner-accepted, `SA00-T03` owner-activated
 - Specification: `0.1-draft` (M1/M2 .NET-native specification; superseded in intent by the fork plan, retained for trace/history — see the pivot record below)
 - Active planning subplan: `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/`
 - Superseded planning subplans (trace/history only, no longer active): `archive/plans/2026-08-05-m1-dry-run-foundation/`, `archive/plans/2026-08-07-square-orchestrator-design/`, `archive/plans/2026-08-08-fork/`
 - Application implementation authorized: **no** (SA00 fork-adoption/baseline sequence only; see pivot record — no Square product code)
 - Worktree state: **the cleanup result is accepted; the current `main` checkout has only a runtime-only Python `__pycache__/` artifact, while SA00-T02 must preflight its own clean `square/main` starting state**
-- Delegated agent launch authorized: **no active launch authorization; SA00-T03 requires separate owner activation and route recording**
+- Delegated agent launch authorized: **yes for one SA00-T03 attempt only, after exact route, allowance, repository, and visible-terminal preflight**
 - Dependency installation authorized: **only the documented clean-install commands required by SA00-T02 baseline capture; no dependency changes are authorized**
 - External or provider calls authorized: **no model-provider or remote-service calls; SA00-T02 may use network access required by the documented dependency-install baseline and must record it**
 - `SA00-T01` status: **owner-accepted on 2026-08-10 at `square/main` commit `8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b`; receipt at `docs/square/receipts/SA00-T01.json`; `SA00-T02` was the next task and is now owner-accepted**
@@ -18,6 +18,7 @@
 - `SA00-T02-EA01` status: **owner-accepted on 2026-08-10 through FIX-01 and FIX-02 at final commit `d61ec3322c48d842b1dd71e3809c0f393acc69f4`**
 - `SA00-T02-EA01-FIX-01` status: **owner-accepted on 2026-08-10 as part of the corrective chain at commit `feabb34679d0494419dd5b30ab43765404c6bf42`**
 - `SA00-T02-EA01-FIX-02` status: **owner-accepted on 2026-08-10 at commit `d61ec3322c48d842b1dd71e3809c0f393acc69f4`; receipt SHA-256 `b4f7a0f70308d25eb2c07e32586d0c2610a0c9aa5df813fd9b9767ae06d051d5`; no product-source changes and no push**
+- `SA00-T03` status: **owner-activated on 2026-08-10 at starting `square/main` commit `d61ec3322c48d842b1dd71e3809c0f393acc69f4`; route `opencode` / `opencode-go/deepseek-v4-pro`, high variant, visible VS Code integrated terminal, fallback disabled; budgets 100 worker turns, 150000 input-token rotation, zero spend, one writer; launch remains gated on fresh preflight; `SA00-T04` is not activated**
 - M0/M1 detailed status below (through T-M1-05) remains historically accurate and is retained for
   trace/history; **superseded by the fork pivot below — no further M0/M1/REM task will be dispatched**
 - M0 status: **accepted by the owner on 2026-08-05**
@@ -82,7 +83,15 @@ All pre-existing baseline failures and environment blockers remain preserved ver
 also records the documented upstream risk that the packaged app may transmit anonymous PostHog
 telemetry during the short package-launch smoke; this is accepted as a recorded upstream
 behavior/risk, not evidence that transmission occurred, and no telemetry modification is
-authorized by this acceptance. `SA00-T03` is next eligible but has not been activated.
+authorized by this acceptance. `SA00-T03` was subsequently activated as recorded below.
+
+The owner activated `SA00-T03` on 2026-08-10 after acceptance of the SA00-T02 receipt. The task is
+limited to the design/inventory packet, its evidence, and completion receipt. It may not change
+product source, package metadata, dependencies, runtime behavior, telemetry, updater configuration,
+listeners, installers, or release artifacts. The authority checkout remains read-only during the
+worker attempt. Launch requires fresh OpenCode catalogue and allowance evidence, a visible
+foreground VS Code terminal, a clean target at `d61ec332`, and confirmation of the exact route and
+no-fallback setting. `SA00-T04` remains inactive pending owner review of the T03 result.
 
 The owner accepted the planning-only M0 baseline on 2026-08-05. M0 acceptance closes the bootstrap
 milestone; it does not activate another milestone or authorize application code, package metadata,
