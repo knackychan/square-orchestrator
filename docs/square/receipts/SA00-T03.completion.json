@@ -1,0 +1,101 @@
+﻿{
+    "repository":  {
+                       "branch":  "square/main",
+                       "product_source_unchanged":  true,
+                       "starting_commit":  "d61ec3322c48d842b1dd71e3809c0f393acc69f4",
+                       "ending_commit":  "7fcf3bf228bdf0f2e4dcf71a13a7eef31b57aa32",
+                       "working_tree_clean_at_start":  true,
+                       "working_tree_clean_at_end":  true,
+                       "product_source_diff_vs_d61ec332":  "EMPTY"
+                   },
+    "route":  {
+                  "exception_rationale":  "Owner directed inline execution after worker launch was aborted; mirrors STATUS.md precedents for owner-authorized inline execution (T-M1-01, SA00-T01 bootstrap)",
+                  "fallback":  false,
+                  "client":  "opencode",
+                  "model":  "opencode-go/deepseek-v4-pro",
+                  "execution_mode":  "INLINE_OWNER_DIRECTED_EXCEPTION",
+                  "variant":  "high"
+              },
+    "authority_hashes":  [
+                             {
+                                 "sha256":  "64965F24248C8852E4A20E3823B33FA4C88E95978B07ABC805391FE3938D5F27",
+                                 "path":  "plans/tasks/SA00-T03.md"
+                             },
+                             {
+                                 "sha256":  "828A5791C5FA221DA9E4BFC6F7F7B2C5A8E4BEFB32261374F44E7C911ED4625B",
+                                 "path":  "plans/SA00-T03-BUILD.md"
+                             },
+                             {
+                                 "sha256":  "78E14B0BB22EA7E1B2266D38BEDDD3B32140BD2799D9B401585A15FD8467BD4F",
+                                 "path":  "plans/SA00-T03-TASKS.md"
+                             }
+                         ],
+    "schema_version":  "square.completion-receipt/v1",
+    "sa00_t04_readiness":  "SA00-T04 may proceed after owner review of this inventory and owner decisions on pending items",
+    "pending_owner_decisions":  [
+                                    "Product name: confirm Square Orchestrator",
+                                    "Short name / CLI command: confirm square; AO compatibility alias policy",
+                                    "appId: confirm dev.square-orchestrator.desktop",
+                                    "Telemetry: confirm OFF by default for all Square builds",
+                                    "Updater: confirm DISABLED until SA14",
+                                    "Square PostHog project/key: if telemetry ever opted in",
+                                    "macOS signing identity: procure before SA14",
+                                    "Windows signing certificate: procure before SA14",
+                                    "Fork version scheme: confirm upstream-version-square.N",
+                                    "npm publication: confirm no npm publish initially",
+                                    "Crash reporting: confirm disabled by default",
+                                    "Mobile/LAN listener: confirm disabled by default",
+                                    "Legal review: Square name trademark clearance",
+                                    "Frontend license field: MIT or Apache-2.0"
+                                ],
+    "acceptance_criteria":  [
+                                {
+                                    "status":  "PASS",
+                                    "id":  "SA00-T03-AC01",
+                                    "note":  "51 identity surfaces catalogued with proposed Square values or owner-pending markers"
+                                },
+                                {
+                                    "status":  "PASS",
+                                    "id":  "SA00-T03-AC02",
+                                    "note":  "Updater disabled by default; Square never checks AO feed"
+                                },
+                                {
+                                    "status":  "PASS",
+                                    "id":  "SA00-T03-AC03",
+                                    "note":  "Telemetry and LAN/mobile proposed disabled by default"
+                                },
+                                {
+                                    "status":  "PASS",
+                                    "id":  "SA00-T03-AC04",
+                                    "note":  "Apache attribution mapped to concrete release artifacts and tasks"
+                                },
+                                {
+                                    "status":  "PASS",
+                                    "id":  "SA00-T03-AC05",
+                                    "note":  "15-artifact x 3-scenario isolation matrix confirms coexistence"
+                                },
+                                {
+                                    "status":  "PASS",
+                                    "id":  "SA00-T03-AC06",
+                                    "note":  "Product source diff vs d61ec332 empty"
+                                }
+                            ],
+    "task_id":  "SA00-T03",
+    "commit":  {
+                   "created":  true,
+                   "sha":  "7fcf3bf228bdf0f2e4dcf71a13a7eef31b57aa32",
+                   "message":  "docs: design SA00-T03 product identity isolation",
+                   "pushed":  false
+               },
+    "status":  "TECHNICALLY_COMPLETE_EVIDENCE_PASS_PRODUCT_SOURCE_UNCHANGED",
+    "started_utc":  "2026-08-10T19:35:00Z",
+    "evidence":  {
+                     "manifest_sha256":  "8F6B91D76F342DF0A147286E89853485FD3165D341BFEC55B5DA04FDAB66212A",
+                     "directory":  "docs/square/evidence/SA00-T03/20260810T194137Z/"
+                 },
+    "attempt_id":  "SA00-T03-attempt-opencode-deepseek-v4-pro-20260810-inline",
+    "open_stop_items":  [
+
+                        ],
+    "finished_utc":  "2026-08-10T19:48:00Z"
+}

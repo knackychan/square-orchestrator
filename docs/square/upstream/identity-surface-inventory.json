@@ -1,0 +1,520 @@
+{
+  "schema_version": "square.identity-surface-inventory/v1",
+  "task_id": "SA00-T03",
+  "date_utc": "2026-08-10",
+  "upstream_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+  "fork_commit": "d61ec3322c48d842b1dd71e3809c0f393acc69f4",
+  "inventory_type": "COMPLETE_OBSERVED_SURFACES",
+  "surfaces": {
+    "product_identity": [
+      {
+        "category": "product_name",
+        "source_file": "frontend/package.json",
+        "source_line": 3,
+        "observed_value": "Agent Orchestrator",
+        "value_type": "productName",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "Square Orchestrator",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "product_name",
+        "source_file": "frontend/forge.config.ts",
+        "source_lines": [125, 144, 155],
+        "observed_value": "Agent Orchestrator",
+        "value_type": "maker_productName",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "Square Orchestrator",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "product_name",
+        "source_file": "frontend/src/main.ts",
+        "source_line": 93,
+        "observed_value": "Agent Orchestrator",
+        "value_type": "app.setName",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "Square Orchestrator",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "app_id",
+        "source_file": "frontend/forge.config.ts",
+        "source_lines": [33, 124, 143, 154],
+        "observed_value": "dev.agent-orchestrator.desktop",
+        "value_type": "appBundleId/appId",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "dev.square-orchestrator.desktop",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "app_id",
+        "source_file": "frontend/src/main.ts",
+        "source_line": 100,
+        "observed_value": "dev.agent-orchestrator.desktop",
+        "value_type": "AppUserModelId (Windows)",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "dev.square-orchestrator.desktop",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "executable_name",
+        "source_file": "frontend/forge.config.ts",
+        "source_line": 16,
+        "observed_value": "agent-orchestrator",
+        "value_type": "EXECUTABLE_NAME constant",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "square-orchestrator",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "npm_package_name",
+        "source_file": "package.json",
+        "source_line": 2,
+        "observed_value": "agent-orchestrator",
+        "value_type": "root package name",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "square-orchestrator",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "npm_package_name",
+        "source_file": "frontend/package.json",
+        "source_line": 2,
+        "observed_value": "agent-orchestrator",
+        "value_type": "frontend package name",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "square-orchestrator",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "npm_published_scope",
+        "source_file": "README.md",
+        "source_line": 158,
+        "observed_value": "@aoagents/ao",
+        "value_type": "published npm package (frozen at 0.10.0)",
+        "square_disposition": "NOT_APPLICABLE",
+        "proposed_square_value": "no npm publication initially",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "description",
+        "source_file": "frontend/package.json",
+        "source_line": 6,
+        "observed_value": "Electron + TypeScript frontend for the agent-orchestrator rewrite",
+        "value_type": "description field",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "Electron + TypeScript frontend for Square Orchestrator",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "author",
+        "source_file": "frontend/package.json",
+        "source_line": 7,
+        "observed_value": "Agent Orchestrator",
+        "value_type": "author field",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "Square Orchestrator",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "homepage",
+        "source_file": "frontend/package.json",
+        "source_line": 9,
+        "observed_value": "https://github.com/aoagents/agent-orchestrator",
+        "value_type": "homepage field",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "https://github.com/knackychan/square-orchestrator",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "repository",
+        "source_file": "frontend/package.json",
+        "source_lines": [12, 13],
+        "observed_value": "https://github.com/aoagents/agent-orchestrator",
+        "value_type": "repository field",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "https://github.com/knackychan/square-orchestrator",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "maintainer",
+        "source_file": "frontend/forge.config.ts",
+        "source_line": 169,
+        "observed_value": "Agent Orchestrator",
+        "value_type": "deb maintainer field",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "Square Orchestrator",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "license_field",
+        "source_file": "frontend/package.json",
+        "source_line": 8,
+        "observed_value": "MIT",
+        "value_type": "frontend license field",
+        "square_disposition": "REVIEW",
+        "proposed_square_value": "Apache-2.0 (matches root LICENSE) or keep MIT",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "rpm_license_field",
+        "source_file": "frontend/forge.config.ts",
+        "source_line": 180,
+        "observed_value": "MIT",
+        "value_type": "rpm spec License field",
+        "square_disposition": "REVIEW",
+        "proposed_square_value": "Apache-2.0",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "github_repo_docs",
+        "source_file": "README.md",
+        "source_lines": [8, 9, 143, 144, 145, 146, 147, 148],
+        "observed_value": "Untrivial-ai/agent-orchestrator",
+        "value_type": "download and star URLs",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "knackychan/square-orchestrator",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "social_twitter",
+        "source_file": "README.md",
+        "source_line": 10,
+        "observed_value": "https://x.com/aoagents",
+        "value_type": "social link",
+        "square_disposition": "REMOVE_OR_REPLACE",
+        "proposed_square_value": "owner decision",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "social_discord",
+        "source_file": "README.md",
+        "source_line": 11,
+        "observed_value": "https://discord.com/invite/UZv7JjxbwG",
+        "value_type": "social link",
+        "square_disposition": "REMOVE_OR_REPLACE",
+        "proposed_square_value": "owner decision",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      }
+    ],
+    "data_paths": [
+      {
+        "category": "data_directory",
+        "source_file": "backend/internal/config/config.go",
+        "source_line": 363,
+        "observed_value": "~/.ao/data",
+        "env_var": "AO_DATA_DIR",
+        "env_var_line": 356,
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "~/.square/data",
+        "proposed_env_var": "SQUARE_DATA_DIR",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "run_file",
+        "source_file": "backend/internal/config/config.go",
+        "source_line": 349,
+        "observed_value": "~/.ao/running.json",
+        "env_var": "AO_RUN_FILE",
+        "env_var_line": 342,
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "~/.square/running.json",
+        "proposed_env_var": "SQUARE_RUN_FILE",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "state_home",
+        "source_file": "backend/internal/config/config.go",
+        "source_line": 371,
+        "observed_value": "~/.ao",
+        "value_type": "defaultStateDir base",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "~/.square",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "electron_userdata",
+        "source_file": "frontend/src/main.ts",
+        "source_lines": [113, 114],
+        "observed_value": "~/.ao/electron (packaged), ~/.ao/dev/electron (dev)",
+        "value_type": "app.setPath userData",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "~/.square/electron (packaged), ~/.square/dev/electron (dev)",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "dev_state_subdir",
+        "source_file": "frontend/src/main.ts",
+        "source_line": 149,
+        "observed_value": "dev",
+        "value_type": "DEV_STATE_SUBDIR",
+        "square_disposition": "RETAIN",
+        "proposed_square_value": "dev (unchanged; under ~/.square base)",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "mobile_config",
+        "source_file": "backend/internal/mobilebridge/config.go",
+        "source_line": 22,
+        "observed_value": "~/.ao/mobile/config.json",
+        "value_type": "hardcoded path",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "~/.square/mobile/config.json",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "mobile_push_devices",
+        "source_file": "backend/internal/mobilebridge/pushdevices.go",
+        "source_line": 41,
+        "observed_value": "~/.ao/mobile/push-devices.json",
+        "value_type": "hardcoded path",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "~/.square/mobile/push-devices.json",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "attachments",
+        "source_file": "backend/internal/session_manager/manager.go",
+        "source_line": 315,
+        "observed_value": ".ao/attachments",
+        "value_type": "attachmentsDir",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": ".square/attachments",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "preview_config",
+        "source_file": "backend/internal/previewserver/manager.go",
+        "source_line": 31,
+        "observed_value": ".ao/launch.json",
+        "value_type": "ConfigPath",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": ".square/launch.json",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "hooks_log",
+        "source_file": "backend/internal/cli/hooks.go",
+        "source_line": 27,
+        "observed_value": "$AO_DATA_DIR/hooks.log",
+        "value_type": "env-derived path",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "$SQUARE_DATA_DIR/hooks.log",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "app_state_marker",
+        "source_file": "backend/internal/cli/start.go",
+        "source_line": 31,
+        "observed_value": "~/.ao/app-state.json",
+        "value_type": "hardcoded path",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "~/.square/app-state.json",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "updater_cache",
+        "source_file": "frontend/forge.config.ts",
+        "source_line": 86,
+        "observed_value": "agent-orchestrator-updater",
+        "value_type": "updaterCacheDirName",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "square-orchestrator-updater",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      }
+    ],
+    "process_identity": [
+      {
+        "category": "cli_binary",
+        "source_file": "backend/internal/cli/root.go",
+        "observed_value": "ao",
+        "value_type": "Cobra root command name",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "square",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "windows_named_pipe",
+        "source_file": "backend/internal/daemon/supervisor/listen_windows.go",
+        "source_line": 17,
+        "observed_value": "\\\\.\\pipe\\ao-supervise",
+        "value_type": "supervisorPipeFromRunFile default",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "\\\\.\\pipe\\square-supervise",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "windows_named_pipe_dev",
+        "source_file": "backend/internal/daemon/supervisor/listen_windows.go",
+        "source_line": 18,
+        "observed_value": "\\\\.\\pipe\\ao-supervise-dev",
+        "value_type": "dev isolation pipe name",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "\\\\.\\pipe\\square-supervise-dev",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "env_namespace",
+        "source_files": ["backend/internal/config/config.go", "backend/internal/session_manager/manager.go", "frontend/src/main.ts"],
+        "observed_value": "AO_* (AO_PORT, AO_DATA_DIR, AO_RUN_FILE, AO_AGENT, AO_APP_RUN_ID, AO_TELEMETRY_*, AO_OWNER, AO_BROWSER_RUNTIME_TOKEN, etc.)",
+        "value_type": "environment variable prefix",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": "SQUARE_* (SQUARE_PORT, SQUARE_DATA_DIR, SQUARE_RUN_FILE, SQUARE_AGENT, SQUARE_APP_RUN_ID, SQUARE_TELEMETRY_*, SQUARE_OWNER, SQUARE_BROWSER_RUNTIME_TOKEN, etc.)",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      }
+    ],
+    "listeners": [
+      {
+        "category": "loopback_host",
+        "source_file": "backend/internal/config/config.go",
+        "source_line": 25,
+        "observed_value": "127.0.0.1",
+        "value_type": "LoopbackHost constant",
+        "square_disposition": "RETAIN",
+        "proposed_square_value": "127.0.0.1 (unchanged)",
+        "owner_decision_pending": false,
+        "enforcing_task": "NONE"
+      },
+      {
+        "category": "loopback_port",
+        "source_file": "backend/internal/config/config.go",
+        "source_line": 27,
+        "observed_value": 3001,
+        "value_type": "DefaultPort constant",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": 3101,
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "dev_loopback_port",
+        "source_file": "frontend/src/main.ts",
+        "source_line": 148,
+        "observed_value": 3002,
+        "value_type": "DEV_DAEMON_PORT",
+        "square_disposition": "REPLACE",
+        "proposed_square_value": 3102,
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "lan_listener",
+        "source_file": "backend/internal/httpd/lan_listener.go",
+        "source_line": 117,
+        "observed_value": "0.0.0.0:<port> (opt-in only)",
+        "value_type": "LANManager Start bind",
+        "square_disposition": "RETAIN_WITH_DIFFERENT_DEFAULT_PORT",
+        "proposed_square_value": "Opt-in only; default port TBD (not 3011)",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "renderer_scheme",
+        "source_file": "frontend/src/main.ts",
+        "source_lines": [161, 173],
+        "observed_value": "app://renderer",
+        "value_type": "Electron protocol.registerSchemesAsPrivileged",
+        "square_disposition": "RETAIN",
+        "proposed_square_value": "app://renderer (unchanged)",
+        "owner_decision_pending": false,
+        "enforcing_task": "NONE"
+      },
+      {
+        "category": "os_protocol_handler",
+        "source_files": [],
+        "observed_value": "none",
+        "value_type": "OS-level URL protocol registration",
+        "square_disposition": "NOT_PRESENT",
+        "proposed_square_value": "N/A",
+        "owner_decision_pending": false,
+        "enforcing_task": "NONE"
+      }
+    ],
+    "copyright_and_attribution": [
+      {
+        "category": "license",
+        "source_file": "LICENSE",
+        "observed_value": "Apache License 2.0, Copyright 2026 Untrivial",
+        "value_type": "full license text",
+        "square_disposition": "RETAIN_WITH_SQUARE_ADDITION",
+        "proposed_square_value": "Apache 2.0 retained; Square copyright line added",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "notice_file",
+        "source_file": "NOTICE (root)",
+        "observed_value": "NOT PRESENT",
+        "value_type": "project-level NOTICE",
+        "square_disposition": "NOT_REQUIRED_BUT_CAN_ADD",
+        "proposed_square_value": "Optionally create NOTICE.square.md",
+        "owner_decision_pending": true,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "modified_file_notices",
+        "source_files": "all modified upstream files",
+        "observed_value": "NOT PRESENT",
+        "value_type": "Apache 24(b) compliance",
+        "square_disposition": "ADD",
+        "proposed_square_value": "Modified notice header on every materially changed file",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      },
+      {
+        "category": "fork_provenance",
+        "source_file": "README.md",
+        "observed_value": "NOT PRESENT (no fork notice)",
+        "value_type": "fork origin documentation",
+        "square_disposition": "ADD",
+        "proposed_square_value": "README states Square is a fork of Agent Orchestrator v0.12.1 (Apache 2.0)",
+        "owner_decision_pending": false,
+        "enforcing_task": "SA01"
+      }
+    ]
+  },
+  "inventory_completeness": {
+    "product_identity_complete": true,
+    "data_paths_complete": true,
+    "process_identity_complete": true,
+    "listeners_complete": true,
+    "copyright_attribution_complete": true,
+    "notes": "All known identity surfaces from packet read-paths inventoried. NOTICE file at project root confirmed absent. OS-level URL protocol handler not found in source."
+  }
+}

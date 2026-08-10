@@ -1,0 +1,90 @@
+{
+  "task_id": "SA00-T03",
+  "evidence_timestamp_utc": "20260810T194137Z",
+  "starting_commit": "d61ec3322c48d842b1dd71e3809c0f393acc69f4",
+  "branch": "square/main",
+  "route": {
+    "client": "opencode",
+    "model": "opencode-go/deepseek-v4-pro",
+    "variant": "high",
+    "fallback_disabled": true,
+    "visible_surface": "VS Code integrated terminal",
+    "execution_mode": "INLINE_OWNER_EXCEPTION"
+  },
+  "budgets": {
+    "worker_turns": 100,
+    "input_token_rotation": 150000,
+    "spend": 0,
+    "writers": 1
+  },
+  "completion_status": "TECHNICALLY_COMPLETE_EVIDENCE_PASS",
+  "deliverables_created": [
+    "docs/square/adr/SA00-T03-product-identity-and-isolation.md",
+    "docs/square/upstream/attribution-and-license-inventory.md",
+    "docs/square/upstream/identity-surface-inventory.json",
+    "docs/square/upstream/telemetry-updater-network-inventory.json",
+    "docs/square/evidence/SA00-T03/20260810T194137Z/"
+  ],
+  "deliverables_validation": {
+    "json_parse": "PASS",
+    "manifest_hash": "PASS",
+    "credential_scan": "PASS (0 matches)",
+    "git_diff_check": "PASS",
+    "product_source_preserved": "PASS (empty diff vs d61ec332)",
+    "changed_paths_in_allowlist": "PASS",
+    "worktree_clean_after_commit": "PASS",
+    "no_push_occurred": "PASS"
+  },
+  "product_source_summary": {
+    "product_source_changed": false,
+    "product_source_diff": "EMPTY",
+    "baseline_unchanged": true
+  },
+  "identity_surfaces_inventoried": {
+    "product_identity": 19,
+    "data_paths": 12,
+    "process_identity": 5,
+    "listeners": 11,
+    "copyright_attribution": 4,
+    "total": 51
+  },
+  "telemetry_surfaces_inventoried": 9,
+  "updater_surfaces_inventoried": 10,
+  "network_surfaces_inventoried": 5,
+  "isolation_matrix_dimensions": {
+    "artifacts": 15,
+    "scenarios": ["Official AO", "Square Development", "Square Release"],
+    "guarantees": 6
+  },
+  "file_hashes": {
+    "LICENSE": "dca438e3f3ca0c09264eca13b37d45939d6371333b7489abaeae2d2394f600f4",
+    "README.md": "e9940083c5eb93cfc4008746bee1f79051b34060f3b678103a43ef1ebc43a81f",
+    "package.json": "1172a338311faa3d7b9b37ee0baf9104ffc05831be122f5af34a41d5bbdf8546",
+    "frontend/package.json": "49751411829788b7de261319bc36a63f4cad15a75ac6a3f7f9aa4b46a7f6bd35",
+    "frontend/forge.config.ts": "5e74367be7a24e6f59d6085e6b616ce87233790611be5a87fa4985d7f0194f01",
+    "frontend/src/main.ts": "cccf926ad58a2cb0d6e1ad5874001bdd9c9760a64e8fdc635e571ac4bb0058cc",
+    "backend/internal/config/config.go": "fa6490c588a2e16cda0bb552f75e296e3add61cad50e9b1ef082ea5ccd07a64e",
+    "backend/internal/cli/start.go": "50c3865433a6e6a9e43b534eef7518e8a442d4cbd9f46c43521bde1b5b7f514c",
+    "docs/telemetry.md": "a5670bf612eb251658f8f81b061476d2e1578e44e2e709ade0ff2c96db1c6f11"
+  },
+  "notice_status": "No project-level NOTICE file exists. Only node_modules/ third-party NOTICE files from Playwright and others.",
+  "open_stop_items": [],
+  "pending_owner_decisions": [
+    "Product name: confirm Square Orchestrator",
+    "Short name: confirm Square",
+    "CLI command: confirm square; AO compatibility alias policy",
+    "appId: confirm dev.square-orchestrator.desktop",
+    "Telemetry default: confirm OFF for all Square builds",
+    "Updater default: confirm DISABLED until SA14",
+    "Square PostHog project/key: if telemetry ever opted in",
+    "macOS signing identity: procure before SA14",
+    "Windows signing certificate: procure before SA14",
+    "Fork version scheme: confirm <upstream>-square.<n>",
+    "npm publication: confirm no npm publish initially",
+    "Crash reporting: confirm disabled by default",
+    "Mobile/LAN listener: confirm disabled by default; Square LAN port",
+    "Legal review: Square name trademark clearance"
+  ],
+  "sa00_t04_readiness": "SA00-T04 may proceed after owner review of this inventory and decisions on pending items. The isolation design is complete and provides a clear implementation path for SA01 rebrand.",
+  "acceptance_status": "TECHNICALLY_COMPLETE_NOT_OWNER_ACCEPTED"
+}

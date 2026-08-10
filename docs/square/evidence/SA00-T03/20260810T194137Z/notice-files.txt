@@ -1,0 +1,2 @@
+﻿docs\square\evidence\SA00-T03\20260810T194137Z\notice-files.txt
+No project-level NOTICE file

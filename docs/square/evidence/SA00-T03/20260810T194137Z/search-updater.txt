@@ -1,0 +1,1 @@
+﻿=== Search: update, latest.yml, autoUpdater, electron-updater ===

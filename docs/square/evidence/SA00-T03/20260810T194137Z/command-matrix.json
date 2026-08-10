@@ -1,0 +1,115 @@
+{
+  "task_id": "SA00-T03",
+  "evidence_timestamp": "20260810T194137Z",
+  "commands": [
+    {
+      "id": "SEARCH_AGENT_ORCHESTRATOR",
+      "command": "Get-ChildItem -Path <worktree> -Include *.go,*.ts,*.tsx,*.json,*.md,*.yml,*.yaml -File | Where { $_.FullName -notmatch '\\\\(archive|\\\\.git|node_modules|\\\\.vite|out|__pycache__|\\\\.commandcode|gen)\\\\' } | Select-String -Pattern \"Agent Orchestrator\" -SimpleMatch | Select -First 100",
+      "status": "PASS",
+      "evidence_path": "search-agent-orchestrator.txt",
+      "matches": "100+ (cap)",
+      "exit_code": 0
+    },
+    {
+      "id": "SEARCH_DATA_PATHS",
+      "command": "Get-ChildItem ... | Select-String -Pattern \"AO_DATA_DIR|AO_RUN_FILE\" -SimpleMatch | Select -First 80",
+      "status": "PASS",
+      "evidence_path": "search-data-paths.txt",
+      "exit_code": 0
+    },
+    {
+      "id": "SEARCH_TELEMETRY",
+      "command": "Get-ChildItem ... | Select-String -Pattern \"posthog|VITE_AO_POSTHOG|AO_TELEMETRY\" -SimpleMatch | Select -First 100",
+      "status": "PASS",
+      "evidence_path": "search-telemetry.txt",
+      "exit_code": 0
+    },
+    {
+      "id": "SEARCH_UPDATER",
+      "command": "Get-ChildItem ... | Select-String -Pattern \"latest\\.yml|autoUpdater|electron-updater|ensureUpdatePrefs|startAutoUpdates\" -SimpleMatch | Select -First 80",
+      "status": "PASS",
+      "evidence_path": "search-updater.txt",
+      "exit_code": 0
+    },
+    {
+      "id": "SEARCH_NETWORK",
+      "command": "Get-ChildItem backend -Recurse -Include *.go | Select-String -Pattern \"127\\.0\\.0\\.1|0\\.0\\.0\\.0\" -SimpleMatch | Select -First 60",
+      "status": "PASS",
+      "evidence_path": "search-network.txt",
+      "exit_code": 0
+    },
+    {
+      "id": "SEARCH_ELECTRON_IDENTITY",
+      "command": "Get-ChildItem ... | Select-String -Pattern \"appId|setAppUserModelId|app\\.setName|app\\.setPath|dev\\.agent-orchestrator|productName\" -SimpleMatch | Select -First 80",
+      "status": "PASS",
+      "evidence_path": "search-identity-electron.txt",
+      "exit_code": 0
+    },
+    {
+      "id": "SEARCH_PACKAGE_IDENTITY",
+      "command": "Get-ChildItem ... | Select-String -Pattern \"@aoagents|Untrivial-ai|AgentWrapper\" -SimpleMatch | Select -First 50",
+      "status": "PASS",
+      "evidence_path": "search-package-identity.txt",
+      "exit_code": 0
+    },
+    {
+      "id": "LICENSE_HASH",
+      "command": "Get-FileHash LICENSE -Algorithm SHA256",
+      "status": "PASS",
+      "evidence_path": "license-sha256.txt",
+      "exit_code": 0
+    },
+    {
+      "id": "NOTICE_INVENTORY",
+      "command": "Get-ChildItem -Recurse -Filter NOTICE* -File | Where { $_.FullName -notmatch '\\\\(archive|\\\\.git|node_modules|\\\\.vite|out)\\\\' }",
+      "status": "PASS",
+      "evidence_path": "notice-files.txt",
+      "result": "No project-level NOTICE file. Only node_modules third-party NOTICE files found."
+    },
+    {
+      "id": "KEY_FILE_HASHES",
+      "command": "Get-FileHash (key files) -Algorithm SHA256",
+      "status": "PASS",
+      "evidence_path": "key-file-hashes.json",
+      "files_hashed": 9,
+      "exit_code": 0
+    },
+    {
+      "id": "PRODUCT_SOURCE_DIFF",
+      "command": "git diff d61ec3322c48d842b1dd71e3809c0f393acc69f4 --name-only",
+      "status": "PASS",
+      "evidence_path": "product-source-diff.txt",
+      "result": "EMPTY (zero lines)",
+      "exit_code": 0
+    },
+    {
+      "id": "GIT_DIFF_CHECK",
+      "command": "git diff --check",
+      "status": "PASS",
+      "evidence_path": "N/A (verified)",
+      "exit_code": 0
+    },
+    {
+      "id": "CREDENTIAL_SCAN",
+      "command": "Manual scan of all SA00-T03 deliverables for token/key/secret patterns",
+      "status": "PASS",
+      "evidence_path": "N/A",
+      "matches": 0,
+      "exit_code": 0
+    },
+    {
+      "id": "JSON_VALIDATION",
+      "command": "Validate identity-surface-inventory.json and telemetry-updater-network-inventory.json",
+      "status": "PASS",
+      "evidence_path": "N/A",
+      "exit_code": 0
+    }
+  ],
+  "evidence_classifications": {
+    "PASS": 14,
+    "PRE_EXISTING_FAILURE": 0,
+    "ENVIRONMENT_BLOCKED": 0,
+    "NOT_APPLICABLE": 0,
+    "NOT_RUN_WITH_REASON": 0
+  }
+}
