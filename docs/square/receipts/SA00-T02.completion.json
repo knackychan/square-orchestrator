@@ -98,7 +98,7 @@
   ],
   "evidence": {
     "directory": "docs/square/evidence/SA00-T02/20260810T053611Z/",
-    "manifest_sha256": "fe08f70b031c7bec5b8cf01048964dcaa785e849ce11fbe83a3ff64e54bf64d6"
+    "manifest_sha256": "d91b3f80f11e4a5affdefcfd496de4992f483f5a8ff063adda4153bb9740fafa"
   },
   "pre_existing_failures": [
     "backend go test ./... (Windows-specific: agent/fake POSIX sh; runtime/tmux; daemon temp-dir file-in-use; service/agent catalog timing; service/project git path separator; session_manager dev-namespace/PATH/node-runtime)",
@@ -146,6 +146,11 @@
       "amendment_id": "SA00-T02-EA01-FIX-01",
       "date_utc": "2026-08-10",
       "summary": "Evidence integrity correction. Removed the extra blank line at EOF from daemon-cli-smoke.log that caused git show --check to fail. No logged command, output, timestamp, redaction, or classification was altered. Regenerated manifest.sha256 (only daemon-cli-smoke.log hash changed from fcb1f3d4... to 38bb3876...). Baseline commit, commit.created:false, and all historical facts preserved unchanged."
+    },
+    {
+      "amendment_id": "SA00-T02-EA01-FIX-02",
+      "date_utc": "2026-08-10",
+      "summary": "Manifest encoding correction. Removed the UTF-8 BOM (EF BB BF) from docs/square/evidence/SA00-T02/20260810T053611Z/manifest.sha256. Every hash line preserved unchanged. Receipt manifest SHA-256 updated. Baseline commit, commit.created:false, and all historical facts preserved unchanged."
     }
   ],
   "deviations": [
