@@ -1,0 +1,22 @@
+# Daemon / process inventory — SA00-T02 baseline (2026-08-10)
+
+## Pre-baseline (2026-08-10, preflight)
+- AO / Square / Electron / Agent Orchestrator processes: NONE.
+- Listeners on AO ports 3001/3002/3003/27131: NONE.
+- `~/.ao` data dir: absent. Installed "Agent Orchestrator": absent.
+- Pre-existing unrelated node.exe processes retained (Supabase/GitHub/Playwright MCP servers, and a vite dev server for project `D:\WORK\10 - AI\SAINT JACQUES`): 18 total, all outside AO/Square.
+
+## During packaged-app launch smoke (08:11Z)
+- agent-orchestrator.exe (Electron main, PID 4056) + gpu-process (8360) + utility network (16740) + renderer (7716) + daemon ao.exe (16780) on 127.0.0.1:3001.
+- Daemon data dir + running.json created under the AO_DATA_DIR/AO_RUN_FILE sandbox; Electron userData followed the upstream hard rule `~/.ao/electron`.
+
+## During daemon/CLI smoke (08:17Z, isolated AO_DATA_DIR/AO_RUN_FILE/AO_PORT=3001)
+- daemon instance 1 (ao-dev.exe daemon, PID 10896) -> listener 127.0.0.1:3001; running.json {pid, port, startedAt, browserRuntimeToken(redacted), browserRuntimeAddress(pipe)}.
+- daemon instance 2 start -> exited immediately with code 1 (single-instance enforcement; no duplication; listener count stayed 1).
+- `ao status` exit 0 / `ao doctor` exit 0 / `ao project list` exit 0 / `ao stop` exit 0.
+- After stop: 0 ao-dev processes, 0 listeners on 3001.
+
+## Post-baseline survivors
+- ao/agent-orchestrator/ao-dev processes: 0.
+- Listeners on 3001: 0.
+- left on disk by design: ~/.ao/electron runtime cache created by the packaged-app launch test (upstream-pinned path, not committed; deleting user-profile dirs is outside SA00-T02's destructive-action scope).

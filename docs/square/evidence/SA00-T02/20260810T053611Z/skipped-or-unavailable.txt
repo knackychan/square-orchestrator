@@ -1,0 +1,13 @@
+# Skipped or unavailable checks — SA00-T02 baseline (2026-08-10)
+
+- **frontend E2E (npm run test:e2e)** — NOT_RUN_WITH_REASON / ENVIRONMENT_BLOCKED after 3 attempted runs:
+  1. Missing Playwright browser revision chromium_headless_shell-1223 (browser prerequisite not available). Prerequisite-installed via `npx playwright install chromium` (recorded).
+  2. Then unreachable because the unrelated project "SAINT JACQUES" vite dev server occupies `::1:5173`; Playwright reused it (non-CI) giving ERR_CONNECTION_REFUSED on IPv4, and with CI=true refuses to start on `localhost:5173`. Stopping the foreign process is outside SA00-T02 authority.
+- **go test -race ./...** — ENVIRONMENT_BLOCKED: `-race requires cgo`; CGO_ENABLED=0, no C toolchain.
+- **root npm run lint** — golangci-lint stage not reached because the `go test ./...` gate in the `&&` chain fails (pre-existing Windows test failures). Direct golangci-lint run additionally recorded.
+- **frontend-npm-ci (npm 11)** — failed with EUSAGE; the documented toolchain (npm@10) succeeds (supplement recorded). Frontend chain run on npm@10-installed deps.
+- **landing scripts unit tests** — initially missing `cheerio` because landing deps not installed; pass 5/5 after documented `npm ci --prefix src/landing` (supplement recorded).
+- **runtime agent/session smoke (packet 6.8)** — UNAVAILABLE: requires owner-authorized, already-available provider credentials; none usable; credentials not probed/exported.
+- **Docker / GitHub CLI** — not installed on this machine (recorded in environment).
+- **Windows installer (NSIS) / `npm run make`** — NOT_RUN_WITH_REASON: the packet/helper's Windows package baseline is `electron-forge package`; `make` additionally requires electron-builder NSIS/winCodeSign downloads and was not part of the documented start sequence; packaging itself (the packaged app) was built and launched successfully.
+- **macOS-only tooling** — NOT_APPLICABLE on Windows target (verify-mac-artifact tests, maker-dmg path-separator test, exec-bit checks).

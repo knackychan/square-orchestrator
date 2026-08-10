@@ -1,0 +1,4 @@
+# git-status-before.txt ? SA00-T02 baseline start (square/main HEAD 8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b)
+# Captured by the parser-fixed verify-ao-baseline replica (environment.json status_porcelain) on 2026-08-10T05:37:27Z; also verified by manual git status --porcelain=v1 empty at preflight.
+---git status --porcelain=v1---
+  <clean>

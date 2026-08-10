@@ -1,0 +1,1 @@
+go vet ./... ? PASS (exit 0, no findings). Captured 2026-08-10T081923Z

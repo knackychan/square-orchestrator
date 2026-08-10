@@ -1,0 +1,30 @@
+---- frontend/package.json script availability (read-only node inspection) ----
+node: v24.18.0
+npm: 11.16.0
+command: node -e "<json inspection of frontend/package.json scripts>"
+result:
+  scripts.build present:                       false
+  scripts.build value:                         null
+  scripts.package present:                     true  -> "electron-forge package"
+  scripts.prepackage present:                  true  -> "npm run build:daemon"
+  scripts.premake present:                     true  -> "npm run build:daemon"
+  scripts.make present:                        true  -> "electron-forge make"
+  scripts.build:daemon present:                true
+  scripts.dev present:                         true
+  scripts.dev:web present:                     true
+  scripts.typecheck present:                   true
+  scripts.test present:                        true
+  scripts.test:e2e present:                    true
+  all script keys (sorted):                    ["api:ts","build:daemon","dev","dev:web","make","package","predev","premake","prepackage","publish","test","test:e2e","test:e2e:renderer","typecheck","typecheck:e2e"]
+
+---- Applicable build substitute (already recorded in baseline evidence) ----
+The pinned upstream frontend/package.json defines no `scripts.build`. The SA00-T02
+frontend-build requirement is therefore satisfied by the recorded electron-forge /
+electron-vite package run:
+  command-matrix.json row `frontend-package`            (npm run package, PRE_EXISTING_FAILURE: forge system check)
+  command-matrix.json row `supplement-frontend-package-skipcheck` (npx electron-forge package, PASS, win32-x64)
+  package-inventory.json / build-outputs.txt            (asset names, sizes, SHA-256)
+
+---- Classification ----
+frontend-build-script-availability: NOT_APPLICABLE (no scripts.build exists; applicable
+build evidence already recorded above). No npm version, dependency, or environment change.

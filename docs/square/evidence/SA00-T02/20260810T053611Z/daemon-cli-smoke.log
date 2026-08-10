@@ -1,0 +1,59 @@
+﻿daemon#1 pid=10896 started
+listener 3001 up after 0 s: True
+daemon#1 alive: True
+run-file exists: True
+run-file content: {
+  "pid": 10896,
+  "port": 3001,
+  "startedAt": "2026-08-10T08:17:37.385084Z",
+  "browserRuntimeToken": "<redacted>",
+  "browserRuntimeAddress": "\\\\.\\pipe\\ao-browser-sao02-daemon-sandbox"
+}
+
+data dir exists: True
+daemon#2 exited: True exitcode=1
+listeners on 3001 now: 1
+--- status ---
+AO daemon: ready
+  pid: 10896
+  port: 3001
+  started: 2026-08-10T08:17:37Z
+  uptime: 11s
+  run file: C:\Users\frederic\AppData\Local\Temp\opencode\sao02-daemon-sandbox\running.json
+  data dir: C:\Users\frederic\AppData\Local\Temp\opencode\sao02-daemon-sandbox\data
+  healthz: ok
+  readyz: ready
+status exit=0
+--- doctor ---
+Core:
+PASS config: runFile=C:\Users\frederic\AppData\Local\Temp\opencode\sao02-daemon-sandbox\running.json dataDir=C:\Users\frederic\AppData\Local\Temp\opencode\sao02-daemon-sandbox\data port=3001
+PASS data-dir: C:\Users\frederic\AppData\Local\Temp\opencode\sao02-daemon-sandbox\data
+PASS data-dir-write: write probe succeeded
+PASS sqlite: C:\Users\frederic\AppData\Local\Temp\opencode\sao02-daemon-sandbox\data\ao.db (4096 bytes); migrations are applied by the daemon at startup
+PASS hooks-log: no hook delivery failures recorded
+PASS daemon: ready pid=10896 port=3001
+
+Tools:
+PASS git: C:\Program Files\Git\cmd\git.exe (version 2.55.0; supports worktrees)
+PASS conpty: ConPTY (built-in): no external terminal multiplexer required on Windows
+WARN ao-binary: ao not found in PATH; workspace hooks invoke `ao hooks <agent> <event>` (daemon-spawned sessions pin PATH to the daemon binary and are unaffected)
+
+Agent harnesses:
+PASS claude-code: claude resolves to C:\Users\frederic\.local\bin\claude.exe (2.1.220 (Claude Code))
+WARN codex: codex not found in PATH
+PASS codex-launch-flags: skipped: codex not found in PATH
+
+GitHub:
+WARN github-token: no GitHub token found (set AO_GITH
+doctor exit=0
+--- project list ---
+ID       NAME     KIND     SESSION PREFIX  STATUS
+scratch  Scratch  scratch  scratch         ok
+project-list exit=0
+--- stop ---
+AO daemon stopped
+stop exit=0
+duration_s=22.6
+surviving ao-dev processes: 0
+listeners 3001 after stop: 0
+

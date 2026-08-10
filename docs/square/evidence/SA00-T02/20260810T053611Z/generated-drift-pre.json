@@ -1,0 +1,100 @@
+﻿{
+    "generated_tracked_count":  19,
+    "files":  [
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/agent_models.sql.go",
+                      "sha256_lf":  "b6d3f9a564a59534997a8ed311950f268496ad07a6f50e2054c179a55724bbcc",
+                      "bytes":  1748
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/changelog.sql.go",
+                      "sha256_lf":  "1804d7a15115454577affd950b16adae1844d7b3e3d28acb124789383ef60186",
+                      "bytes":  1386
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/cleanup.sql.go",
+                      "sha256_lf":  "0c548524c15d253703cd637f3989165bd50e8df0be7c4b716927154f61b46896",
+                      "bytes":  2336
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/db.go",
+                      "sha256_lf":  "60e1e8017cddcd560b33a24ad28946edfeaa46528bad90a98fc624c436b907c4",
+                      "bytes":  627
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/models.go",
+                      "sha256_lf":  "a9904378cdec4fc3f592b5222627480627ed01cde4c63848cbda7374c799c735",
+                      "bytes":  6232
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/notifications.sql.go",
+                      "sha256_lf":  "462d1dad44008b1c937b4c665210f8b8c9f4ac18940477c078a4b688d6f29920",
+                      "bytes":  13280
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/pr.sql.go",
+                      "sha256_lf":  "72553084fc275410fea15af81890347abac279066becc21015b1509cbaf297b1",
+                      "bytes":  16781
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/pr_checks.sql.go",
+                      "sha256_lf":  "5658b61c8e4b075e97e7a7216f86183e2d0ff6ff747a0e9771e72d96f0886f66",
+                      "bytes":  2046
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/pr_comment.sql.go",
+                      "sha256_lf":  "d8e521759d2a436b97eb4a20b8cdbec97c3f7bec51483c16a9970edc92eaaf5f",
+                      "bytes":  3714
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/pr_review_threads.sql.go",
+                      "sha256_lf":  "d8438f0ecdab08dfdcc73d1e2ae72caf61b75085c249c02c2ecbbb2ed3aa832e",
+                      "bytes":  2845
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/pr_reviews.sql.go",
+                      "sha256_lf":  "cbbaaef1126e9dd16993f957a118da06277fb8861a7eb26c5fe884c5d9315c23",
+                      "bytes":  2156
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/projects.sql.go",
+                      "sha256_lf":  "e3faae1a8cbc5edabf9b475bcdd840138097ca6110818612a5ea063471a0c409",
+                      "bytes":  5592
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/review.sql.go",
+                      "sha256_lf":  "26ec37926a5f301dc548b57b4f38e3cd13bfd0bf6017e6537d207de65b05368f",
+                      "bytes":  11477
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/sessions.sql.go",
+                      "sha256_lf":  "42894b6a32611225aa52a671558749cd359bec27931b8796c882bf66b98777f4",
+                      "bytes":  13622
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/shell_terminals.sql.go",
+                      "sha256_lf":  "6ca05a5abb4edce3216249efd5aa418f310f485d9ec76c7b0af7336d8f781f4c",
+                      "bytes":  6244
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/telemetry.sql.go",
+                      "sha256_lf":  "df6cf36c2e2e44eee13bd4af85ad711e2a048a691cf68b33b80e1b65cb495d17",
+                      "bytes":  2723
+                  },
+                  {
+                      "path":  "backend/internal/storage/sqlite/gen/workspace.sql.go",
+                      "sha256_lf":  "796793aa293f14a5a660b3d00995203e5a503fb9053d41ebda8e9c065d00d09b",
+                      "bytes":  5178
+                  },
+                  {
+                      "path":  "backend/internal/httpd/apispec/openapi.yaml",
+                      "sha256_lf":  "0810894b65ebc02bc2a2bd53fdb4c96c50be3f5ee23622b0017e7524ad50b2e5",
+                      "bytes":  130141
+                  },
+                  {
+                      "path":  "frontend/src/api/schema.ts",
+                      "sha256_lf":  "f35b063b7edaee6481de6468320540d722f84b462c9e0a18f769f15ec7f8e125",
+                      "bytes":  168921
+                  }
+              ]
+}

@@ -1,0 +1,25 @@
+# Generated-contract drift — SA00-T02 baseline (2026-08-10)
+
+Commands executed (both reproduce listed):
+- `npm run sqlc` -> cd backend && go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1 generate   (exit 0, 625s; first-run module + toolchain download recorded)
+- `npm run api` -> api:spec (go generate ./internal/httpd/apispec/...) + api:ts (openapi-typescript 7.4.4)   (exit 0, 35s)
+
+## Result (LF-normalized content comparison, pre vs post, pre/post hashes in generated-drift-pre.json)
+
+| File | Drift |
+| --- | --- |
+| backend/internal/storage/sqlite/gen/models.go | REAL CONTENT DRIFT |
+| backend/internal/storage/sqlite/gen/sessions.sql.go | REAL CONTENT DRIFT |
+| backend/internal/storage/sqlite/gen/*.sql.go (15 further files) | working-tree-only CRLF churn (core.autocrlf=true checkout); no content drift after LF normalization |
+| backend/internal/httpd/apispec/openapi.yaml | reproducible, no drift |
+| frontend/src/api/schema.ts | reproducible, no drift |
+
+Full per-file before/after hashes: `generated-drift-report.json`.
+
+## Interpretation
+
+sqlc v1.31.1 (the pinned generator) does not reproduce two committed generated files exactly.
+This is a pre-existing upstream generated-code drift finding, recorded and NOT committed.
+The OpenAPI/TS pipeline is fully reproducible.
+
+Working-tree generated changes were restored with `git restore`; no generated file was retained or staged.

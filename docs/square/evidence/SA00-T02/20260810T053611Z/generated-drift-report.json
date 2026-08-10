@@ -1,0 +1,12 @@
+﻿[
+    {
+        "path":  "backend/internal/storage/sqlite/gen/models.go",
+        "before":  "a9904378cdec4fc3f592b5222627480627ed01cde4c63848cbda7374c799c735",
+        "after":  "539c4d7928056da54c4309c8b81163f508cbe5f24f84a981732c16e13b207815"
+    },
+    {
+        "path":  "backend/internal/storage/sqlite/gen/sessions.sql.go",
+        "before":  "42894b6a32611225aa52a671558749cd359bec27931b8796c882bf66b98777f4",
+        "after":  "35b45e410a421a58baa8edb0f2c168249b6207b3fed0000fef3943e7a8e48f1c"
+    }
+]

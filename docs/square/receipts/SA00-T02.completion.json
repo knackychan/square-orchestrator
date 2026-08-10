@@ -1,0 +1,168 @@
+{
+  "schema_version": "square.completion-receipt/v1",
+  "task_id": "SA00-T02",
+  "attempt_id": "SA00-T02-attempt-opencode-deepseek-v4-flash-20260810",
+  "status": "TECHNICALLY_COMPLETE_EVIDENCE_PASS_TECHNICAL_BASELINE_HAS_PRE_EXISTING_FAILURES",
+  "started_utc": "2026-08-10T05:36:11Z",
+  "finished_utc": "2026-08-10T08:51:17Z",
+  "route": {
+    "client": "opencode",
+    "model": "opencode-go/deepseek-v4-flash",
+    "launch_profile": "opencode run --model opencode-go/deepseek-v4-flash --variant high --auto --title ...",
+    "fallback": false,
+    "catalogue_evidence": "opencode models opencode-go listed opencode-go/deepseek-v4-flash (captured 2026-08-10); opencode auth list showed configured OpenCode Go credential (names/status only).",
+    "allowance_evidence": "Live serving of the exact model by OpenCode Go without auth/rate-limit rejection (this session) = live allowance check; OpenCode Go does not expose remaining monthly credit via CLI (documented limitation). Not inferred from Command Code /usage.",
+    "visible_terminal": "VS Code integrated terminal (opencode.exe foreground; parent powershell.exe running VS Code shellIntegration.ps1; parent Code.exe utility/renderer chain to explorer)",
+    "title": "SA00-T02 observed in process tree; worker surfaces as opencode.exe PID 15120 at capture time"
+  },
+  "repository": {
+    "branch": "square/main",
+    "starting_commit": "8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b",
+    "ending_commit": "8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b",
+    "working_tree_clean_at_start": true,
+    "working_tree_clean_at_end": false,
+    "working_tree_final_delta": "The only final delta is the allowlisted evidence directory docs/square/evidence/SA00-T02/20260810T053611Z/ and the completion receipt docs/square/receipts/SA00-T02.completion.json. Tracked product source is byte-identical to the starting commit.",
+    "baseline_tag": "square-base-v0.12.1",
+    "upstream_tag": "v0.12.1",
+    "baseline_and_upstream_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+    "tags_resolve_expected_prefix": true
+  },
+  "authority_hashes": [
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/plans/tasks/SA00-T02.md", "sha256": "e1fcac84cbf235bd85b930624c04095a6b659e8efa794a44b38a4ae6f62f1195" },
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/scripts/verify-ao-baseline.ps1", "sha256": "22cc93590fc66d53e0086d58f32df479b42be5c4b19faf195ea0fe4b43ecd9c8" },
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/README.md", "sha256": "e9940083c5eb93cfc4008746bee1f79051b34060f3b678103a43ef1ebc43a81f" }
+  ],
+  "changed_files": {
+    "added": [
+      "docs/square/receipts/SA00-T02.completion.json",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/backend-go-build.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/backend-go-test-race.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/backend-go-test.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/build-outputs.txt",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/command-matrix.json",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/daemon-cli-smoke.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/daemon-process-inventory.txt",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/environment.json",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/frontend-e2e-rerun.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/frontend-e2e.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/frontend-npm-ci.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/frontend-package.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/frontend-typecheck.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/frontend-unit.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/generated-drift-api.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/generated-drift-pre.json",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/generated-drift-report.json",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/generated-drift-sqlc.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/generated-drift.txt",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/git-diff-after.patch",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/git-status-after.txt",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/git-status-before.txt",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/helper-parser-error.beforefix.txt",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/package-inventory.json",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/package-launch-smoke.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/repository.json",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/root-lint.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/root-npm-ci.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/runtime-smoke-notes.md",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/shipped-helper.sha256.txt",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/skipped-or-unavailable.txt",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/summary.json",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-backend-cli-e2e.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-backend-go-vet.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-frontend-e2e-ci.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-frontend-npm-ci-npm10.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-frontend-package-skipcheck.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-golangci-lint-direct.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-landing-npm-ci.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-landing-scripts-unit.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-playwright-install.log",
+      "docs/square/evidence/SA00-T02/20260810T053611Z/manifest.sha256"
+    ],
+    "modified": [],
+    "deleted": []
+  },
+  "generated_files": [],
+  "validations": [
+    { "name": "tag-resolution", "command": "git rev-parse square-base-v0.12.1^{commit} v0.12.1^{commit}", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T02/20260810T053611Z/environment.json" },
+    { "name": "clean-tree-start", "command": "git status --porcelain=v1", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T02/20260810T053611Z/git-status-before.txt" },
+    { "name": "product-source-unchanged", "command": "git diff (zero) + git status --porcelain=v1", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T02/20260810T053611Z/git-diff-after.patch; git-status-after.txt" },
+    { "name": "evidence-manifest", "command": "manifest.sha256", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T02/20260810T053611Z/manifest.sha256" },
+    { "name": "no-credentials-in-evidence", "command": "scan for token values; browserRuntimeToken redacted", "exit_code": 0, "status": "PASS", "evidence_path": "daemon-cli-smoke.log (redacted)" }
+  ],
+  "acceptance_criteria": [
+    { "id": "SA00-T02-AC01", "status": "PASS_TECHNICAL_WITH_CAPTURED_ENV_GAPS", "evidence": ["docs/square/evidence/SA00-T02/20260810T053611Z/command-matrix.json", "docs/square/evidence/SA00-T02/20260810T053611Z/summary.json"], "note": "Pinned source reproduced on a clean checkout of this machine via documented commands; every blocking environmental gap is captured (cgo, npm-11 lock, CRLF, ::1:5173)." },
+    { "id": "SA00-T02-AC02", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T02/20260810T053611Z/command-matrix.json", "docs/square/evidence/SA00-T02/20260810T053611Z/manifest.sha256"], "note": "Required backend/frontend/package results traceable to immutable logs + hashes." },
+    { "id": "SA00-T02-AC03", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T02/20260810T053611Z/backend-go-test.log", "docs/square/evidence/SA00-T02/20260810T053611Z/frontend-unit.log", "docs/square/evidence/SA00-T02/20260810T053611Z/supplement-golangci-lint-direct.log"], "note": "Pre-existing upstream failures remain visible and unmodified; nothing repaired." },
+    { "id": "SA00-T02-AC04", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T02/20260810T053611Z/git-diff-after.patch"], "note": "Product source byte-identical to starting commit 8e276955; working tree clean except evidence/receipt." },
+    { "id": "SA00-T02-AC05", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T02/20260810T053611Z/daemon-cli-smoke.log", "docs/square/evidence/SA00-T02/20260810T053611Z/package-launch-smoke.log", "docs/square/evidence/SA00-T02/20260810T053611Z/runtime-smoke-notes.md"], "note": "Runtime smoke records daemon/data/listener/process behavior without altering architecture." }
+  ],
+  "evidence": {
+    "directory": "docs/square/evidence/SA00-T02/20260810T053611Z/",
+    "manifest_sha256": "22b30674a2f6c439201585472c74fa929fc635e8bc292c7af9e6eecc5872096d"
+  },
+  "pre_existing_failures": [
+    "backend go test ./... (Windows-specific: agent/fake POSIX sh; runtime/tmux; daemon temp-dir file-in-use; service/agent catalog timing; service/project git path separator; session_manager dev-namespace/PATH/node-runtime)",
+    "frontend npm ci under npm 11 (upstream lock missing encoding@0.1.13 / iconv-lite@0.6.3; npm@10 toolchain passes)",
+    "frontend unit: 21 Windows/macOS-environment-specific failures (maker-dmg path sep, supervisor-link .sock EACCES, verify-mac-artifact bash/exec-bit) - landing 5 fixed by documented landing npm ci",
+    "root npm run lint (go test gate fails; golangci-lint unreached)",
+    "golangci-lint direct: 579 goimports findings are CRLF checkout artifact (autocrlf; gofmt -l flags same set); 11 recorded static findings (gosec 7, errcheck 3, errorlint 1)",
+    "generated drift: sqlc v1.31.1 does not reproduce gen/models.go + gen/sessions.sql.go (LF-normalized); openapi.yaml + schema.ts reproducible",
+    "electron-forge 7.11.2 package-manager system check reads npm version 'undefined' (npm.ps1 shim); documented ~/.skip-forge-system-check bypass used and reverted"
+  ],
+  "environment_blockers": [
+    "go test -race ./... : -race requires cgo; CGO_ENABLED=0, no C toolchain",
+    "frontend E2E: unrelated project 'SAINT JACQUES' vite owns ::1:5173; Playwright reuse fails (IPv4 ERR_CONNECTION_REFUSED) and CI mode refuses (localhost already used). Stopping that process is outside task authority.",
+    "Unavailable: Docker, GitHub CLI (not installed)",
+    "Systems: 7.9 GB RAM (~1.2-1.4 GB free during run), 15.1 GB free disk; pagefile 12 GB"
+  ],
+  "generated_drift": ["backend/internal/storage/sqlite/gen/models.go", "backend/internal/storage/sqlite/gen/sessions.sql.go"],
+  "runtime_package_findings": {
+    "package_built": true,
+    "package_output": "frontend/out/Agent Orchestrator-win32-x64/agent-orchestrator.exe (188,784,128 bytes, sha256 48c0ccffdc8a5275d7b9371aefc490103b3ec6d68bb9ba1241491457343c6317)",
+    "installer_made": false,
+    "signing": "NotSigned (Authenticode NotSigned)",
+    "starts_on_same_machine": true,
+    "existing_install_interference": "none exists",
+    "daemon_listener": "127.0.0.1:3001",
+    "single_instance": true,
+    "shutdown": "clean, 0 survivors"
+  },
+  "discretion_decisions": [
+    "Shipped verify-ao-baseline.ps1 cannot parse under Windows PowerShell 5.1 (line 34 `$ExpectedBaselineTag:` drive-qualified variable). Executed the identical matrix with a parser-fixed replica (only interpolation braces changed; byte-comparison diffs shown; shipped helper hash 22cc9359... unchanged).",
+    "Frontend chain run on the documented npm@10 toolchain after recording the npm 11 EUSAGE failure; frontend npm ci under npm 11 is the recorded primary result.",
+    "electron-forge package completed via the in-repo documented `~/.skip-forge-system-check` flag (forge's own escape hatch for its package-manager version check); flag created then removed. Plain `npm run package` failure preserved in evidence.",
+    "Playwright browser v1223 installed (documented E2E prerequisite); external SAINT JACQUES vite not stopped (outside authority).",
+    "Short bounded packaged-app launch (~20s) chosen over a long-running session; upstream documented anonymous PostHog telemetry may transmit during launch (README telemetry section; not disabled at build).",
+    "~/.ao/electron runtime cache created by the packaged-app launch per upstream hard rule; left in place (user-profile runtime state; deletion outside task scope), recorded in daemon-process-inventory.txt."
+  ],
+  "stop_or_escalation_events": [],
+  "amendment_history": [
+    {
+      "amendment_id": "SA00-T02-EA01",
+      "date_utc": "2026-08-10",
+      "summary": "Evidence-only documentation amendment. Corrects the misleading working_tree_clean_at_end=true to false (final state legitimately contains the allowlisted evidence directory and completion receipt; the exact final delta is recorded in repository.working_tree_final_delta). Adds a frontend-build-script-availability evidence log proving frontend/package.json has no scripts.build, classifies that requirement NOT_APPLICABLE in command-matrix.json and summary.json with the recorded Forge/Vite package result as the applicable build evidence, and replaces git-status-after.txt with a final capture after both allowlisted paths existed. manifest.sha256 regenerated; all prior failure/environment classifications, hashes, baseline commit, and commit.created=false preserved unchanged."
+    }
+  ],
+  "deviations": [
+    "No commit created: SA00-T02 has no packet-defined commit; evidence + receipt are intentional untracked additions.",
+    "Monolithic parser-fixed replica run aborted partway (no summary written) due to tooling/host-output behavior after root-lint; every matrix step was re-run individually with per-step logs and the command matrix records each step's start/end/exit/duration.",
+    "golangci-lint-only run recorded because root `npm run lint` cannot reach golangci-lint while go test fails.",
+    "sqlc generation wrote working-tree files; all restored via git restore (no retained drift)."
+  ],
+  "remaining_risks": [
+    "E2E suite not executable while the unrelated project's vite holds ::1:5173; requires the owner to free the port or authorize stopping that process before SA00-T03-equivalent E2E evidence.",
+    "go test -race and cgo coverage unavailable on this machine (no C toolchain); race evidence must come from a cgo-capable host.",
+    "golangci clean status on this machine is distorted by CRLF checkout; verifying zero static findings requires an LF checkout or core.autocrlf=false clone.",
+    "11 golangci static findings (gosec/errcheck/errorlint) are recorded verbatim and may warrant upstream triage.",
+    "npm audit: root 3 vulns (1 moderate, 2 high); frontend 36 vulns (3 low, 2 moderate, 30 high, 1 critical); landing 11 vulns (4 moderate, 7 high) - all pre-existing upstream dependency posture.",
+    "SA00-T03 readiness recorded here is the technical baseline+pre-existing-failure record; dispatch still requires owner acceptance of this receipt and the A0 gate decisions."
+  ],
+  "commit": {
+    "created": false,
+    "sha": null,
+    "message": null,
+    "pushed": false
+  },
+  "next_eligible_tasks": ["SA00-T03", "gate A0 checklist inputs"],
+  "review_required": true
+}

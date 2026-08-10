@@ -1,0 +1,8 @@
+﻿System.Management.Automation.ParseException: At D:\WORK\10 - AI\AI TOOLS\square-orchestrator\docs\superpowers\plans\2026-08-09-fork-agent-orchestrator\square-session-first-implementation-pack\scripts\verify-ao-baseline.ps1:34 char:53
++ ... TCODE -ne 0) { throw "Unable to resolve $ExpectedBaselineTag: $baseli ...
++                                             ~~~~~~~~~~~~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit the name.
+   at System.Management.Automation.ExceptionHandlingOps.CheckActionPreference(FunctionContext funcContext, Exception exception)
+   at System.Management.Automation.Interpreter.ActionCallInstruction`2.Run(InterpretedFrame frame)
+   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)
+   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)
