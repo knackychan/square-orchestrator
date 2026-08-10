@@ -1,13 +1,12 @@
 # Superpowers Planning Context for Claude
 
-This directory contains canonical design specs and bounded plans. Read root `STATUS.md` before
-using any plan; a plan's existence is not authority to execute it.
+This directory contains the active fork design/specification context and bounded plan. Read root
+`STATUS.md` before using any plan; superseded pre-fork material is under `archive/plans/`.
 
 ## File map
 
 | Path | Purpose |
 |---|---|
 | `AGENTS.md`, `CLAUDE.md` | Planning context pair |
-| `specs/` | Durable design specifications |
-| `plans/` | Bounded execution plans and state |
-
+| `specs/` | Empty fork-era specification area, with its context pair |
+| `plans/` | The active `2026-08-09-fork-agent-orchestrator/` pack only |

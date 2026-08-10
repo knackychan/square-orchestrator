@@ -71,8 +71,8 @@ new worker surface before allowing edits.
 | `STATUS.md` | Current authority |
 | `HANDOVER.md` | Cold-start operating workflow |
 | `CLIENT-EXECUTION.md` | Client routes, launch profiles, and lifecycle reference |
-| `archive/` | Frozen pre-fork implementation line and toolchain (former `src/`, `ui/`, `vscode/`, `prototypes/`, `contracts/`, `build/`, `tests/`, `sqorch/`, `.github/`, `artifacts/`, root .NET/Node/pnpm config), trace/history only |
-| `docs/` | Specifications, plans, and architecture evidence |
+| `archive/` | Documents, plans, source, and tooling from the frozen pre-fork line, sorted by type; trace/history only |
+| `docs/` | Active fork plan and context pairs |
 
 The repository is mid-pivot to a maintained downstream fork of Agent Orchestrator; see
 `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/`.

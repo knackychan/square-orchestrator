@@ -1,15 +1,15 @@
 # Square Orchestrator — Project Status
 
-> Last updated: 2026-08-09
+> Last updated: 2026-08-10
 
 ## Current state
 
 - Phase: **architecture pivot — Square Orchestrator is now a maintained downstream fork of Agent Orchestrator `v0.12.1`**; `SA00-T01` technically complete, `SA00-T02` next
 - Specification: `0.1-draft` (M1/M2 .NET-native specification; superseded in intent by the fork plan, retained for trace/history — see the pivot record below)
 - Active planning subplan: `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/`
-- Superseded planning subplans (trace/history only, no longer active): `docs/superpowers/plans/2026-08-05-m1-dry-run-foundation/`, `docs/superpowers/plans/2026-08-07-square-orchestrator-design/`, `docs/superpowers/plans/2026-08-08-fork/`
+- Superseded planning subplans (trace/history only, no longer active): `archive/plans/2026-08-05-m1-dry-run-foundation/`, `archive/plans/2026-08-07-square-orchestrator-design/`, `archive/plans/2026-08-08-fork/`
 - Application implementation authorized: **no** (SA00 fork-adoption/baseline sequence only; see pivot record — no Square product code)
-- Worktree state: **dirty — pre-existing uncommitted TerminalProof WIP remains at its new `archive/prototypes/TerminalProof/` path, exactly as it was before this pivot, untouched and uncommitted**
+- Worktree state: **dirty — pre-existing uncommitted TerminalProof WIP remains at its new `archive/src/prototypes/TerminalProof/` path, exactly as it was before this pivot, untouched and uncommitted**
 - Delegated agent launch authorized: **no**
 - Dependency installation authorized: **no**
 - External or provider calls authorized: **none, except the read-only `git fetch` of the pinned public Agent Orchestrator upstream tag already performed under the fork pivot record below**
@@ -32,6 +32,25 @@
 - T-M1-05-FIX-02 status: **technically accepted at `2e982eba469e66d87ad491fe113a42a8e9da88fc`**
 
 ## Active authority
+
+### ARCHIVE-TIDY-01 — archive tidy and cleanup (activated 2026-08-10)
+
+The owner accepted and activated `docs/superpowers/plans/2026-08-09-archive-tidy-and-cleanup/PLAN.md`
+for this primary session at starting HEAD `11d7ed4d`. The exact scope is the plan's move manifest,
+context-pair updates, reference updates, and validation. This is an inline primary-session owner
+exception: no delegated worker or client route is used for this documentation/archive operation.
+The task permits no application implementation, package metadata, dependency installation,
+external/provider calls, credential handling, destructive deletion, or `git push`. Existing dirty
+fork-pack changes are pre-existing input and must be preserved. Acceptance authority is the owner,
+after the plan's acceptance criteria and boundary review pass.
+
+Execution record: the tracked archive moves and governance/reference updates are complete in the
+working tree from `11d7ed4d`. The active fork pack validator reports `PASS` with zero warnings;
+`git diff --check` is clean. No worker, client route, dependency installation, external/provider
+call, credential handling, destructive deletion, or push occurred. Pre-existing tracked Python
+`__pycache__/` runtime files were deliberately left at their original paths and excluded from the
+move set under the repository's no-read/no-stage/no-commit runtime rule. Owner acceptance of this
+technical result remains the final gate for `ARCHIVE-TIDY-01`.
 
 The owner accepted the planning-only M0 baseline on 2026-08-05. M0 acceptance closes the bootstrap
 milestone; it does not activate another milestone or authorize application code, package metadata,
@@ -338,7 +357,7 @@ mechanism.
 
 The full fork trace, the Sol ruling, the owner decision, and the exhaustive `SP02-T01`
 dependency-admission proof guide are recorded in
-`docs/superpowers/plans/2026-08-07-square-orchestrator-design/dependency-securityfork-resolution.md`.
+`archive/plans/2026-08-07-square-orchestrator-design/dependency-securityfork-resolution.md`.
 
 **Owner decision (2026-08-07): Option A — Revert and defer persistence to SP02-T01.**
 
@@ -369,7 +388,7 @@ Owner activated REM-01 on 2026-08-07 under the Option A decision. This task alon
 dependency-free file-store persistence introduced in `ed39978` / `66ea781`, re-scope the `.NET` M1
 port as a non-persistent dry-run slice, and correct `Directory.Packages.props`. Its full packet,
 allowed paths, budgets, validation, and stop conditions are in
-`docs/superpowers/plans/2026-08-07-square-orchestrator-design/PACKET-REM-01.md`.
+`archive/plans/2026-08-07-square-orchestrator-design/PACKET-REM-01.md`.
 
 The selected route is `cmdc` / `deepseek/deepseek-v4-pro` (`silent-failure`). Automatic update and
 fallback remain disabled. The task retains zero dependencies, zero external/provider calls, zero
@@ -548,7 +567,7 @@ no-stage, no-commit, and no-task-input boundary. The retry may continue with its
 starting commit, and task scope unchanged.
 
 The owner declared `docs/**` authorized planning output. The worker-created
-`docs/superpowers/plans/2026-08-05-owner-input-notifications/` packet and its parent context-map
+`archive/plans/2026-08-05-owner-input-notifications/` packet and its parent context-map
 updates are preserved as documentation output, not a task-boundary violation. This exception does
 not permit source or test changes outside T-M1-03-FIX-01's explicit paths.
 

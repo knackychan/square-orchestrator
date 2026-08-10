@@ -14,17 +14,18 @@ This package supersedes the earlier combined implementation-plan draft for undis
 2. `plans/OWNER_ACCEPTANCE_CHECKLIST.md`
 3. `plans/MASTER_IMPLEMENTATION_PLAN.md`
 4. `plans/TASK_INDEX.md` — all 97 slices, prerequisites, and packet status
-5. `docs/ARCHITECTURE_AMENDMENT.md`
-6. `docs/SESSION_DOMAIN_MODEL.md`
-7. `docs/ROLE_ROUTING_MODEL_SELECTION.md`
-8. `docs/PERSISTENCE_AND_EVENTS.md`
-9. `docs/API_AND_EXECUTION_FACADE.md`
-10. `docs/SESSION_FIRST_UI_SPEC.md`
-11. `docs/UPSTREAM_GOVERNANCE.md`
-12. `docs/TEST_AND_RELEASE_STRATEGY.md`
-13. `source-map/AO_SOURCE_PLACEMENT_MAP.md`
-14. `plans/tasks/SA00-T01.md`
-15. `plans/KICKOFF_PROMPT_SA00-T01.md`
+5. `docs/ARCHIVE_RESEARCH_REUSE.md` — reusable findings extracted from the frozen pre-fork line (pinned to the archive location)
+6. `docs/ARCHITECTURE_AMENDMENT.md`
+7. `docs/SESSION_DOMAIN_MODEL.md`
+8. `docs/ROLE_ROUTING_MODEL_SELECTION.md`
+9. `docs/PERSISTENCE_AND_EVENTS.md`
+10. `docs/API_AND_EXECUTION_FACADE.md`
+11. `docs/SESSION_FIRST_UI_SPEC.md`
+12. `docs/UPSTREAM_GOVERNANCE.md`
+13. `docs/TEST_AND_RELEASE_STRATEGY.md`
+14. `source-map/AO_SOURCE_PLACEMENT_MAP.md`
+15. `plans/tasks/SA00-T01.md`
+16. `plans/KICKOFF_PROMPT_SA00-T01.md`
 
 ## Complete plan coverage
 

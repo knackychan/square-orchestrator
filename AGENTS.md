@@ -96,17 +96,16 @@ new worker surface before allowing edits.
 | `STATUS.md` | Current authority and milestone state |
 | `HANDOVER.md` | Cold-start operating workflow; never authority |
 | `CLIENT-EXECUTION.md` | Dated client routes, launch profiles, and lifecycle reference |
-| `archive/` | Frozen pre-fork implementation line and toolchain (former `src/`, `ui/`, `vscode/`, `prototypes/`, `contracts/`, `build/`, `tests/`, `sqorch/`, `.github/`, `artifacts/`, and root .NET/Node/pnpm config), retained for trace/history only; has its own context pair |
+| `archive/` | Documents, plans, source, and tooling from the frozen pre-fork line, sorted by type and retained for trace/history only; has its own context pair |
 | `docs/` | Project documentation, with its own context pair |
 | `docs/superpowers/` | Specs and execution plans, with its own context pair |
 | `docs/superpowers/specs/` | Design specifications |
 | `docs/superpowers/plans/` | Bounded execution packets |
 
 The repository is now mid-pivot to a maintained downstream fork of Agent Orchestrator (see
-`docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/`). Once the fork is established, `src/`,
-`ui/`, `vscode/`, `prototypes/`, `contracts/`, `build/`, `tests/`, and `sqorch/` no longer describe
-this repository's live tree; consult the active fork branch and its own `docs/square/**` governance
-instead.
+`docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/`). The former implementation and
+toolchain trees are grouped under `archive/src/` and `archive/tooling/`; consult the active fork
+branch and its own `docs/square/**` governance instead.
 
 The repository carries pinned toolchain declarations (.NET SDK, Node, pnpm) and central package
 management. No external package dependency, extension, installer, or runtime database is admitted
