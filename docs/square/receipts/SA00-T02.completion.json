@@ -98,7 +98,7 @@
   ],
   "evidence": {
     "directory": "docs/square/evidence/SA00-T02/20260810T053611Z/",
-    "manifest_sha256": "22b30674a2f6c439201585472c74fa929fc635e8bc292c7af9e6eecc5872096d"
+    "manifest_sha256": "fe08f70b031c7bec5b8cf01048964dcaa785e849ce11fbe83a3ff64e54bf64d6"
   },
   "pre_existing_failures": [
     "backend go test ./... (Windows-specific: agent/fake POSIX sh; runtime/tmux; daemon temp-dir file-in-use; service/agent catalog timing; service/project git path separator; session_manager dev-namespace/PATH/node-runtime)",
@@ -141,6 +141,11 @@
       "amendment_id": "SA00-T02-EA01",
       "date_utc": "2026-08-10",
       "summary": "Evidence-only documentation amendment. Corrects the misleading working_tree_clean_at_end=true to false (final state legitimately contains the allowlisted evidence directory and completion receipt; the exact final delta is recorded in repository.working_tree_final_delta). Adds a frontend-build-script-availability evidence log proving frontend/package.json has no scripts.build, classifies that requirement NOT_APPLICABLE in command-matrix.json and summary.json with the recorded Forge/Vite package result as the applicable build evidence, and replaces git-status-after.txt with a final capture after both allowlisted paths existed. manifest.sha256 regenerated; all prior failure/environment classifications, hashes, baseline commit, and commit.created=false preserved unchanged."
+    },
+    {
+      "amendment_id": "SA00-T02-EA01-FIX-01",
+      "date_utc": "2026-08-10",
+      "summary": "Evidence integrity correction. Removed the extra blank line at EOF from daemon-cli-smoke.log that caused git show --check to fail. No logged command, output, timestamp, redaction, or classification was altered. Regenerated manifest.sha256 (only daemon-cli-smoke.log hash changed from fcb1f3d4... to 38bb3876...). Baseline commit, commit.created:false, and all historical facts preserved unchanged."
     }
   ],
   "deviations": [
