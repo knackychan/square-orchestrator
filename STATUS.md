@@ -14,7 +14,9 @@
 - Dependency installation authorized: **only the documented clean-install commands required by SA00-T02 baseline capture; no dependency changes are authorized**
 - External or provider calls authorized: **no model-provider or remote-service calls; SA00-T02 may use network access required by the documented dependency-install baseline and must record it**
 - `SA00-T01` status: **owner-accepted on 2026-08-10 at `square/main` commit `8e2769553f4f0e456dbe4b04fe1f0813e1cf7c8b`; receipt at `docs/square/receipts/SA00-T01.json`; `SA00-T02` is activated as the next task**
-- `SA00-T02` status: **owner-activated on 2026-08-10 for one baseline-evidence attempt; planned route `cmdc` / `deepseek/deepseek-v4-flash`; latest preflight STOPPED_FOR_OWNER_DECISION at 2026-08-10T03:21:00Z before launch; kickoff prompt at `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/plans/KICKOFF_PROMPT_SA00-T02.md`**
+- `SA00-T02` status: **owner-activated on 2026-08-10 for one baseline-evidence attempt; planned route `cmdc` / `deepseek/deepseek-v4-flash`; latest attempt is `ROUTE_UNAVAILABLE` at 2026-08-10T03:21:00Z because allowance could not be safely verified; no worker launched; kickoff prompt at `docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/plans/KICKOFF_PROMPT_SA00-T02.md`**
+- `SA00-T02-EA01` status: **technical review `AMEND_REQUIRED` at target commit `4379badfbd38ba33f1fd614d082f5965112882cf`; owner-activated FIX-01 is the bounded correction task below; SA00-T02 remains unaccepted**
+- `SA00-T02-EA01-FIX-01` status: **owner-activated on 2026-08-10 at starting commit `4379badfbd38ba33f1fd614d082f5965112882cf`; route `opencode` / `opencode-go/deepseek-v4-pro`, high variant, visible VS Code integrated terminal, fallback disabled; budgets 100 worker turns, 150000 input-token rotation, zero spend, one writer; exact commit `docs: fix SA00-T02 evidence integrity`; preflight pending**
 - M0/M1 detailed status below (through T-M1-05) remains historically accurate and is retained for
   trace/history; **superseded by the fork pivot below — no further M0/M1/REM task will be dispatched**
 - M0 status: **accepted by the owner on 2026-08-05**
@@ -61,6 +63,14 @@ procedure was available for the selected Command Code route. The preflight also 
 that HEAD itself begin with `1df40e9` was over-strict and has been corrected. SA00-T02 must start
 from the accepted `square/main` SA00-T01 tip while verifying that `square-base-v0.12.1` and
 `v0.12.1` resolve to the expected upstream commit and that product source is unchanged.
+
+The subsequent two-root preflight used the clean `square/main` worktree at
+`D:\WORK\10 - AI\AI TOOLS\square-orchestrator-work-square-main` and passed repository and
+catalogue checks. Command Code allowance remained unverifiable because no safe non-interactive
+procedure is pinned. The owner authorized recording `ROUTE_UNAVAILABLE` for this attempt. The
+first `cmdc --help` also self-updated the client from 1.4.6 to 1.7.0 before later calls used
+`--no-auto-update`; that environment change is recorded in the preflight report and does not
+authorize a worker launch or route fallback.
 
 The owner accepted the planning-only M0 baseline on 2026-08-05. M0 acceptance closes the bootstrap
 milestone; it does not activate another milestone or authorize application code, package metadata,
