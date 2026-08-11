@@ -1,0 +1,130 @@
+{
+  "schema_version": "square.completion-receipt/v1",
+  "task_id": "SA00-T05",
+  "task_name": "Adoption gate A0",
+  "gate_id": "A0",
+  "attempt_id": "SA00-T05-independent-review-20260811T041613Z",
+  "status": "BLOCKED",
+  "decision": "BLOCKED",
+  "started_utc": "2026-08-11T04:16:13Z",
+  "finished_utc": "2026-08-11T04:23:33Z",
+  "repository": {
+    "branch": "square/main",
+    "starting_commit": "6972e30e21103227941863a42bb2c62760793077",
+    "ending_commit": "6972e30e21103227941863a42bb2c62760793077",
+    "reviewed_commit": "6972e30e21103227941863a42bb2c62760793077",
+    "working_tree_clean_at_start": false,
+    "working_tree_clean_at_end": false,
+    "pre_existing_dirty_paths_preserved": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "frontend/package-lock.json",
+      "docs/square/adr/ADR-SA00-004-session-first-ao-foundation.md",
+      "docs/square/authority/",
+      "docs/square/evidence/SA00-T04/",
+      "docs/square/receipts/SA00-T04.json",
+      "docs/square/upstream/supersession-register.md",
+      "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/"
+    ]
+  },
+  "upstream": {
+    "tag": "v0.12.1",
+    "commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+    "baseline_tag": "square-base-v0.12.1",
+    "baseline_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84"
+  },
+  "changed_files": {
+    "added": [
+      "docs/square/gates/A0-adoption-review.md",
+      "docs/square/gates/A0-adoption-review.json",
+      "docs/square/receipts/SA00-T05.json",
+      "docs/square/evidence/SA00-T05/20260811T041613Z/raw-git.txt",
+      "docs/square/evidence/SA00-T05/20260811T041613Z/integrity-results.txt",
+      "docs/square/evidence/SA00-T05/20260811T041613Z/runtime-defaults-and-tests.txt",
+      "docs/square/evidence/SA00-T05/20260811T041613Z/privacy-and-legal.txt",
+      "docs/square/evidence/SA00-T05/20260811T041613Z/summary.json",
+      "docs/square/evidence/SA00-T05/20260811T041613Z/manifest.sha256"
+    ],
+    "modified": [],
+    "deleted": []
+  },
+  "gate_records": [
+    {
+      "path": "docs/square/gates/A0-adoption-review.md",
+      "sha256": "9e62ab86438d74f250b96eb223ec5d1a6093ba46bb2357a9fcc9698686f2e51a"
+    },
+    {
+      "path": "docs/square/gates/A0-adoption-review.json",
+      "sha256": "722fa13b8b11a28336fb25f908006c8edfdbf57e5864c9149eeb126350165e6a"
+    }
+  ],
+  "evidence": {
+    "directory": "docs/square/evidence/SA00-T05/20260811T041613Z/",
+    "manifest_sha256": "d74579915ebb237569884bc67ff948196f858881cf159c660f3e0a79f4dcdd2c",
+    "entries": 5,
+    "verification": "PASS"
+  },
+  "receipt_hashes": {
+    "SA00-T01_git_blob": "ab9aded18af5ba58da85e9bd7ba1013125b708d9671a83e99ccc4b2262e43c2b",
+    "SA00-T02_git_blob": "b4f7a0f70308d25eb2c07e32586d0c2610a0c9aa5df813fd9b9767ae06d051d5",
+    "SA00-T03_git_blob": "b0ede48dde709abd3d7fc6e8c612851b485d30012032f3c32bdfe5f129cac89b",
+    "SA00-T04_untracked_file": "bb970904620601aabb2db6f51aa3e3cd4bf6dc4b46d2c600ee10ab5579857027"
+  },
+  "authority_manifest": {
+    "path": "docs/square/authority/AUTHORITY_MANIFEST.sha256",
+    "sha256": "dfa08707a58515bab62bf959c66b2d02e5d5c361489f964242c624ead8d53dc1",
+    "verified_entries": 21,
+    "failed_entries": 0,
+    "committed_at_reviewed_commit": false
+  },
+  "acceptance_criteria": [
+    { "id": "A0-01", "status": "PASS" },
+    { "id": "A0-02", "status": "FAIL" },
+    { "id": "A0-03", "status": "FAIL" },
+    { "id": "A0-04", "status": "FAIL" },
+    { "id": "A0-05", "status": "PASS" },
+    { "id": "A0-06", "status": "FAIL" },
+    { "id": "A0-07", "status": "FAIL" },
+    { "id": "A0-08", "status": "FAIL" },
+    { "id": "A0-09", "status": "FAIL" },
+    { "id": "A0-10", "status": "FAIL" },
+    { "id": "A0-11", "status": "FAIL" },
+    { "id": "A0-12", "status": "FAIL" }
+  ],
+  "validations": [
+    { "name": "tag-and-baseline-identity", "status": "PASS", "evidence": "raw-git.txt" },
+    { "name": "linear-descendant-history", "status": "PASS", "evidence": "raw-git.txt" },
+    { "name": "upstream-remote-preserved", "status": "FAIL", "evidence": "raw-git.txt" },
+    { "name": "clean-review-worktree", "status": "FAIL", "evidence": "raw-git.txt" },
+    { "name": "committed-product-boundary", "status": "PASS", "evidence": "raw-git.txt" },
+    { "name": "baseline-evidence-integrity", "status": "FAIL", "evidence": "integrity-results.txt" },
+    { "name": "authority-worktree-integrity", "status": "PASS_UNCOMMITTED", "evidence": "integrity-results.txt" },
+    { "name": "telemetry-default", "status": "FAIL", "evidence": "runtime-defaults-and-tests.txt" },
+    { "name": "updater-hard-disable", "status": "FAIL", "evidence": "runtime-defaults-and-tests.txt" },
+    { "name": "identity-isolation", "status": "FAIL", "evidence": "runtime-defaults-and-tests.txt" },
+    { "name": "privacy-scan", "status": "PASS", "evidence": "privacy-and-legal.txt" },
+    { "name": "apache-attribution", "status": "PASS", "evidence": "privacy-and-legal.txt" }
+  ],
+  "blockers": [
+    "Canonical upstream remote absent.",
+    "Dirty worktree with unclassified dependency-lock drift.",
+    "SA00-T04 authority set absent from reviewed commit.",
+    "Square telemetry default not implemented as hard-off/explicit opt-in.",
+    "Updater not hard-disabled through SA14 and retains official AO feed path.",
+    "Square/AO product, data, runtime, process, port, and environment isolation not implemented.",
+    "SA00-T02 and SA00-T03 evidence manifests do not bind committed bytes."
+  ],
+  "conditions": [],
+  "next_eligible_tasks": [],
+  "next_authorized_action": "Owner creates and explicitly authorizes a new narrowly scoped SA00-FIXxx packet; after its committed receipt, rerun SA00-T05 as a superseding independent review.",
+  "commit": {
+    "created": false,
+    "sha": null,
+    "pushed": false
+  },
+  "reviewer": {
+    "identity": "Codex independent review context",
+    "receipt_claims_trusted_without_recomputation": false
+  },
+  "review_required": true
+}

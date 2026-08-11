@@ -1,0 +1,58 @@
+SA00-T05 — Current runtime defaults and targeted tests
+Reviewed UTC: 2026-08-11T04:16:13Z
+
+Source verification commands/results:
+
+$ git grep -n 'DEFAULT_RELEASE_REPO' 6972e30e -- frontend/forge.config.ts
+frontend/forge.config.ts:10: const DEFAULT_RELEASE_REPO = "AgentWrapper/agent-orchestrator";
+
+$ git grep -n 'startAutoUpdates' 6972e30e -- frontend/src/main.ts
+frontend/src/main.ts:1576: packaged startup calls ensureUpdatePrefs(...).then(() => startAutoUpdates(...))
+
+$ git grep -n 'DEFAULTS: UpdateSettings' 6972e30e -- frontend/src/main/update-settings.ts
+frontend/src/main/update-settings.ts:42: updater preference defaults to enabled=false and channel=latest
+
+Result: FAIL A0-07. Automatic updates are initially opt-out, but the packaged
+runtime still wires the updater and the fallback release feed is the official
+AO repository. A user/manual enablement can therefore check the AO feed. No
+Square-specific hard disable exists through SA14.
+
+$ git grep -n 'AO_TELEMETRY_REMOTE\|DEFAULT_POSTHOG_PROJECT_KEY' 6972e30e -- frontend/src/main.ts frontend/src/renderer/lib/telemetry.ts frontend/src/shared/posthog-config.ts
+frontend/src/main.ts: packaged supervisor defaults AO_TELEMETRY_REMOTE to posthog
+frontend/src/main.ts: packaged supervisor supplies DEFAULT_POSTHOG_PROJECT_KEY
+frontend/src/renderer/lib/telemetry.ts: renderer falls back to DEFAULT_POSTHOG_PROJECT_KEY
+frontend/src/shared/posthog-config.ts: a compiled official project key is present (value intentionally omitted)
+
+Result: FAIL A0-06. Development mode disables daemon remote export, but a
+packaged build from the reviewed commit retains official AO telemetry defaults.
+There is no Square build-time hard-off or explicit owner opt-in gate.
+
+$ git grep -n 'Agent Orchestrator\|dev.agent-orchestrator.desktop\|AO_DATA_DIR\|AO_RUN_FILE\|\.ao' 6972e30e -- frontend/src/main.ts frontend/forge.config.ts frontend/package.json backend/internal/config/config.go
+frontend/package.json: productName is Agent Orchestrator
+frontend/forge.config.ts: app IDs are dev.agent-orchestrator.desktop
+frontend/src/main.ts: application name/title is Agent Orchestrator
+frontend/src/main.ts: Electron userData is under ~/.ao
+frontend/src/main.ts: daemon overrides use AO_RUN_FILE and AO_DATA_DIR
+backend/internal/config/config.go: defaults are ~/.ao/running.json and ~/.ao/data
+
+Result: FAIL A0-08. The reviewed commit has no implemented Square product,
+data, environment, process, listener, or updater identity isolation.
+
+Targeted tests actually run:
+
+$ cd backend; go test ./internal/config -run TestLoadDefaults -count=1 -v
+=== RUN   TestLoadDefaults
+--- PASS: TestLoadDefaults (0.00s)
+PASS
+ok github.com/aoagents/agent-orchestrator/backend/internal/config 1.182s
+
+$ cd frontend; npx vitest run --config vite.renderer.config.ts src/main/update-settings.test.ts src/main/auto-updater.test.ts src/renderer/lib/telemetry.test.ts
+Test Files 3 passed (3)
+Tests 77 passed (77)
+Duration 33.42s
+Exit 0
+
+Interpretation: the targeted tests confirm the inspected AO defaults are the
+current tested behavior. They do not establish Square isolation or a hard
+telemetry/updater disable.
+

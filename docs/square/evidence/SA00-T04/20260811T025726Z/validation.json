@@ -1,0 +1,14 @@
+{
+  "schema_version": "square.validation-summary/v1",
+  "task_id": "SA00-T04",
+  "results": [
+    { "name": "source-pack-manifest", "command": "python scripts/validate-pack.py", "exit_code": 0, "status": "PASS_WITH_ENVIRONMENT_WARNING", "note": "Pack passed; jsonschema/referencing unavailable, so full fixture validation was skipped." },
+    { "name": "source-pack-manifest-rehash", "command": "capture-authority-hashes.ps1 -AuthorityDirectory <pack> -OutputPath <pack>/MANIFEST.sha256", "exit_code": 0, "status": "PASS", "manifest_sha256": "7d9db983fea9faa8fbcfbab465a14ef61654145dd1fe704b59a0c851b6be0599" },
+    { "name": "import-byte-equality", "command": "compare source-pack authority inputs with destination hashes", "exit_code": 0, "status": "PASS", "file_count": 20 },
+    { "name": "authority-index-json", "command": "PowerShell ConvertFrom-Json AUTHORITY_INDEX.json and compare every indexed hash", "exit_code": 0, "status": "PASS", "file_count": 20 },
+    { "name": "authority-manifest", "command": "capture-authority-hashes.ps1 -AuthorityDirectory docs/square/authority", "exit_code": 0, "status": "PASS", "file_count": 21 },
+    { "name": "schemas-and-fixtures-json-parse", "command": "parse all authority schemas and fixtures as JSON", "exit_code": 0, "status": "PASS" },
+    { "name": "html-reference-safety", "command": "inspect approved HTML for complete markup, external resources, secrets, and machine paths", "exit_code": 0, "status": "PASS_OWNER_AUTHORIZED_FIXTURE_PATH", "note": "The accepted visual reference contains the literal absolute path D:\\WORK\\10 - AI\\SQUARE LAB; the owner explicitly authorized retaining it as intentional fixture content. No external resources or secret assignments were found." },
+    { "name": "product-source-unchanged", "command": "git diff -- backend frontend package/toolchain source paths", "exit_code": 0, "status": "PASS", "note": "Only documentation and authority-pack paths were changed by SA00-T04; pre-existing AGENTS.md, CLAUDE.md, and frontend/package-lock.json changes were preserved." }
+  ]
+}

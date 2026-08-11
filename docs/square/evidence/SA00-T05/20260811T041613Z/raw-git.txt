@@ -1,0 +1,104 @@
+SA00-T05 — Adoption gate A0 raw Git verification
+Reviewed UTC: 2026-08-11T04:16:13Z
+Repository: D:\WORK\10 - AI\AI TOOLS\square-orchestrator-work-square-main
+
+$ git rev-parse HEAD
+6972e30e21103227941863a42bb2c62760793077
+
+$ git branch --show-current
+square/main
+
+$ git rev-parse "v0.12.1^{commit}"
+1df40e93772c2c48e916870d9c3ddf8f29a69f84
+
+$ git rev-parse "square-base-v0.12.1^{commit}"
+1df40e93772c2c48e916870d9c3ddf8f29a69f84
+
+$ git merge-base square-base-v0.12.1 HEAD
+1df40e93772c2c48e916870d9c3ddf8f29a69f84
+
+$ git merge-base --is-ancestor square-base-v0.12.1 HEAD
+exit 0
+
+$ git remote -v
+origin  https://github.com/knackychan/square-orchestrator.git (fetch)
+origin  https://github.com/knackychan/square-orchestrator.git (push)
+
+Result: FAIL. The required upstream remote is absent. SA00-T01 evidence recorded
+upstream as https://github.com/Untrivial-ai/agent-orchestrator.git, but current
+remote configuration contains only origin.
+
+$ git status --short --branch
+## square/main
+ M AGENTS.md
+ M CLAUDE.md
+ M frontend/package-lock.json
+?? docs/square/adr/ADR-SA00-004-session-first-ao-foundation.md
+?? docs/square/authority/
+?? docs/square/evidence/SA00-T04/
+?? docs/square/receipts/SA00-T04.json
+?? docs/square/upstream/supersession-register.md
+?? docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/
+
+Result: FAIL. The tree was not clean before this review. The frontend lockfile
+contains 25 uncommitted added lines. SA00-T04 and the implementation pack are
+untracked and therefore absent from the reviewed commit.
+
+$ git log --graph --decorate --oneline --max-count 20
+* 6972e30e (HEAD -> square/main) docs: design SA00-T03 product identity isolation
+* d61ec332 docs: fix SA00-T02 manifest encoding
+* feabb346 docs: fix SA00-T02 evidence integrity
+* 4379badf docs: amend SA00-T02 baseline evidence
+* 8e276955 SA00-T01: pin Agent Orchestrator downstream baseline
+* 1df40e93 (tag: v0.12.1, tag: square-base-v0.12.1) fix: snap theme switches with View Transitions (#3620)
+* 26f913d9 fix(workspace): stop leaking a descriptor per watched file on macOS (#3624)
+* 7d80f4a3 fix(browser): prevent wrong tab content after switching (#3579)
+* 65c96109 feat(sidebar): update sidebar with animations (#3490)
+* cd874bfa Match the feedback loop demo's chrome to the session view (#3616)
+* d9ca4561 fix(frontend): fix topbar on session page (#3560)
+* 753cacb4 feat: delegate new tasks through project orchestrator (#3443)
+* c59a9493 Revamping browser annotation and adding multi-element select on shift toggle (#3549)
+* 4babacf9 feat: add adapter-aware model selection (#3386)
+* d9a9b4a5 fix: unify modal footer buttons and equal edge padding (#3584)
+* d6bcd730 feat(landing): improve Feature 4 project mockup (#3561)
+* 2e11c616 fix: render review summaries only when present (#3608)
+* 09c4513b sqlite: add shippedMigrations entry for 0044_backfill_review_run_batch_id.sql (#3611)
+* 5e50fc34 fix: retain terminal viewport across navigation (#3371)
+* ad153c1f refactor: remove obsolete review result reducer (#3559)
+
+$ git diff --stat "square-base-v0.12.1"..6972e30e21103227941863a42bb2c62760793077
+76 files changed, 4799 insertions(+)
+
+$ git diff --name-status "square-base-v0.12.1"..6972e30e21103227941863a42bb2c62760793077 -- backend frontend packages package.json package-lock.json .github
+(no output)
+
+Result: PASS for the committed product/dependency/generated boundary. All 76
+committed changes since the baseline are SA00-T01..T03 documentation, receipts,
+and evidence. No tracked product, dependency, generated, or workflow file changed.
+
+$ git diff --stat -- frontend/package-lock.json
+ frontend/package-lock.json | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+$ git cat-file -e 6972e30e21103227941863a42bb2c62760793077:docs/square/receipts/SA00-T04.json
+exit 128
+$ git cat-file -e 6972e30e21103227941863a42bb2c62760793077:docs/square/authority/AUTHORITY_INDEX.json
+exit 128
+$ git cat-file -e 6972e30e21103227941863a42bb2c62760793077:docs/square/adr/ADR-SA00-004-session-first-ao-foundation.md
+exit 128
+$ git cat-file -e 6972e30e21103227941863a42bb2c62760793077:docs/square/upstream/supersession-register.md
+exit 128
+
+$ git branch -vv
++ main        377b34a8 (D:/WORK/10 - AI/TOOLS/square-orchestrator) [origin/main] commit
+* square/main 6972e30e docs: design SA00-T03 product identity isolation
+
+$ git ls-remote --heads --tags origin refs/heads/square/main refs/heads/main refs/tags/square-base-v0.12.1*
+377b34a83bb4990bafce1d4baee416ff99d80127  refs/heads/main
+
+Result: no remote square/main branch or baseline tag was found at origin. No
+unexpected push of the reviewed downstream branch/tag was observed.
+
+$ git ls-remote https://github.com/Untrivial-ai/agent-orchestrator.git refs/tags/v0.12.1
+1df40e93772c2c48e916870d9c3ddf8f29a69f84  refs/tags/v0.12.1
+

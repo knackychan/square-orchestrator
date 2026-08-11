@@ -1,0 +1,24 @@
+{
+  "schema_version": "square.evidence-summary/v1",
+  "task_id": "SA00-T04",
+  "status": "COMPLETE_DOCUMENTATION_ONLY",
+  "source_pack_manifest_sha256": "7d9db983fea9faa8fbcfbab465a14ef61654145dd1fe704b59a0c851b6be0599",
+  "destination_authority_manifest": "docs/square/authority/AUTHORITY_MANIFEST.sha256",
+  "owner_decision": "docs/square/evidence/SA00-T04/20260811T025726Z/owner-decision.json",
+  "imported_file_count": 20,
+  "authority_indexed_file_count": 20,
+  "authority_manifest_file_count": 21,
+  "authority_precedence": "ADR -> architecture amendment -> master plan -> written contracts -> visual reference -> draft schemas/fixtures",
+  "supersession": {
+    "preserved_behavioral_research": true,
+    "retired_dotnet_wpf_global_dashboard_production_line": true,
+    "current_direction": "AO Go/Electron/SQLite/ConPTY/worktree platform with Square Session top-level UX"
+  },
+  "product_code_changed": false,
+  "next_eligible_task": "SA00-T05 gate review only",
+  "remaining_risks": [
+    "Full JSON Schema fixture validation requires jsonschema/referencing, unavailable in the current environment.",
+    "Signing identities and trademark clearance remain future pre-release gates as explicitly accepted.",
+    "Full JSON Schema fixture validation remains environment-limited because jsonschema/referencing is unavailable; all schema and fixture files parse as JSON and the supplied pack validator passes with that warning."
+  ]
+}

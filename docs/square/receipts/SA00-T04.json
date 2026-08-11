@@ -1,0 +1,86 @@
+{
+  "schema_version": "square.completion-receipt/v1",
+  "task_id": "SA00-T04",
+  "attempt_id": "SA00-T04-authority-import-20260811",
+  "status": "COMPLETE_DOCUMENTATION_ONLY",
+  "started_utc": "2026-08-11T02:49:10Z",
+  "finished_utc": "2026-08-11T03:08:36Z",
+  "repository": {
+    "branch": "square/main",
+    "starting_commit": "6972e30e21103227941863a42bb2c62760793077",
+    "ending_commit": "6972e30e21103227941863a42bb2c62760793077",
+    "working_tree_clean_at_start": false,
+    "working_tree_clean_at_end": false,
+    "working_tree_final_delta": "SA00-T04 documentation, authority, evidence, and receipt files are added. Pre-existing AGENTS.md, CLAUDE.md, frontend/package-lock.json, and the untracked source planning pack were preserved.",
+    "upstream_tag": "v0.12.1",
+    "upstream_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84"
+  },
+  "authority_hashes": [
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/MANIFEST.sha256", "sha256": "7d9db983fea9faa8fbcfbab465a14ef61654145dd1fe704b59a0c851b6be0599" },
+    { "path": "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/plans/tasks/SA00-T04.md", "sha256": "b52d47028170f918a340445fc006ce8c0bf4a9d0db95b674934454f355f85855" },
+    { "path": "docs/square/authority/AUTHORITY_MANIFEST.sha256", "sha256": "dfa08707a58515bab62bf959c66b2d02e5d5c361489f964242c624ead8d53dc1" },
+    { "path": "docs/square/authority/AUTHORITY_INDEX.json", "sha256": "a3c0894e8f9a6aaf64a49b42898225ec8ead21b9d34ad848cd928cf045c934da" },
+    { "path": "docs/square/adr/ADR-SA00-004-session-first-ao-foundation.md", "sha256": "b8c271ac8d3c9c4af095cabf8e07e00e98605a3db6f97567e8fd0a8a7fdae173" },
+    { "path": "docs/square/upstream/supersession-register.md", "sha256": "8c0908a0fa135434f0d2f6f0f254bd727663a5ebf3bf5bf52e42cd61932241ef" }
+  ],
+  "changed_files": {
+    "added": [
+      "docs/square/authority/**",
+      "docs/square/adr/ADR-SA00-004-session-first-ao-foundation.md",
+      "docs/square/upstream/supersession-register.md",
+      "docs/square/evidence/SA00-T04/20260811T025726Z/**",
+      "docs/square/receipts/SA00-T04.json"
+    ],
+    "modified": [],
+    "deleted": []
+  },
+  "generated_files": [
+    "docs/square/authority/AUTHORITY_MANIFEST.sha256",
+    "docs/square/evidence/SA00-T04/20260811T025726Z/manifest.sha256"
+  ],
+  "validations": [
+    { "name": "source-pack-validation", "command": "python scripts/validate-pack.py", "exit_code": 0, "status": "PASS_WITH_ENVIRONMENT_WARNING", "evidence_path": "docs/square/evidence/SA00-T04/20260811T025726Z/validation.json" },
+    { "name": "source-destination-byte-equality", "command": "compare 20 imported source/destination SHA-256 values", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T04/20260811T025726Z/import-map.json" },
+    { "name": "authority-manifest-verification", "command": "recompute every AUTHORITY_MANIFEST.sha256 entry", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/authority/AUTHORITY_MANIFEST.sha256" },
+    { "name": "authority-index-verification", "command": "parse index and compare every indexed file hash", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T04/20260811T025726Z/validation.json" },
+    { "name": "html-reference-review", "command": "inspect approved HTML for external resources, secrets, and absolute paths", "exit_code": 0, "status": "PASS_OWNER_AUTHORIZED_FIXTURE_PATH", "evidence_path": "docs/square/evidence/SA00-T04/20260811T025726Z/owner-decision.json" },
+    { "name": "product-source-unchanged", "command": "git diff -- backend frontend source/toolchain paths", "exit_code": 0, "status": "PASS", "evidence_path": "docs/square/evidence/SA00-T04/20260811T025726Z/changed-files.json" }
+  ],
+  "acceptance_criteria": [
+    { "id": "SA00-AC-20", "status": "PASS", "evidence": ["docs/square/adr/ADR-SA00-004-session-first-ao-foundation.md", "docs/square/authority/AUTHORITY_INDEX.json"] },
+    { "id": "SA00-AC-21", "status": "PASS", "evidence": ["docs/square/adr/ADR-SA00-004-session-first-ao-foundation.md", "docs/square/evidence/SA00-T04/20260811T025726Z/owner-decision.json"] },
+    { "id": "SA00-AC-22", "status": "PASS", "evidence": ["docs/square/authority/AUTHORITY_INDEX.json", "docs/square/authority/AUTHORITY_MANIFEST.sha256"] },
+    { "id": "SA00-AC-23", "status": "PASS", "evidence": ["docs/square/upstream/supersession-register.md"] },
+    { "id": "SA00-AC-24", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T04/20260811T025726Z/changed-files.json"] },
+    { "id": "SA00-AC-25", "status": "PASS", "evidence": ["docs/square/evidence/SA00-T04/20260811T025726Z/summary.json"] }
+  ],
+  "evidence": {
+    "directory": "docs/square/evidence/SA00-T04/20260811T025726Z/",
+    "manifest_sha256": "5107f1fa6674098a4d4aa20ad14f8f4b8e0d162f2cb0ff78701d5415b84b52f8"
+  },
+  "discretion_decisions": [
+    "Regenerated and reaccepted the source-pack manifest after owner authorization because the supplied pack contained post-generation changes; final source-pack manifest SHA-256 is recorded above.",
+    "Replaced only the task-created untracked authority staging copies so the final authority bytes exactly match the reaccepted source pack.",
+    "Recorded the owner's explicit amendment that no ao compatibility alias exists and Square reserves authenticated LAN port 3111.",
+    "Recorded owner authorization to retain the absolute path in the approved visual reference as intentional fixture content."
+  ],
+  "stop_or_escalation_events": [
+    { "event": "initial source manifest mismatch", "resolution": "owner authorized manifest regeneration and reacceptance" },
+    { "event": "absolute path in approved HTML", "resolution": "owner authorized intentional fixture retention" }
+  ],
+  "deviations": [
+    "Full JSON Schema fixture validation was not available because jsonschema/referencing are not installed; the supplied pack validator passed with this warning and all schemas/fixtures parsed as JSON."
+  ],
+  "remaining_risks": [
+    "Full JSON Schema validation should be rerun in an environment with jsonschema/referencing before contract promotion.",
+    "Signing identities and trademark clearance remain future pre-release gates."
+  ],
+  "commit": {
+    "created": false,
+    "sha": null,
+    "message": null,
+    "pushed": false
+  },
+  "next_eligible_tasks": ["SA00-T05 gate review only"],
+  "review_required": true
+}

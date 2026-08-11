@@ -1,0 +1,35 @@
+{
+  "schema_version": "square.changed-files/v1",
+  "task_id": "SA00-T04",
+  "scope": "SA00-T04 changes only",
+  "product_code_changed": false,
+  "added": [
+    "docs/square/adr/ADR-SA00-004-session-first-ao-foundation.md",
+    "docs/square/authority/00-architecture-amendment.md",
+    "docs/square/authority/01-master-session-first-plan.md",
+    "docs/square/authority/02-session-domain-model.md",
+    "docs/square/authority/03-role-routing-model-selection.md",
+    "docs/square/authority/04-persistence-and-events.md",
+    "docs/square/authority/05-api-and-execution-facade.md",
+    "docs/square/authority/06-session-first-ui-spec.md",
+    "docs/square/authority/07-upstream-governance.md",
+    "docs/square/authority/08-test-and-release-strategy.md",
+    "docs/square/authority/09-ao-source-placement-map.md",
+    "docs/square/authority/10-approved-rounded-session-ui.html",
+    "docs/square/authority/11-approved-rounded-session-ui-readme.md",
+    "docs/square/authority/contracts-draft/",
+    "docs/square/authority/fixtures/",
+    "docs/square/authority/AUTHORITY_INDEX.json",
+    "docs/square/authority/AUTHORITY_MANIFEST.sha256",
+    "docs/square/upstream/supersession-register.md",
+    "docs/square/evidence/SA00-T04/20260811T025726Z/"
+  ],
+  "modified": [],
+  "deleted": [],
+  "pre_existing_out_of_scope": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "frontend/package-lock.json",
+    "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/"
+  ]
+}

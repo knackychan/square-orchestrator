@@ -1,0 +1,61 @@
+{
+  "schema_version": "square.owner-decision/v1",
+  "task_id": "SA00-T04",
+  "owner": "Project owner",
+  "decision_timestamp_utc": "2026-08-11T02:52:52Z",
+  "status": "ACCEPTED_WITH_AMENDMENTS",
+  "owner_wording": [
+    "ACCEPT SA00-T03 as technically complete and owner-accepted.",
+    "ACCEPT product name Square Orchestrator.",
+    "ACCEPT short name/CLI Square / square.",
+    "AMEND: No ao compatibility alias. The ao and square commands remain separate.",
+    "ACCEPT app ID dev.square-orchestrator.desktop.",
+    "ACCEPT telemetry disabled by default.",
+    "ACCEPT updater disabled until SA14.",
+    "ACCEPT defer any Square PostHog project/key until explicit owner opt-in.",
+    "ACCEPT procure macOS signing identity before SA14.",
+    "ACCEPT procure Windows signing certificate before SA14.",
+    "ACCEPT version scheme <upstream-version>-square.<n>.",
+    "ACCEPT no npm publication initially.",
+    "ACCEPT crash reporting disabled by default.",
+    "ACCEPT LAN/mobile listener disabled by default.",
+    "AMEND: Reserve 3111 as the Square LAN port, used only when the authenticated LAN listener is explicitly enabled.",
+    "ACCEPT trademark clearance as a required pre-release/legal gate.",
+    "AMEND: Frontend license is Apache-2.0.",
+    "ACCEPT A0: AO v0.12.1 pinned base, maintained fork, session-first UX, deterministic Go Task Manager, bounded model roles, QUICK before PLANNED, per-role routing, requested/resolved/actual identity separation, rounded session-first UI, AO REST/SSE/WebSocket MVP transport, and Windows x64 first."
+  ],
+  "decisions": {
+    "product_name": "Square Orchestrator",
+    "short_name": "Square",
+    "cli_command": "square",
+    "ao_compatibility_alias": false,
+    "app_id": "dev.square-orchestrator.desktop",
+    "telemetry_default": "disabled",
+    "updater_default": "disabled_until_SA14",
+    "square_posthog": "deferred_until_explicit_owner_opt_in",
+    "macos_signing_identity": "procure_before_SA14",
+    "windows_signing_certificate": "procure_before_SA14",
+    "version_scheme": "<upstream-version>-square.<n>",
+    "npm_publication": false,
+    "crash_reporting_default": "disabled",
+    "lan_mobile_default": "disabled",
+    "square_lan_port": 3111,
+    "trademark_clearance": "required_pre_release_gate",
+    "frontend_license": "Apache-2.0"
+  },
+  "a0_architecture_accepted": true,
+  "followup_owner_authorization": {
+    "timestamp_utc": "2026-08-11T03:08:36Z",
+    "wording": "authorize",
+    "interpretation": "The owner authorizes retaining the literal absolute path in the accepted visual reference as intentional fixture content for this authority import."
+  },
+  "stop_condition_evidence": {
+    "owner_acceptance_wording_captured": true,
+    "source_pack_manifest_verified": true,
+    "destination_collisions": false,
+    "material_contradiction_found": false,
+    "product_source_edit_required": false,
+    "private_absolute_path_in_approved_html": true,
+    "private_absolute_path_disposition": "OWNER_AUTHORIZED_INTENTIONAL_FIXTURE_CONTENT"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "square.planning-scout-record/v1",
+  "task_id": "SA01-T01",
+  "artifact_type": "planning_scout_report",
+  "report_path": "docs/square/evidence/SA01-T01/20260811T042847Z/SA01-T01-scout-report.md",
+  "report_sha256": "fcc464965db6767951202c45a1dbb979dc8274168eb1176cb8f36ae711d70134",
+  "reviewed_source_commit": "6972e30e21103227941863a42bb2c62760793077",
+  "branch": "square/main",
+  "a0_receipt": {
+    "path": "docs/square/receipts/SA00-T05.json",
+    "status": "BLOCKED",
+    "implementation_dispatch_allowed": false
+  },
+  "reviewed_against": [
+    "docs/superpowers/plans/2026-08-09-fork-agent-orchestrator/square-session-first-implementation-pack/plans/tasks/SA01-T01.md",
+    "docs/square/authority/00-architecture-amendment.md",
+    "docs/square/authority/01-master-session-first-plan.md"
+  ],
+  "confirmed_current_behavior": {
+    "desktop_exit": "Electron launches the daemon with AO_OWNER=app; the supervisor socket reaches EOF after Electron exits; the backend waits five seconds and requests daemon shutdown; the daemon exits and removes its run-file while durable session/runtime records remain for reconciliation.",
+    "explicit_daemon_stop": "The current explicit daemon:stop path invokes killDaemon and terminates the daemon process group; the existing /shutdown route is not a fact-based safe-stop operation.",
+    "reload_and_renderer_crash": "Renderer transport and terminal attachments reconnect without normally closing the Electron supervisor link or destroying the daemon-owned runtime session."
+  },
+  "boundary_decision": {
+    "status": "RESOLVED_FOR_PLANNING",
+    "sa01_t01_owns": [
+      "Electron desktop lifecycle separation",
+      "renderer-only cleanup",
+      "reconnect to an already verified daemon/session",
+      "lifecycle tests and real Electron evidence"
+    ],
+    "sa01_t02_or_combined_amendment_owns": [
+      "Square daemon identity",
+      "run-file compatibility",
+      "data-root and protocol identity",
+      "stale/foreign/unrelated endpoint classification",
+      "takeover and ambiguous-process handling",
+      "instance generation",
+      "authoritative safe-idle status and safe-stop operation"
+    ],
+    "excluded_from_t01": [
+      "frontend/src/shared/daemon-attach.ts",
+      "frontend/src/shared/daemon-discovery.ts",
+      "frontend/src/shared/daemon-takeover.ts",
+      "frontend/src/main/daemon-owner.ts",
+      "backend run-file/identity/takeover changes",
+      "migrations, storage schema, session-manager semantics, ConPTY/runtime behavior",
+      "updater, telemetry, worktree cleanup, and UI redesign"
+    ]
+  },
+  "implementation_status": "BLOCKED_PENDING_A0_AND_ACCEPTED_T02_IDENTITY_READINESS_SAFE_STOP_CONTRACT",
+  "recommended_dependency_amendment": {
+    "owner_acceptance_required": true,
+    "order": [
+      "A0 PASS",
+      "SA01-T02 identity/readiness/safe-stop contract",
+      "SA01-T03 and SA01-T05 may run in parallel with SA01-T02 in separate worktrees",
+      "SA01-T01 frontend lifecycle/reconnect implementation consumes the accepted T02 contract",
+      "SA01-T02 + SA01-T03 -> SA01-T04",
+      "SA01-T01..T05 -> A1"
+    ],
+    "reason": "The current packets make T01 and T02 circular: T01 needs T02-owned identity/safe-stop semantics, while T02 lists accepted T01 as a prerequisite. Neither implementation should bypass that contradiction."
+  },
+  "next_authorized_action": "Complete or repair A0 first; then obtain explicit owner acceptance of the dependency amendment or a combined SA01-T01/T02 packet before any implementation dispatch.",
+  "narrow_sa00_fix_needed_before_a0": false,
+  "sa00_fix_if_owner_reopens_gate": "If A0 blockers are still being repaired, create a narrowly scoped SA00-FIX task for the specific blocker and rerun an independent superseding A0 review. Do not use SA01-T01 to repair A0."
+}

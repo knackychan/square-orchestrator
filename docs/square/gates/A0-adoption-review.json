@@ -1,0 +1,129 @@
+{
+  "schema_version": "square.gate-review/v1",
+  "gate_id": "A0",
+  "gate_name": "Adoption gate",
+  "task_id": "SA00-T05",
+  "task_name": "Adoption gate A0",
+  "decision": "BLOCKED",
+  "reviewed_commit": "6972e30e21103227941863a42bb2c62760793077",
+  "reviewed_branch": "square/main",
+  "upstream_tag": "v0.12.1",
+  "upstream_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+  "baseline_tag": "square-base-v0.12.1",
+  "baseline_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+  "receipt_hashes": [
+    {
+      "task_id": "SA00-T01",
+      "path": "docs/square/receipts/SA00-T01.json",
+      "sha256": "ab9aded18af5ba58da85e9bd7ba1013125b708d9671a83e99ccc4b2262e43c2b",
+      "method": "raw Git blob at reviewed_commit"
+    },
+    {
+      "task_id": "SA00-T02",
+      "path": "docs/square/receipts/SA00-T02.completion.json",
+      "sha256": "b4f7a0f70308d25eb2c07e32586d0c2610a0c9aa5df813fd9b9767ae06d051d5",
+      "method": "raw Git blob at reviewed_commit"
+    },
+    {
+      "task_id": "SA00-T03",
+      "path": "docs/square/receipts/SA00-T03.completion.json",
+      "sha256": "b0ede48dde709abd3d7fc6e8c612851b485d30012032f3c32bdfe5f129cac89b",
+      "method": "raw Git blob at reviewed_commit"
+    },
+    {
+      "task_id": "SA00-T04",
+      "path": "docs/square/receipts/SA00-T04.json",
+      "sha256": "bb970904620601aabb2db6f51aa3e3cd4bf6dc4b46d2c600ee10ab5579857027",
+      "method": "current untracked worktree file",
+      "committed_at_reviewed_commit": false
+    }
+  ],
+  "evidence_manifest_hashes": [
+    {
+      "task_id": "SA00-T01",
+      "declared_sha256": "ff61e13ec9a33f7ed96eb6ee187fca25cd1d49ff7a7d925ec92b2d723bce3fb0",
+      "git_blob_sha256": "ff61e13ec9a33f7ed96eb6ee187fca25cd1d49ff7a7d925ec92b2d723bce3fb0",
+      "entries_checked": 7,
+      "entries_failed_against_git_blobs": 0
+    },
+    {
+      "task_id": "SA00-T02",
+      "declared_sha256": "d91b3f80f11e4a5affdefcfd496de4992f483f5a8ff063adda4153bb9740fafa",
+      "git_blob_sha256": "626bb7f8f9fb2f5c95c5830f2760cec8b9b17a2a558e1671fdd6cd651b21737f",
+      "entries_checked": 42,
+      "entries_failed_against_git_blobs": 13
+    },
+    {
+      "task_id": "SA00-T03",
+      "declared_sha256": "8f6b91d76f342df0a147286e89853485fd3165d341bfec55b5da04fdab66212a",
+      "git_blob_sha256": "fb832ec911250550e3d2ed2ea1ac62f4e8341322704289f640519960530f6b1f",
+      "entries_checked": 16,
+      "entries_failed_against_git_blobs": 12
+    },
+    {
+      "task_id": "SA00-T04",
+      "declared_sha256": "5107f1fa6674098a4d4aa20ad14f8f4b8e0d162f2cb0ff78701d5415b84b52f8",
+      "current_file_sha256": "5107f1fa6674098a4d4aa20ad14f8f4b8e0d162f2cb0ff78701d5415b84b52f8",
+      "entries_checked": 6,
+      "entries_failed": 0,
+      "committed_at_reviewed_commit": false
+    },
+    {
+      "task_id": "SA00-T05",
+      "sha256": "d74579915ebb237569884bc67ff948196f858881cf159c660f3e0a79f4dcdd2c",
+      "entries_checked": 5,
+      "entries_failed": 0
+    }
+  ],
+  "authority_manifest": {
+    "path": "docs/square/authority/AUTHORITY_MANIFEST.sha256",
+    "sha256": "dfa08707a58515bab62bf959c66b2d02e5d5c361489f964242c624ead8d53dc1",
+    "entries_checked": 21,
+    "entries_failed": 0,
+    "index_entries": 20,
+    "index_failures": 0,
+    "committed_at_reviewed_commit": false
+  },
+  "criteria": [
+    { "id": "A0-01", "result": "PASS", "summary": "Exact upstream and baseline tag identity verified." },
+    { "id": "A0-02", "result": "FAIL", "summary": "Upstream remote absent and pre-review tree dirty; ancestry itself is valid." },
+    { "id": "A0-03", "result": "FAIL", "summary": "Baseline source is unchanged, but SA00-T02 integrity manifest is not reproducible from committed bytes." },
+    { "id": "A0-04", "result": "FAIL", "summary": "Commit source boundary is clean; worktree contains unclassified frontend lockfile drift." },
+    { "id": "A0-05", "result": "PASS", "summary": "Apache-2.0 and attribution/notice responsibilities are preserved and inventoried." },
+    { "id": "A0-06", "result": "FAIL", "summary": "Packaged code retains official AO PostHog defaults." },
+    { "id": "A0-07", "result": "FAIL", "summary": "Updater is wired to the official AO fallback feed and is not hard-disabled through SA14." },
+    { "id": "A0-08", "result": "FAIL", "summary": "Current product, data, runtime, process, app, port, and environment identities remain AO values." },
+    { "id": "A0-09", "result": "FAIL", "summary": "Explicit owner acceptance exists only in untracked SA00-T04 evidence, not the reviewed commit." },
+    { "id": "A0-10", "result": "FAIL", "summary": "Authority files verify in the worktree but are absent from the reviewed commit." },
+    { "id": "A0-11", "result": "FAIL", "summary": "Supersession register content is accurate but absent from the reviewed commit." },
+    { "id": "A0-12", "result": "FAIL", "summary": "Privacy scan passed, but T02/T03 manifest integrity and uncommitted T04 make the evidence set incomplete." }
+  ],
+  "accepted_pre_existing_findings": [
+    "Windows-specific backend go test failures are preserved as upstream baseline findings.",
+    "Race testing was environment-blocked by CGO/toolchain availability.",
+    "npm 11 rejects the upstream frontend lock while the documented npm-10 toolchain passes.",
+    "Frontend unit failures are classified as Windows/macOS environment-specific.",
+    "Playwright e2e was environment-blocked by an unrelated localhost listener.",
+    "sqlc has known upstream generated drift while OpenAPI/TypeScript generation reproduces.",
+    "Unsigned package and isolated AO daemon/CLI smokes passed and terminated cleanly.",
+    "Root npm audit recorded one moderate and two high vulnerabilities without baseline repair."
+  ],
+  "conditions": [],
+  "blockers": [
+    "Canonical upstream remote is not preserved in current Git configuration.",
+    "Review workspace is dirty and includes unclassified frontend/package-lock.json drift.",
+    "SA00-T04 authority/ADR/evidence/receipt/supersession artifacts are absent from reviewed_commit.",
+    "Telemetry is not hard-disabled by default for packaged downstream builds.",
+    "Updater is not hard-disabled through SA14 and retains an official AO feed path.",
+    "Square and AO runtime/data/product identities are not implemented as isolated identities.",
+    "SA00-T02 and SA00-T03 evidence manifests do not verify against committed bytes."
+  ],
+  "allowed_next_tasks": [],
+  "next_authorized_action": "Owner must create and explicitly authorize a new narrowly scoped SA00-FIXxx packet; after its committed receipt, SA00-T05 may be rerun as a superseding independent review.",
+  "reviewer": {
+    "identity": "Codex independent review context",
+    "method": "raw refs, Git object bytes, ancestry, remotes, diffs, manifest and index recomputation, targeted Go/Vitest tests, source inspection, and privacy pattern scan",
+    "receipt_claims_trusted_without_recomputation": false
+  },
+  "reviewed_utc": "2026-08-11T04:16:13Z"
+}

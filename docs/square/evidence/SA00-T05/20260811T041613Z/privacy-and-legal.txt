@@ -1,0 +1,53 @@
+SA00-T05 — Privacy and legal verification
+Reviewed UTC: 2026-08-11T04:16:13Z
+
+Privacy scan roots:
+docs/square/evidence/SA00-T01..T04
+docs/square/receipts
+docs/square/authority
+docs/square/upstream
+
+Patterns searched with `rg -l -i`:
+- Windows user-profile paths
+- Unix user-profile paths
+- bearer values
+- GitHub token forms
+- OpenAI key forms
+- private-key headers
+- PostHog key values
+- browserRuntimeToken references
+
+Results:
+- Windows user-profile path values: 0 files
+- Unix user-profile path values: 0 files
+- bearer values: 0 files
+- GitHub token forms: 0 files
+- OpenAI key forms: 0 files
+- private-key headers: 0 files
+- PostHog key values: 0 files
+- browserRuntimeToken references: 3 files; all are labels saying the value was redacted
+
+Environment-specific absolute workspace paths are present in SA00-T02 evidence.
+The approved UI reference also contains one intentional absolute fixture path;
+the owner explicitly authorized retaining it in SA00-T04 owner-decision.json.
+No credential or user-profile identity was found in the reviewed evidence.
+
+Legal verification:
+
+$ git show square-base-v0.12.1:LICENSE | Select-Object -First 4
+Apache License
+Version 2.0, January 2004
+http://www.apache.org/licenses/
+
+$ git ls-tree -r --name-only square-base-v0.12.1 | rg -i '(^|/)(notice|third[-_ ]party|licenses?)(\.|/|$)'
+(no output)
+
+$ git grep -n -i 'Apache-2.0\|Apache License' square-base-v0.12.1 -- package.json frontend/package.json README.md LICENSE
+LICENSE and README.md identify Apache License 2.0; package manifests have no
+conflicting license declaration at the pinned baseline.
+
+The attribution inventory records modified-file notices, release/About
+provenance, installer/archive inclusion, trademark separation, third-party
+notice/SBOM handling, and the absence of an upstream project NOTICE file.
+Result: PASS A0-05.
+

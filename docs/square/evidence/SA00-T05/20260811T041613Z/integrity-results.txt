@@ -1,0 +1,88 @@
+SA00-T05 — Adoption gate A0 integrity recomputation
+Reviewed UTC: 2026-08-11T04:16:13Z
+
+Method 1: recompute each manifest against exact bytes stored in reviewed Git
+commit 6972e30e21103227941863a42bb2c62760793077 using `git show <commit>:<path>`
+and SHA-256 over the raw stdout byte stream.
+
+SA00-T01: 7 checked, 0 failed
+manifest Git-blob SHA-256: ff61e13ec9a33f7ed96eb6ee187fca25cd1d49ff7a7d925ec92b2d723bce3fb0
+
+SA00-T02: 42 checked, 13 failed
+manifest Git-blob SHA-256: 626bb7f8f9fb2f5c95c5830f2760cec8b9b17a2a558e1671fdd6cd651b21737f
+Mismatched entries:
+- backend-go-build.log
+- daemon-cli-smoke.log
+- environment.json
+- generated-drift-pre.json
+- generated-drift-report.json
+- git-diff-after.patch
+- git-status-before.txt
+- helper-parser-error.beforefix.txt
+- package-inventory.json
+- package-launch-smoke.log
+- repository.json
+- shipped-helper.sha256.txt
+- supplement-backend-go-vet.log
+
+SA00-T03: 16 checked, 12 failed
+manifest Git-blob SHA-256: fb832ec911250550e3d2ed2ea1ac62f4e8341322704289f640519960530f6b1f
+Mismatched entries:
+- file-hashes.json
+- key-file-hashes.json
+- license-hash.txt
+- license-sha256.txt
+- notice-files.txt
+- search-agent-orchestrator.txt
+- search-data-paths.txt
+- search-identity-electron.txt
+- search-network.txt
+- search-package-identity.txt
+- search-telemetry.txt
+- search-updater.txt
+
+Method 2: recompute manifests from the Windows checkout using Get-FileHash.
+core.autocrlf is true from C:/Program Files/Git/etc/gitconfig.
+
+SA00-T01: 7 checked, 6 failed; checkout manifest SHA-256
+5669595f1b0ba109cca58f8dc809870737b35beaabbc15936278b739a23f6131
+SA00-T02: 42 checked, 11 failed; checkout manifest SHA-256
+d91b3f80f11e4a5affdefcfd496de4992f483f5a8ff063adda4153bb9740fafa
+SA00-T03: 16 checked, 2 failed; checkout manifest SHA-256
+8f6b91d76f342df0a147286e89853485fd3165d341bfec55b5da04fdab66212a
+
+Conclusion: no single committed/checked-out byte representation verifies the
+SA00-T02 or SA00-T03 evidence manifest. This is an integrity failure, not merely
+a display difference.
+
+Uncommitted worktree inputs:
+SA00-T04 evidence: 6 checked, 0 failed; manifest SHA-256
+5107f1fa6674098a4d4aa20ad14f8f4b8e0d162f2cb0ff78701d5415b84b52f8
+Authority: 21 checked, 0 failed; manifest SHA-256
+dfa08707a58515bab62bf959c66b2d02e5d5c361489f964242c624ead8d53dc1
+Source pack: 108 checked, 0 failed; manifest SHA-256
+7d9db983fea9faa8fbcfbab465a14ef61654145dd1fe704b59a0c851b6be0599
+
+Authority index recomputation:
+index entries=20; manifest entries=21; extra=0; missing=0; failures=0
+statuses: accepted=12; draft-contract-fixture=8
+owner acceptance timestamp: 2026-08-11T02:52:52Z
+
+All JSON under docs/square in the review workspace:
+35 checked; 0 parse failures
+
+Receipt SHA-256 values (exact reviewed Git blobs for T01..T03, current file for
+untracked T04):
+- SA00-T01: ab9aded18af5ba58da85e9bd7ba1013125b708d9671a83e99ccc4b2262e43c2b
+- SA00-T02: b4f7a0f70308d25eb2c07e32586d0c2610a0c9aa5df813fd9b9767ae06d051d5
+- SA00-T03: b0ede48dde709abd3d7fc6e8c612851b485d30012032f3c32bdfe5f129cac89b
+- SA00-T04: bb970904620601aabb2db6f51aa3e3cd4bf6dc4b46d2c600ee10ab5579857027
+
+Baseline identity-file checkout recomputation against SA00-T02 repository.json:
+- package.json: PASS
+- package-lock.json: PASS
+- frontend/package.json: PASS
+- frontend/package-lock.json: FAIL (uncommitted 25-line drift)
+- backend/go.mod: PASS
+- backend/go.sum: PASS
+

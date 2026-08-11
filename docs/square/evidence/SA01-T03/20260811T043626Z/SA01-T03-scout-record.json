@@ -1,0 +1,33 @@
+{
+  "schema_version": "square.planning-scout-record/v1",
+  "task_id": "SA01-T03",
+  "artifact_type": "planning_scout_report",
+  "report_path": "docs/square/evidence/SA01-T03/20260811T043626Z/SA01-T03-scout-report.md",
+  "report_sha256": "06b1db57bb819ad812f13a1ad65670dea332c9b92621197a6734c57b95d030c1",
+  "reviewed_source_commit": "6972e30e21103227941863a42bb2c62760793077",
+  "upstream_tag": "v0.12.1",
+  "upstream_commit": "1df40e93772c2c48e916870d9c3ddf8f29a69f84",
+  "a0_status": "BLOCKED",
+  "implementation_dispatched": false,
+  "product_files_changed": false,
+  "current_runtime_gaps": [
+    "Session Manager.Kill bypasses Runtime.Interrupt and directly destroys the runtime.",
+    "No Windows Job Object or complete descendant process-tree containment exists.",
+    "PID recovery lacks process creation identity fencing.",
+    "ConPTY close and slow-client output-drain behavior require real Windows evidence."
+  ],
+  "accepted_planning_scope": [
+    "deterministic fixture-first Windows evidence",
+    "Job Object containment per pty-host",
+    "process creation-time fencing",
+    "graceful interrupt before separately authorized hard stop",
+    "output-drain and resource-stability proof"
+  ],
+  "non_overlap": {
+    "sa01_t01": "Electron/window/daemon lifetime and desktop reopen E2E; consumes the long-running fixture.",
+    "sa01_t05": "Worktree safety and cleanup classification; consumes definitive process-death facts.",
+    "forbidden_in_t03": "Square domain/API/migrations/UI, Electron lifecycle, worktree cleanup, and ports without owner-approved expansion."
+  },
+  "next_authorized_action": "No implementation dispatch. Preserve report as planning input; after a committed A0 PASS and clean isolated worktree, dispatch fixture-first SA01-T03 within the packet scope.",
+  "owner_decision_required": "None to record this scout; A0 fix scope and clean committed candidate remain prerequisites."
+}
