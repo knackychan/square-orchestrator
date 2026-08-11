@@ -17,7 +17,7 @@ import (
 // DefaultPort is the LAN listener's default port for the Connect Mobile
 // bridge. Distinct from config.DefaultPort (the loopback API port) since the
 // two listeners can run concurrently.
-const DefaultPort = 3011
+const DefaultPort = 3111
 
 // State is the persisted Connect Mobile bridge config in ~/.ao/mobile/config.json.
 // Password is stored in plaintext by deliberate decision: it is a low-value,

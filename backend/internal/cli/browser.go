@@ -430,13 +430,13 @@ func rangeArgs(minimum, maximum int) cobra.PositionalArgs {
 }
 
 func currentBrowserIdentity() (string, string, error) {
-	sessionID := strings.TrimSpace(os.Getenv("AO_SESSION_ID"))
+	sessionID := strings.TrimSpace(os.Getenv("SQUARE_SESSION_ID"))
 	if sessionID == "" {
-		return "", "", usageError{errors.New("ao browser must run inside an AO session (AO_SESSION_ID is not set)")}
+		return "", "", usageError{errors.New("square browser must run inside a Square session (SQUARE_SESSION_ID is not set)")}
 	}
-	capability := strings.TrimSpace(os.Getenv("AO_BROWSER_CAPABILITY"))
+	capability := strings.TrimSpace(os.Getenv("SQUARE_BROWSER_CAPABILITY"))
 	if capability == "" {
-		return "", "", usageError{errors.New("ao browser requires the owning session capability (AO_BROWSER_CAPABILITY is not set)")}
+		return "", "", usageError{errors.New("square browser requires the owning session capability (SQUARE_BROWSER_CAPABILITY is not set)")}
 	}
 	return sessionID, capability, nil
 }

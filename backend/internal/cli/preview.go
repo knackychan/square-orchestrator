@@ -76,7 +76,7 @@ func newPreviewCommand(ctx *commandContext) *cobra.Command {
 	var startJSON bool
 	startCmd := &cobra.Command{
 		Use:   "start [configuration]",
-		Short: "Start a session-owned dev server from .ao/launch.json and open its preview",
+		Short: "Start a session-owned dev server from .square/launch.json and open its preview",
 		Args:  atMostOneArg,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configuration := ""
@@ -146,9 +146,9 @@ func (c *commandContext) clearPreview(ctx context.Context) error {
 }
 
 func sessionPreviewPath() (string, error) {
-	sessionID := strings.TrimSpace(os.Getenv("AO_SESSION_ID"))
+	sessionID := strings.TrimSpace(os.Getenv("SQUARE_SESSION_ID"))
 	if sessionID == "" {
-		return "", usageError{errors.New("ao preview must run inside an AO session (AO_SESSION_ID is not set)")}
+		return "", usageError{errors.New("square preview must run inside a Square session (SQUARE_SESSION_ID is not set)")}
 	}
 	// PathEscape: session ids are already "-"/digit safe, but keep the URL
 	// well-formed regardless.
@@ -216,9 +216,9 @@ func (c *commandContext) stopPreviewServer(ctx context.Context) (previewServerSt
 }
 
 func previewServerHeaders() (map[string]string, error) {
-	capability := strings.TrimSpace(os.Getenv("AO_BROWSER_CAPABILITY"))
+	capability := strings.TrimSpace(os.Getenv("SQUARE_BROWSER_CAPABILITY"))
 	if capability == "" {
-		return nil, usageError{errors.New("ao preview server commands require the owning session capability (AO_BROWSER_CAPABILITY is not set)")}
+		return nil, usageError{errors.New("square preview server commands require the owning session capability (SQUARE_BROWSER_CAPABILITY is not set)")}
 	}
 	return map[string]string{browserCapabilityHeader: capability}, nil
 }

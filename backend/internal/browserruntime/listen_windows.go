@@ -17,7 +17,7 @@ func pipeNameFromRunFile(runFilePath string) string {
 		return `\\.\pipe\ao-browser`
 	}
 	dir := filepath.Base(filepath.Dir(runFilePath))
-	if dir == ".ao" || dir == "." || dir == "" {
+	if dir == ".square" || dir == "." || dir == "" {
 		return `\\.\pipe\ao-browser`
 	}
 	return `\\.\pipe\ao-browser-` + unsafePipeChars.ReplaceAllString(dir, "-")

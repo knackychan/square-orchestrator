@@ -136,7 +136,7 @@ function resolveSigningIdentity(env: NodeJS.ProcessEnv): string | undefined {
 // an AO_NOTARY_PROFILE notarytool keychain profile locally, or the App Store
 // Connect API key trio in CI.
 function resolveNotaryArgs(env: NodeJS.ProcessEnv): string[] | undefined {
-	if (env.AO_NOTARY_PROFILE) return ["--keychain-profile", env.AO_NOTARY_PROFILE];
+	if (env.SQUARE_NOTARY_PROFILE) return ["--keychain-profile", env.SQUARE_NOTARY_PROFILE];
 	if (env.APPLE_API_KEY && env.APPLE_API_KEY_ID && env.APPLE_API_ISSUER) {
 		return ["--key", env.APPLE_API_KEY, "--key-id", env.APPLE_API_KEY_ID, "--issuer", env.APPLE_API_ISSUER];
 	}

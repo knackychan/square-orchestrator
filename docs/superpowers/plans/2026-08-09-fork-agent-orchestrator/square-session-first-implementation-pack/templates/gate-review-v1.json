@@ -1,0 +1,20 @@
+{
+  "schema_version": "square.gate-review/v1",
+  "gate_id": "__FILL__",
+  "decision": "BLOCKED",
+  "reviewed_utc": "1970-01-01T00:00:00Z",
+  "reviewer": "__FILL__",
+  "reviewed_commit": "__FILL_FULL_SHA__",
+  "upstream": {
+    "tag": "v0.12.1",
+    "commit": "__FILL_FULL_SHA__"
+  },
+  "inputs": [],
+  "criteria": [],
+  "accepted_findings": [],
+  "conditions": [],
+  "blockers": [],
+  "allowed_next_tasks": [],
+  "supersedes_gate_review": null,
+  "evidence_manifest_sha256": "__FILL__"
+}

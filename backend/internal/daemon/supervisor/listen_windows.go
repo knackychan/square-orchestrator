@@ -18,13 +18,13 @@ var unsafePipeChars = regexp.MustCompile(`[^a-zA-Z0-9\-]`)
 // ~/.ao/dev/running.json → \\.\pipe\ao-supervise-dev   (dev isolation)
 func pipeNameFromRunFile(runFilePath string) string {
 	if runFilePath == "" {
-		return `\\.\pipe\ao-supervise`
+		return `\\.\pipe\square-supervise`
 	}
 	dir := filepath.Base(filepath.Dir(runFilePath))
-	if dir == ".ao" || dir == "." || dir == "" {
-		return `\\.\pipe\ao-supervise`
+	if dir == ".square" || dir == "." || dir == "" {
+		return `\\.\pipe\square-supervise`
 	}
-	return `\\.\pipe\ao-supervise-` + unsafePipeChars.ReplaceAllString(dir, "-")
+	return `\\.\pipe\square-supervise-` + unsafePipeChars.ReplaceAllString(dir, "-")
 }
 
 // Listen creates a Windows named pipe listener for the supervisor watchdog.

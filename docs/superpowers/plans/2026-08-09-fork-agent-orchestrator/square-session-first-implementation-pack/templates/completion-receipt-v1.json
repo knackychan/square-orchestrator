@@ -1,0 +1,56 @@
+{
+  "schema_version": "square.completion-receipt/v1",
+  "task_id": "__FILL__",
+  "attempt_id": "__FILL__",
+  "status": "STOPPED_FOR_OWNER_DECISION",
+  "started_utc": "1970-01-01T00:00:00Z",
+  "finished_utc": "1970-01-01T00:00:00Z",
+  "repository": {
+    "branch": "__FILL__",
+    "starting_commit": "__FILL_FULL_SHA__",
+    "ending_commit": "__FILL_FULL_SHA_OR_SAME_WHEN_UNCOMMITTED__",
+    "working_tree_clean_at_start": true,
+    "working_tree_clean_at_end": false,
+    "upstream_tag": "v0.12.1",
+    "upstream_commit": "__FILL_FULL_SHA__"
+  },
+  "authority_hashes": [],
+  "changed_files": {
+    "added": [],
+    "modified": [],
+    "deleted": []
+  },
+  "generated_files": [],
+  "validations": [
+    {
+      "name": "__FILL__",
+      "command": "__FILL__",
+      "exit_code": -1,
+      "status": "NOT_RUN",
+      "evidence_path": "__FILL__"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "__FILL__",
+      "status": "NOT_EVALUATED",
+      "evidence": []
+    }
+  ],
+  "evidence": {
+    "directory": "__FILL__",
+    "manifest_sha256": "__FILL__"
+  },
+  "discretion_decisions": [],
+  "stop_or_escalation_events": [],
+  "deviations": [],
+  "remaining_risks": [],
+  "commit": {
+    "created": false,
+    "sha": null,
+    "message": null,
+    "pushed": false
+  },
+  "next_eligible_tasks": [],
+  "review_required": true
+}

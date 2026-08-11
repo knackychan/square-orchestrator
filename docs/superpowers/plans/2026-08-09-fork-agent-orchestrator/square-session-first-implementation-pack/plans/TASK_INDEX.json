@@ -1,0 +1,976 @@
+{
+  "schema_version": "square.task-index/v1",
+  "task_count": 97,
+  "tasks": [
+    {
+      "task_id": "SA00-T01",
+      "title": "Create and pin the downstream fork",
+      "slice_id": "SA00",
+      "slice_title": "Fork adoption and reproducible baseline",
+      "kind": "task",
+      "prerequisites": "none",
+      "required_outcome": "Clone stable v0.12.1, verify commit/tag, rename remote to upstream, create square/main and baseline tag, add optional owner origin without pushing, add upstream ledger and authority directories",
+      "packet_path": "plans/tasks/SA00-T01.md"
+    },
+    {
+      "task_id": "SA00-T02",
+      "title": "Capture the unchanged Windows build/test/package baseline",
+      "slice_id": "SA00",
+      "slice_title": "Fork adoption and reproducible baseline",
+      "kind": "task",
+      "prerequisites": "SA00-T01",
+      "required_outcome": "Record toolchain and run backend build/tests/race/lint, frontend install/typecheck/unit/E2E/package, daemon/CLI smoke, and one harmless Windows AO session; preserve all pre-existing failures",
+      "packet_path": "plans/tasks/SA00-T02.md"
+    },
+    {
+      "task_id": "SA00-T03",
+      "title": "License, attribution, identity, telemetry, updater, and data isolation design",
+      "slice_id": "SA00",
+      "slice_title": "Fork adoption and reproducible baseline",
+      "kind": "task",
+      "prerequisites": "SA00-T02",
+      "required_outcome": "Inventory Apache/NOTICE/dependencies; define Square product/app/installer/data/run-file/worktree/telemetry/updater identities; disable transmission/update replacement in local Square builds without broad rebrand churn",
+      "packet_path": "plans/tasks/SA00-T03.md"
+    },
+    {
+      "task_id": "SA00-T04",
+      "title": "Import authority and activate architecture amendment",
+      "slice_id": "SA00",
+      "slice_title": "Fork adoption and reproducible baseline",
+      "kind": "task",
+      "prerequisites": "SA00-T03",
+      "required_outcome": "Copy accepted plans/UI/behavioral research into docs/square/authority; hash them; accept the session-first amendment and coding-agent rules; mark previous combined draft superseded",
+      "packet_path": "plans/tasks/SA00-T04.md"
+    },
+    {
+      "task_id": "SA00-T05",
+      "title": "Adoption gate A0",
+      "slice_id": "SA00",
+      "slice_title": "Fork adoption and reproducible baseline",
+      "kind": "gate",
+      "prerequisites": "SA00-T01..T04",
+      "required_outcome": "Review baseline evidence, legal/identity boundaries, upstream pin, authorities, and open blockers; no Square product code may exist before PASS",
+      "packet_path": "plans/tasks/SA00-T05.md"
+    },
+    {
+      "task_id": "SA01-T01",
+      "title": "Detach daemon/workflows from desktop window lifetime",
+      "slice_id": "SA01",
+      "slice_title": "Windows lifecycle and AO platform hardening",
+      "kind": "task",
+      "prerequisites": "A0",
+      "required_outcome": "Ensure closing/reloading Electron releases UI resources only; daemon and live sessions continue; reopen reconnects to the same controller/session without duplication",
+      "packet_path": "plans/tasks/SA01-T01.md"
+    },
+    {
+      "task_id": "SA01-T02",
+      "title": "Single daemon and Square data-directory ownership",
+      "slice_id": "SA01",
+      "slice_title": "Windows lifecycle and AO platform hardening",
+      "kind": "task",
+      "prerequisites": "SA01-T01",
+      "required_outcome": "Add/verify Square-specific run-file/mutex/port/data identity; simultaneous app/CLI startup creates one compatible daemon; official AO cannot be mistaken for Square",
+      "packet_path": "plans/tasks/SA01-T02.md"
+    },
+    {
+      "task_id": "SA01-T03",
+      "title": "Windows ConPTY, input/output/resize/cancel, and descendant cleanup",
+      "slice_id": "SA01",
+      "slice_title": "Windows lifecycle and AO platform hardening",
+      "kind": "task",
+      "prerequisites": "A0",
+      "required_outcome": "Exercise existing runtime through Unicode, ANSI, burst, quiet, question, resize, graceful cancel, hard stop, nested children, redirected parent handles, and leak checks; repair only platform leaves",
+      "packet_path": "plans/tasks/SA01-T03.md"
+    },
+    {
+      "task_id": "SA01-T04",
+      "title": "Restart reconciliation and controller generation",
+      "slice_id": "SA01",
+      "slice_title": "Windows lifecycle and AO platform hardening",
+      "kind": "task",
+      "prerequisites": "SA01-T02,T03",
+      "required_outcome": "Restart desktop/daemon around active/terminal sessions; classify alive/lost/stale/ambiguous bindings; prevent duplicate controllers and unsafe silent relaunch",
+      "packet_path": "plans/tasks/SA01-T04.md"
+    },
+    {
+      "task_id": "SA01-T05",
+      "title": "Worktree cleanup and dirty-state safety",
+      "slice_id": "SA01",
+      "slice_title": "Windows lifecycle and AO platform hardening",
+      "kind": "task",
+      "prerequisites": "A0",
+      "required_outcome": "Test paths with spaces/Unicode, worktree create/remove, process locks, dirty/untracked work, successful process with cleanup warning, branch collisions, and restart reconciliation; never force-delete user work",
+      "packet_path": "plans/tasks/SA01-T05.md"
+    },
+    {
+      "task_id": "SA01-T06",
+      "title": "Windows foundation gate A1",
+      "slice_id": "SA01",
+      "slice_title": "Windows lifecycle and AO platform hardening",
+      "kind": "gate",
+      "prerequisites": "SA01-T01..T05",
+      "required_outcome": "Accept measurable lifecycle behavior or block Square dependencies; preserve raw evidence and any upstream issue/patch references",
+      "packet_path": "plans/tasks/SA01-T06.md"
+    },
+    {
+      "task_id": "SA02-T01",
+      "title": "Strong IDs, versions, hashes, time, and typed results",
+      "slice_id": "SA02",
+      "slice_title": "Session-first contracts and deterministic domain",
+      "kind": "task",
+      "prerequisites": "A1",
+      "required_outcome": "Implement Square strong IDs/value objects, explicit clock/ID ports, canonical UTC/hash/version behavior, typed errors/results; no I/O or AO dependency",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA02-T02",
+      "title": "Square Session, message, workflow, role, and AO binding records",
+      "slice_id": "SA02",
+      "slice_title": "Session-first contracts and deterministic domain",
+      "kind": "task",
+      "prerequisites": "SA02-T01",
+      "required_outcome": "Implement records from SESSION_DOMAIN_MODEL, including user conversation, WorkflowRun, RoleProfile/Assignment/Run, AOExecutionBinding, layout/history references",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA02-T03",
+      "title": "Pure lifecycle reducers",
+      "slice_id": "SA02",
+      "slice_title": "Session-first contracts and deterministic domain",
+      "kind": "task",
+      "prerequisites": "SA02-T02",
+      "required_outcome": "Implement exhaustive legal/illegal transitions for session/workflow/role/binding/task/interaction/lease; distinguish quiet/stall and final/superseded/new-attempt behavior",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA02-T04",
+      "title": "Task Brief, Preview, Plan, Task, Acceptance, Review, Receipt, Evidence contracts",
+      "slice_id": "SA02",
+      "slice_title": "Session-first contracts and deterministic domain",
+      "kind": "task",
+      "prerequisites": "SA02-T01,T02",
+      "required_outcome": "Define versioned DTO/domain artifacts with falsifiable acceptance, path scopes, budgets, stop conditions, immutable baselines/results, artifact hashes, and golden examples",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA02-T05",
+      "title": "Role routing profile and actual model identity contract",
+      "slice_id": "SA02",
+      "slice_title": "Session-first contracts and deterministic domain",
+      "kind": "task",
+      "prerequisites": "SA02-T01,T02",
+      "required_outcome": "Implement AUTO/PREFERRED/PINNED, precedence, route/certification/decision records, requested/resolved/actual identity, reviewer independence, fallback and live-route-change rules",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA02-T06",
+      "title": "Square API/event contract and generated TypeScript parity",
+      "slice_id": "SA02",
+      "slice_title": "Session-first contracts and deterministic domain",
+      "kind": "task",
+      "prerequisites": "SA02-T02..T05",
+      "required_outcome": "Define service/HTTP DTOs and event resource shapes, register draft OpenAPI operations, generate TypeScript, add golden cross-language fixtures and version behavior",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA02-T07",
+      "title": "Contract gate A2",
+      "slice_id": "SA02",
+      "slice_title": "Session-first contracts and deterministic domain",
+      "kind": "gate",
+      "prerequisites": "SA02-T01..T06",
+      "required_outcome": "Freeze `square.contracts 1.0-draft`; pure domain has no host/storage/adapter dependency; all schemas/examples/reducers/routing matrices pass",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA03-T01",
+      "title": "Square migration range and schema registry",
+      "slice_id": "SA03",
+      "slice_title": "Durable state, semantic events, artifacts, leases, and recovery",
+      "kind": "task",
+      "prerequisites": "A2",
+      "required_outcome": "Inspect upstream migration sequence, define collision policy, add forward-only registry/identity migration and backup/newer/inconsistent checks without editing AO history",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA03-T02",
+      "title": "Session, conversation, workflow, role, task, and binding schema",
+      "slice_id": "SA03",
+      "slice_title": "Durable state, semantic events, artifacts, leases, and recovery",
+      "kind": "task",
+      "prerequisites": "SA03-T01",
+      "required_outcome": "Add core square_* tables/constraints/indexes/triggers, sqlc queries and stores; keep generated rows behind store methods",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA03-T03",
+      "title": "Semantic events and transactional projections",
+      "slice_id": "SA03",
+      "slice_title": "Durable state, semantic events, artifacts, leases, and recovery",
+      "kind": "task",
+      "prerequisites": "SA03-T02",
+      "required_outcome": "Add append-only square_events, aggregate/global sequence, event+projection transaction helper, CDC triggers, duplicate and failure injection tests",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA03-T04",
+      "title": "Idempotency, writer leases, controller generations, and AO bindings",
+      "slice_id": "SA03",
+      "slice_title": "Durable state, semantic events, artifacts, leases, and recovery",
+      "kind": "task",
+      "prerequisites": "SA03-T02,T03",
+      "required_outcome": "Implement command result replay/conflict, worktree lease/fence, binding generation/reconciliation states, stale commit denial, concurrent tests",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA03-T05",
+      "title": "Content-addressed artifacts and retained terminal/history references",
+      "slice_id": "SA03",
+      "slice_title": "Durable state, semantic events, artifacts, leases, and recovery",
+      "kind": "task",
+      "prerequisites": "SA03-T02",
+      "required_outcome": "Add spool/hash/atomic move/dedup/read validation/orphan reconciliation and metadata for packets, reports, receipts, evidence, handovers, bounded terminal/Chat chunks",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA03-T06",
+      "title": "Migration/corruption/crash/recovery matrix and gate A3",
+      "slice_id": "SA03",
+      "slice_title": "Durable state, semantic events, artifacts, leases, and recovery",
+      "kind": "gate",
+      "prerequisites": "SA03-T01..T05",
+      "required_outcome": "Test baseline AO DB upgrade, every Square migration path, crash boundaries, newer/corrupt/inconsistent state, event atomicity, artifact/lease/binding recovery; accept A3",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA04-T01",
+      "title": "Inventory AO adapter/model/permission capabilities",
+      "slice_id": "SA04",
+      "slice_title": "Role route registry and AO execution facade",
+      "kind": "task",
+      "prerequisites": "A2,A3",
+      "required_outcome": "Inspect exact pinned adapters and launch commands; record model forwarding, actual identity, modes, permissions, Chat/terminal/reviewer, resume/cancel/activity, Windows behavior",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA04-T02",
+      "title": "Route discovery and certification service",
+      "slice_id": "SA04",
+      "slice_title": "Role route registry and AO execution facade",
+      "kind": "task",
+      "prerequisites": "SA04-T01",
+      "required_outcome": "Implement discovered/probing/certified/degraded/quarantined/unavailable/expired records, executable/version/hash probes, role eligibility and redacted evidence",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA04-T03",
+      "title": "Requested/resolved/actual identity verification",
+      "slice_id": "SA04",
+      "slice_title": "Role route registry and AO execution facade",
+      "kind": "task",
+      "prerequisites": "SA04-T02",
+      "required_outcome": "Create adapter conformance seam and fixtures; pinned route fails if required model cannot be verified; preferred fallback and AUTO decision artifact are durable",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA04-T04",
+      "title": "Square AO execution facade",
+      "slice_id": "SA04",
+      "slice_title": "Role route registry and AO execution facade",
+      "kind": "task",
+      "prerequisites": "A3,SA04-T02",
+      "required_outcome": "Wrap AO service/session_manager for reserve/start/send/checkpoint/cancel/hard-stop/observe/release; no direct adapter/runtime/worktree access from workflow services",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA04-T05",
+      "title": "Role packet/prompt compiler and bounded artifact boundary",
+      "slice_id": "SA04",
+      "slice_title": "Role route registry and AO execution facade",
+      "kind": "task",
+      "prerequisites": "SA02-T04,T05,SA04-T04",
+      "required_outcome": "Compile role-specific minimal input, authority and output schema; prevent nested agents/unbounded scope; finish role run after artifact/blocker and preserve handover",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA04-T06",
+      "title": "Fake route/adapter execution and gate A4",
+      "slice_id": "SA04",
+      "slice_title": "Role route registry and AO execution facade",
+      "kind": "gate",
+      "prerequisites": "SA04-T03..T05",
+      "required_outcome": "Use deterministic fake role scenarios for success/question/approval/auth/quiet/burst/crash/missing/conflicting artifact/cancel/restart; verify AO binding and no always-on model",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA05-T01",
+      "title": "Session and durable conversation service/API",
+      "slice_id": "SA05",
+      "slice_title": "Session API, read models, events, and fake workflows",
+      "kind": "task",
+      "prerequisites": "A3,A4",
+      "required_outcome": "Create/list/get/archive sessions; add versioned messages/corrections; assemble session navigator/detail read models; idempotency and optimistic-version checks",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA05-T02",
+      "title": "Workflow-run, role-run, and direct action API",
+      "slice_id": "SA05",
+      "slice_title": "Session API, read models, events, and fake workflows",
+      "kind": "task",
+      "prerequisites": "SA05-T01",
+      "required_outcome": "Start/pause/resume/cancel workflow; query role hierarchy/docks; checkpoint/cancel route run; return authorized actions from services",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA05-T03",
+      "title": "Typed interactions and owner decisions API",
+      "slice_id": "SA05",
+      "slice_title": "Session API, read models, events, and fake workflows",
+      "kind": "task",
+      "prerequisites": "SA05-T01",
+      "required_outcome": "Create/list/respond to question/approval/auth/blocker/route/plan/force-stop interactions with authority, expiry, safe default and one-time semantics",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA05-T04",
+      "title": "SSE invalidation, history, artifacts, and terminal binding read models",
+      "slice_id": "SA05",
+      "slice_title": "Session API, read models, events, and fake workflows",
+      "kind": "task",
+      "prerequisites": "SA05-T01..T03",
+      "required_outcome": "Add Square CDC resources, replay/unknown-version behavior, session history and role terminal/Chat/diff/evidence references",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA05-T05",
+      "title": "Deterministic fixture workflows and gate A5",
+      "slice_id": "SA05",
+      "slice_title": "Session API, read models, events, and fake workflows",
+      "kind": "gate",
+      "prerequisites": "SA05-T01..T04",
+      "required_outcome": "Run fixture sessions matching blank/QUICK/PLANNED/blocked/completed/restart JSON; verify API/OpenAPI/TS parity and read-model recovery",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA06-T01",
+      "title": "Square identity, tokens, and reusable components",
+      "slice_id": "SA06",
+      "slice_title": "Rounded session-first desktop UI foundation",
+      "kind": "task",
+      "prerequisites": "A0,A2",
+      "required_outcome": "Rebrand isolated surfaces; implement rounded light/dark/high-contrast tokens, statuses, buttons, tabs, composer, attention, dock headers, accessible components without changing AO generic behavior unnecessarily",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA06-T02",
+      "title": "Session navigator, tabs, filters, and New Session composer",
+      "slice_id": "SA06",
+      "slice_title": "Rounded session-first desktop UI foundation",
+      "kind": "task",
+      "prerequisites": "SA06-T01,A5 fixtures",
+      "required_outcome": "Implement project/session list, Needs You/Active/Done/Archived, open tabs, blank composer, simple workflow/quality controls and expandable role setup",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA06-T03",
+      "title": "Session conversation and workflow progression",
+      "slice_id": "SA06",
+      "slice_title": "Rounded session-first desktop UI foundation",
+      "kind": "task",
+      "prerequisites": "SA06-T02",
+      "required_outcome": "Render durable messages/artifact summaries, follow-up composer, session header, relevant stage strip, authoritative pending/acknowledged states",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA06-T04",
+      "title": "Dynamic Task Manager and role docks",
+      "slice_id": "SA06",
+      "slice_title": "Rounded session-first desktop UI foundation",
+      "kind": "task",
+      "prerequisites": "SA06-T02,T03",
+      "required_outcome": "Render only existing roles; Task Manager structured timeline; Terminal/Chat/Diff/Evidence tabs; hierarchy, focus/collapse/splits, completed history, actual route/model",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA06-T05",
+      "title": "Direct attention strip and authorized decisions",
+      "slice_id": "SA06",
+      "slice_title": "Rounded session-first desktop UI foundation",
+      "kind": "task",
+      "prerequisites": "SA06-T03",
+      "required_outcome": "Show exact problem/why/suggested solution/actions in affected session; approval/input/auth/blocker/route/plan/cancel flows without inspector-click maze",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA06-T06",
+      "title": "Plan & Review, History, and role-routing setup",
+      "slice_id": "SA06",
+      "slice_title": "Rounded session-first desktop UI foundation",
+      "kind": "task",
+      "prerequisites": "SA06-T03,T04",
+      "required_outcome": "Task Brief/Plan/Acceptance/Diff/Findings/Evidence; workflow/role/terminal/decision history; Auto/Preferred/Pinned role controls and requested/actual mismatch",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA06-T07",
+      "title": "Layout persistence, performance, accessibility, and gate A6",
+      "slice_id": "SA06",
+      "slice_title": "Rounded session-first desktop UI foundation",
+      "kind": "gate",
+      "prerequisites": "SA06-T01..T06",
+      "required_outcome": "Per-session versioned layouts, hidden-dock throttle, terminal sequence safety, virtualization, keyboard/a11y/200%/high-contrast, close/reopen fixture E2E",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA07-T01",
+      "title": "Request intake and compact Task Brief",
+      "slice_id": "SA07",
+      "slice_title": "QUICK vertical slice and Core Alpha",
+      "kind": "task",
+      "prerequisites": "A5",
+      "required_outcome": "Compile explicit goal/outcome/scope/constraints/ambiguity/risk from session messages; material ambiguity creates interaction; bounded Secretary optional",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA07-T02",
+      "title": "Deterministic triage and Dispatch Preview",
+      "slice_id": "SA07",
+      "slice_title": "QUICK vertical slice and Core Alpha",
+      "kind": "task",
+      "prerequisites": "SA07-T01,SA02-T05",
+      "required_outcome": "Select QUICK or escalate using explicit dimensions; propose worker route/worktree/write scope/validation/approval/resource/cost confidence; owner edit/approve/deny",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA07-T03",
+      "title": "QUICK task/role packet compiler",
+      "slice_id": "SA07",
+      "slice_title": "QUICK vertical slice and Core Alpha",
+      "kind": "task",
+      "prerequisites": "SA07-T02",
+      "required_outcome": "Create one narrow task contract and Worker assignment with exact paths, baseline, validation, receipt, stop/escalation conditions; omit irrelevant roles/transcripts",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA07-T04",
+      "title": "Task Manager QUICK state machine and AO worker launch",
+      "slice_id": "SA07",
+      "slice_title": "QUICK vertical slice and Core Alpha",
+      "kind": "task",
+      "prerequisites": "SA04,A3,SA07-T03",
+      "required_outcome": "Persist workflow/task/role/binding, acquire lease, launch one AO worker, react to facts/interactions, end process at artifact boundary, no model monitor",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA07-T05",
+      "title": "Targeted validation, receipt, and local/PR result",
+      "slice_id": "SA07",
+      "slice_title": "QUICK vertical slice and Core Alpha",
+      "kind": "task",
+      "prerequisites": "SA07-T04",
+      "required_outcome": "Run task-scoped checks, reconcile process/worktree/artifact/commit, apply receipt once, support LOCAL_RESULT first and optional PR_RESULT link",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA07-T06",
+      "title": "QUICK desktop and CLI flow",
+      "slice_id": "SA07",
+      "slice_title": "QUICK vertical slice and Core Alpha",
+      "kind": "task",
+      "prerequisites": "SA06,A5,SA07-T05",
+      "required_outcome": "New session → preview → start → worker dock → decision/cancel → validation/result/history; CLI parity and stable JSON/errors",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA07-T07",
+      "title": "First real certified route and Alpha gate A7",
+      "slice_id": "SA07",
+      "slice_title": "QUICK vertical slice and Core Alpha",
+      "kind": "gate",
+      "prerequisites": "SA04-T02,T03,SA07-T06",
+      "required_outcome": "Choose one installed route by evidence, run reversible disposable fixtures repeatedly, close/reopen desktop, restart daemon, verify no duplicate writer/session and complete evidence",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA08-T01",
+      "title": "Durable question, approval, permission, auth, blocker, and route interactions",
+      "slice_id": "SA08",
+      "slice_title": "Interactions, controller authority, cancellation, and restart",
+      "kind": "task",
+      "prerequisites": "A7",
+      "required_outcome": "Map AO/adapter/lifecycle signals to typed Square interactions with bounded redacted evidence and designated authority",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA08-T02",
+      "title": "Response, approval-once, denial, amendment, and auth takeover",
+      "slice_id": "SA08",
+      "slice_title": "Interactions, controller authority, cancellation, and restart",
+      "kind": "task",
+      "prerequisites": "SA08-T01",
+      "required_outcome": "Validate state/expiry/actor/generation; secrets remain with CLI; send exact PTY/controller action only after durable decision",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA08-T03",
+      "title": "Interactive controller lease and multi-view behavior",
+      "slice_id": "SA08",
+      "slice_title": "Interactions, controller authority, cancellation, and restart",
+      "kind": "task",
+      "prerequisites": "SA08-T01",
+      "required_outcome": "One controller across desktop/CLI/future VS Code; observers may coexist; transfer/expiry/reconnect/close semantics and visible VIEW/CONTROL states",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA08-T04",
+      "title": "Checkpoint, graceful cancellation, hard-stop gate, and safe cleanup",
+      "slice_id": "SA08",
+      "slice_title": "Interactions, controller authority, cancellation, and restart",
+      "kind": "task",
+      "prerequisites": "SA08-T02,T03",
+      "required_outcome": "Separate commands/authority; preserve worktree/receipt evidence; descendant cleanup; no priority preemption of active writer",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA08-T05",
+      "title": "Startup reconciliation of Square sessions and AO bindings",
+      "slice_id": "SA08",
+      "slice_title": "Interactions, controller authority, cancellation, and restart",
+      "kind": "task",
+      "prerequisites": "SA03,SA04,SA08-T04",
+      "required_outcome": "Recover active workflows, interactions, leases, role/AO bindings, terminal histories, artifacts and receipts; never silently rerun ambiguous work",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA08-T06",
+      "title": "UI closure/restart matrix and gate A8",
+      "slice_id": "SA08",
+      "slice_title": "Interactions, controller authority, cancellation, and restart",
+      "kind": "gate",
+      "prerequisites": "SA08-T01..T05",
+      "required_outcome": "E2E across active/quiet/input/approval/auth/cancel/completing states; close/reopen Electron and daemon restart; no duplicate process/input/receipt",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA09-T01",
+      "title": "Memory records, schema, service, API, and lifecycle",
+      "slice_id": "SA09",
+      "slice_title": "Project/global memory and bounded context",
+      "kind": "task",
+      "prerequisites": "A8",
+      "required_outcome": "Project/global/candidate/promotion/deprecated/superseded entries with provenance, evidence, applicability, confidence, owner state",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA09-T02",
+      "title": "Candidate extraction and deduplication",
+      "slice_id": "SA09",
+      "slice_title": "Project/global memory and bounded context",
+      "kind": "task",
+      "prerequisites": "SA09-T01",
+      "required_outcome": "Derive bounded candidates from accepted results/fixes/human corrections; no automatic adoption; detect duplicate/conflict/stale evidence",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA09-T03",
+      "title": "Owner promotion, rejection, deprecation, and rollback",
+      "slice_id": "SA09",
+      "slice_title": "Project/global memory and bounded context",
+      "kind": "task",
+      "prerequisites": "SA09-T01,T02",
+      "required_outcome": "Explicit authority and audit; global promotion from project candidate; preserve prior versions and supersession",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA09-T04",
+      "title": "Context Scout jobs and cited Context Reports",
+      "slice_id": "SA09",
+      "slice_title": "Project/global memory and bounded context",
+      "kind": "task",
+      "prerequisites": "A8,SA09-T01",
+      "required_outcome": "Read-only bounded question/path/command/snapshot jobs; path/symbol/range/hash citations, uncertainty/conflict, no raw transcript forwarding",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA09-T05",
+      "title": "Context Pack compiler and cache compatibility",
+      "slice_id": "SA09",
+      "slice_title": "Project/global memory and bounded context",
+      "kind": "task",
+      "prerequisites": "SA09-T04",
+      "required_outcome": "Deduplicate reports/memory, enforce size/token budget and authority/snapshot compatibility, produce CONTEXT_READY/BLOCKED artifact",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA09-T06",
+      "title": "Memory/context UI, CLI, and gate A9",
+      "slice_id": "SA09",
+      "slice_title": "Project/global memory and bounded context",
+      "kind": "gate",
+      "prerequisites": "SA06,SA09-T01..T05",
+      "required_outcome": "Session/project memory views, candidates and promotion, context sources/citations; verify no transcript auto-memory and correct scope",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA10-T01",
+      "title": "Secretary Task Brief compiler",
+      "slice_id": "SA10",
+      "slice_title": "PLANNED workflow and bounded orchestration",
+      "kind": "task",
+      "prerequisites": "A9",
+      "required_outcome": "Launch bounded optional Secretary only when deterministic intake needs it; validate artifact/ambiguity; end session immediately",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA10-T02",
+      "title": "Context job scheduler and Context Pack readiness",
+      "slice_id": "SA10",
+      "slice_title": "PLANNED workflow and bounded orchestration",
+      "kind": "task",
+      "prerequisites": "SA09-T05",
+      "required_outcome": "Dispatch bounded Scouts/read-only AO sessions, wait via durable events, handle missing/conflicting/stale reports and capacity without live coordinator model",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA10-T03",
+      "title": "Planner role and Plan/Acceptance compiler",
+      "slice_id": "SA10",
+      "slice_title": "PLANNED workflow and bounded orchestration",
+      "kind": "task",
+      "prerequisites": "SA10-T01,T02",
+      "required_outcome": "Fresh Planner receives Task Brief/Context Pack/authority only; validate DAG, scopes, criteria, budgets, stop/integration; end at artifact",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA10-T04",
+      "title": "Orchestrator/Synthesizer role",
+      "slice_id": "SA10",
+      "slice_title": "PLANNED workflow and bounded orchestration",
+      "kind": "task",
+      "prerequisites": "SA10-T03",
+      "required_outcome": "Fresh bounded synthesis for dispatch packets, conflict resolution proposals, amendments, integration strategy; cannot remain alive to supervise workers",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA10-T05",
+      "title": "Plan approval, amendment, and immutable binding",
+      "slice_id": "SA10",
+      "slice_title": "PLANNED workflow and bounded orchestration",
+      "kind": "task",
+      "prerequisites": "SA10-T03,T04",
+      "required_outcome": "Owner/policy approval tied to exact plan/criteria/baseline/route hashes; changes invalidate approval and create amendment interaction",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA10-T06",
+      "title": "Dependency scheduler, worker assignments, and bounded handovers",
+      "slice_id": "SA10",
+      "slice_title": "PLANNED workflow and bounded orchestration",
+      "kind": "task",
+      "prerequisites": "SA10-T05,SA04",
+      "required_outcome": "Ready tasks, writer/resource reservations, worktree/AO session launch, finite attempts, route change/handover, context thresholds, no duplicate wake",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA10-T07",
+      "title": "PLANNED implementation/restart gate A10",
+      "slice_id": "SA10",
+      "slice_title": "PLANNED workflow and bounded orchestration",
+      "kind": "gate",
+      "prerequisites": "SA10-T01..T06",
+      "required_outcome": "Fake and first real multi-task fixture reaches deterministic verification with all role sessions ending at artifacts; restart preserves DAG/bindings",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA11-T01",
+      "title": "Task/integration deterministic validation service",
+      "slice_id": "SA11",
+      "slice_title": "Verification, independent review, findings, fix loop, and Square MVP",
+      "kind": "task",
+      "prerequisites": "A10",
+      "required_outcome": "Run declared commands under scope/resource policy, capture structured output/evidence, fail before reviewer spend, distinguish task vs integration checks",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA11-T02",
+      "title": "Review Packet compiler",
+      "slice_id": "SA11",
+      "slice_title": "Verification, independent review, findings, fix loop, and Square MVP",
+      "kind": "task",
+      "prerequisites": "SA11-T01",
+      "required_outcome": "Bounded contract/plan/criteria/diff/evidence/authority/risk packet; exclude implementation transcript and irrelevant repository content",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA11-T03",
+      "title": "Independent reviewer route selection and run",
+      "slice_id": "SA11",
+      "slice_title": "Verification, independent review, findings, fix loop, and Square MVP",
+      "kind": "task",
+      "prerequisites": "SA04,SA11-T02",
+      "required_outcome": "Enforce configured independence, launch fresh read-only reviewer, validate findings against criteria/commit, gate if unavailable",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA11-T04",
+      "title": "Finding model and finite FIX task loop",
+      "slice_id": "SA11",
+      "slice_title": "Verification, independent review, findings, fix loop, and Square MVP",
+      "kind": "task",
+      "prerequisites": "SA11-T03",
+      "required_outcome": "Severity/evidence/criterion/root cause/proposed bounded fix; separate FIX task/attempt; retry budget and new requirement/architecture gate",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA11-T05",
+      "title": "Final receipt, integration acceptance, outcome and memory candidates",
+      "slice_id": "SA11",
+      "slice_title": "Verification, independent review, findings, fix loop, and Square MVP",
+      "kind": "task",
+      "prerequisites": "SA11-T01..T04",
+      "required_outcome": "Bind immutable commit/artifact/evidence/route/criteria; reconcile all worktrees/roles; create outcome evaluation seed and non-adopted memory candidates",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA11-T06",
+      "title": "Square MVP gate A11",
+      "slice_id": "SA11",
+      "slice_title": "Verification, independent review, findings, fix loop, and Square MVP",
+      "kind": "gate",
+      "prerequisites": "SA07,A8,A9,A10,SA11-T01..T05",
+      "required_outcome": "Real QUICK and PLANNED through one certified route, typed interaction, memory/context, independent review or explicit owner gate, repair, restart, retained history",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA12-T01",
+      "title": "Global/project/session/task role-profile resolution",
+      "slice_id": "SA12",
+      "slice_title": "Role-routing UX, route plurality, CLI, and optional VS Code",
+      "kind": "task",
+      "prerequisites": "A11",
+      "required_outcome": "Persist/edit profiles and presets; deterministic precedence, policy overrides, route decision history, settings UI and CLI",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA12-T02",
+      "title": "AUTO/PREFERRED/PINNED Dispatch Preview and role-dock UX",
+      "slice_id": "SA12",
+      "slice_title": "Role-routing UX, route plurality, CLI, and optional VS Code",
+      "kind": "task",
+      "prerequisites": "SA12-T01,SA06",
+      "required_outcome": "Show requested/resolved/actual, availability/certification, fallback, permissions, independence; pinned fail closed; active change creates new attempt",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA12-T03",
+      "title": "Expanded adapter conformance and additional certified routes",
+      "slice_id": "SA12",
+      "slice_title": "Role-routing UX, route plurality, CLI, and optional VS Code",
+      "kind": "task",
+      "prerequisites": "SA04,A11",
+      "required_outcome": "Certify installed AO adapters incrementally for model forwarding, identity, permissions, lifecycle, Windows cleanup; unavailable routes do not block others",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA12-T04",
+      "title": "Complete `square` CLI and stable JSON/exit codes",
+      "slice_id": "SA12",
+      "slice_title": "Role-routing UX, route plurality, CLI, and optional VS Code",
+      "kind": "task",
+      "prerequisites": "A11",
+      "required_outcome": "Session/workflow/role/interaction/route/memory/events/doctor commands over daemon API; no direct storage/runtime; redirection and noninteractive behavior",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA12-T05",
+      "title": "Minimal VS Code client and cross-client consistency",
+      "slice_id": "SA12",
+      "slice_title": "Role-routing UX, route plurality, CLI, and optional VS Code",
+      "kind": "task",
+      "prerequisites": "SA12-T04",
+      "required_outcome": "Extension host uses API/SSE, session tree/tabs/status/commands, validated webview if used; closing VS Code harmless; no direct terminal/DB authority",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA12-T06",
+      "title": "Client/route gate A12",
+      "slice_id": "SA12",
+      "slice_title": "Role-routing UX, route plurality, CLI, and optional VS Code",
+      "kind": "gate",
+      "prerequisites": "SA12-T01..T05",
+      "required_outcome": "Desktop/CLI/VS Code where implemented show same event/interaction/result; route profiles work across roles; actual identity honest",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA13-T01",
+      "title": "Usage and model-family exposure ledger",
+      "slice_id": "SA13",
+      "slice_title": "Exposure, cost, resource profiles, context reuse, and evaluation",
+      "kind": "task",
+      "prerequisites": "A11",
+      "required_outcome": "Provider tokens or labelled estimates, normalized exposure by role/model family/project/window/confidence; context pressure separate",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA13-T02",
+      "title": "Actual/equivalent/subscription cost schedules",
+      "slice_id": "SA13",
+      "slice_title": "Exposure, cost, resource profiles, context reuse, and evaluation",
+      "kind": "task",
+      "prerequisites": "SA13-T01",
+      "required_outcome": "Dated source/currency/rates/billing mode/confidence; never show subscription as free or merge cost with exposure",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA13-T03",
+      "title": "FAST/NORMAL/SLOW resource and scheduler policy",
+      "slice_id": "SA13",
+      "slice_title": "Exposure, cost, resource profiles, context reuse, and evaluation",
+      "kind": "task",
+      "prerequisites": "A11",
+      "required_outcome": "Role/concurrency/validation/retention/cache behavior with explicit owner policy; release model sessions before cooldown/wait",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA13-T04",
+      "title": "Snapshot-aware repository index and Context Pack cache",
+      "slice_id": "SA13",
+      "slice_title": "Exposure, cost, resource profiles, context reuse, and evaluation",
+      "kind": "task",
+      "prerequisites": "SA09",
+      "required_outcome": "Content-addressed commit/path/symbol index, incremental invalidation, shared Scout snapshot, compatibility/provenance and bounded storage",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA13-T05",
+      "title": "Buffered persistence, retention, and resource telemetry",
+      "slice_id": "SA13",
+      "slice_title": "Exposure, cost, resource profiles, context reuse, and evaluation",
+      "kind": "task",
+      "prerequisites": "SA03,A11",
+      "required_outcome": "Batch noncritical writes, debounce layouts, terminal chunks, WAL/checkpoint measurement, volume/process I/O and honest unsupported telemetry",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA13-T06",
+      "title": "Outcome evaluation and sustained-operation gate A13",
+      "slice_id": "SA13",
+      "slice_title": "Exposure, cost, resource profiles, context reuse, and evaluation",
+      "kind": "gate",
+      "prerequisites": "SA11,SA13-T01..T05",
+      "required_outcome": "Cohorted acceptance/findings/retries/human corrections/time/tokens/cost/exposure/I/O; sample/confidence; measured performance and storage safety",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA14-T01",
+      "title": "Threat model and automated security closure",
+      "slice_id": "SA14",
+      "slice_title": "Security, diagnostics, packaging, updater, and upstream sync",
+      "kind": "task",
+      "prerequisites": "A12",
+      "required_outcome": "Loopback API, Electron preload, terminal escapes, prompt injection, path/reparse escape, executable replacement, receipt spoofing, secrets, updater, diagnostics, skills",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA14-T02",
+      "title": "Local API and Electron bridge hardening",
+      "slice_id": "SA14",
+      "slice_title": "Security, diagnostics, packaging, updater, and upstream sync",
+      "kind": "task",
+      "prerequisites": "SA14-T01",
+      "required_outcome": "Decide/add install capability token, origin/CORS/loopback rules, allow-listed preload methods, schema validation, rate/bounds, terminal-output isolation",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA14-T03",
+      "title": "Privacy-safe doctor and support bundle",
+      "slice_id": "SA14",
+      "slice_title": "Security, diagnostics, packaging, updater, and upstream sync",
+      "kind": "task",
+      "prerequisites": "SA14-T01",
+      "required_outcome": "Versions, daemon/data/migrations/routes/worktrees/bindings/terminal/updater checks; allow-listed redacted manifest shown before export",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA14-T04",
+      "title": "Square Windows identity, installer, data migration, and coexistence",
+      "slice_id": "SA14",
+      "slice_title": "Security, diagnostics, packaging, updater, and upstream sync",
+      "kind": "task",
+      "prerequisites": "A12",
+      "required_outcome": "Product/executable/app ID/paths/protocols/notifications/icons/attribution; non-admin install, spaces/Unicode, coexistence with AO, retain/remove state choice",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA14-T05",
+      "title": "Square updater, live-work gate, backup, rollback",
+      "slice_id": "SA14",
+      "slice_title": "Security, diagnostics, packaging, updater, and upstream sync",
+      "kind": "task",
+      "prerequisites": "SA14-T04",
+      "required_outcome": "Own release feed/signature/checksums; stop new dispatch, checkpoint/reconcile, backup/migrate, replace/restart/validate, rollback when schema compatible; never kill work merely to update",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA14-T06",
+      "title": "Upstream-sync automation, migration/API drift, SBOM and notices",
+      "slice_id": "SA14",
+      "slice_title": "Security, diagnostics, packaging, updater, and upstream sync",
+      "kind": "task",
+      "prerequisites": "A12",
+      "required_outcome": "Controlled intake branch, changelog/diff, generated-code/migration conflict checks, full regression, exact upstream ledger, SBOM/license/NOTICE",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA14-T07",
+      "title": "Windows release gate A14",
+      "slice_id": "SA14",
+      "slice_title": "Security, diagnostics, packaging, updater, and upstream sync",
+      "kind": "gate",
+      "prerequisites": "SA14-T01..T06",
+      "required_outcome": "Clean install/upgrade/rollback/uninstall, QUICK/PLANNED E2E, security/lifecycle/recovery, signed/checksummed artifacts where available, known limitations",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA15-T01",
+      "title": "Parallel read-only Scouts and specialists",
+      "slice_id": "SA15",
+      "slice_title": "Optional advanced scale and controlled practice evolution",
+      "kind": "task",
+      "prerequisites": "A14",
+      "required_outcome": "One pinned snapshot, shared index/resource reservations, deterministic result collection, no shared mutable plan",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA15-T02",
+      "title": "Parallel isolated writer worktrees and merge queue",
+      "slice_id": "SA15",
+      "slice_title": "Optional advanced scale and controlled practice evolution",
+      "kind": "task",
+      "prerequisites": "SA15-T01",
+      "required_outcome": "Nonoverlap preflight, one lease/worktree per writer, ordered integration, combined validation, conflict gate, measured resource/cost burden",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA15-T03",
+      "title": "Automatic bounded fix dispatch",
+      "slice_id": "SA15",
+      "slice_title": "Optional advanced scale and controlled practice evolution",
+      "kind": "task",
+      "prerequisites": "SA11,A14",
+      "required_outcome": "Only accepted narrow findings, unchanged acceptance, eligible route, finite retry; no new architecture/security/requirement decision",
+      "packet_path": "compile-at-dispatch"
+    },
+    {
+      "task_id": "SA15-T04",
+      "title": "Controlled practice evolution and scale gate A15",
+      "slice_id": "SA15",
+      "slice_title": "Optional advanced scale and controlled practice evolution",
+      "kind": "gate",
+      "prerequisites": "SA13,SA15-T01..T03",
+      "required_outcome": "Outcome evidence proposes trial/adoption/deprecation; owner controls policy; enable scale only if end-to-end benefit exceeds merge/resource/review/recovery cost",
+      "packet_path": "compile-at-dispatch"
+    }
+  ]
+}

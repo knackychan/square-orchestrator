@@ -296,8 +296,8 @@ jobs:
           exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AO_RELEASE_REPO: ${{ github.repository }}
-          AO_RELEASE_PRERELEASE: "true"
+          SQUARE_RELEASE_REPO: ${{ github.repository }}
+          SQUARE_RELEASE_PRERELEASE: "true"
           # macOS signing + notarization env is exported by the "macOS signing
           # setup" step above via $GITHUB_ENV; the cert is in the keychain.
 
@@ -364,8 +364,8 @@ jobs:
           exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AO_RELEASE_REPO: ${{ github.repository }}
-          AO_RELEASE_PRERELEASE: "true"
+          SQUARE_RELEASE_REPO: ${{ github.repository }}
+          SQUARE_RELEASE_PRERELEASE: "true"
 
   # ── publish-feed ──────────────────────────────────────────────────────────
   # Generates the pr<N> electron-updater feed from the versioned prerelease
@@ -381,11 +381,7 @@ jobs:
   # actually succeeded and release-intel to not have failed.
   publish-feed:
     needs: [guard, release, release-intel]
-    if: >-
-      always() &&
-      needs.guard.result == 'success' &&
-      needs.release.result == 'success' &&
-      needs.release-intel.result != 'failure'
+    if: ${{ false }}
     runs-on: ubuntu-latest
     environment: release
     permissions:

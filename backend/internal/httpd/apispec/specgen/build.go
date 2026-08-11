@@ -942,7 +942,7 @@ func sessionOperations() []operation {
 		},
 		{
 			method: http.MethodPost, path: "/api/v1/sessions/{sessionId}/preview/server", id: "startSessionPreviewServer", tag: "sessions",
-			summary:    "Start a session-owned server from .ao/launch.json and open its application preview",
+			summary:    "Start a session-owned server from .square/launch.json and open its application preview",
 			pathParams: []any{controllers.SessionIDParam{}, controllers.BrowserCapabilityHeader{}},
 			reqBody:    controllers.StartPreviewServerRequest{},
 			resps: []respUnit{

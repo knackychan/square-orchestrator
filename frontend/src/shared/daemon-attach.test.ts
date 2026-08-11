@@ -26,24 +26,24 @@ const DEAD = () => false;
 const NO_IDENTITY_ERROR = () => null;
 
 describe("expectedDaemonPort", () => {
-	it("defaults to 3001 when AO_PORT is unset or empty", () => {
-		expect(expectedDaemonPort({})).toBe(3001);
-		expect(expectedDaemonPort({ AO_PORT: "" })).toBe(3001);
-		expect(DEFAULT_DAEMON_PORT).toBe(3001);
+	it("defaults to 3101 when SQUARE_PORT is unset or empty", () => {
+		expect(expectedDaemonPort({})).toBe(3101);
+		expect(expectedDaemonPort({ SQUARE_PORT: "" })).toBe(3101);
+		expect(DEFAULT_DAEMON_PORT).toBe(3101);
 	});
 
-	it("honors a valid AO_PORT override", () => {
-		expect(expectedDaemonPort({ AO_PORT: "3037" })).toBe(3037);
-		expect(expectedDaemonPort({ AO_PORT: "1" })).toBe(1);
-		expect(expectedDaemonPort({ AO_PORT: "65535" })).toBe(65535);
+	it("honors a valid SQUARE_PORT override", () => {
+		expect(expectedDaemonPort({ SQUARE_PORT: "3037" })).toBe(3037);
+		expect(expectedDaemonPort({ SQUARE_PORT: "1" })).toBe(1);
+		expect(expectedDaemonPort({ SQUARE_PORT: "65535" })).toBe(65535);
 	});
 
-	it("falls back to the default for an out-of-range or non-integer AO_PORT", () => {
-		expect(expectedDaemonPort({ AO_PORT: "0" })).toBe(3001);
-		expect(expectedDaemonPort({ AO_PORT: "70000" })).toBe(3001);
-		expect(expectedDaemonPort({ AO_PORT: "3001.5" })).toBe(3001);
-		expect(expectedDaemonPort({ AO_PORT: "not-a-number" })).toBe(3001);
-		expect(expectedDaemonPort({ AO_PORT: "-1" })).toBe(3001);
+	it("falls back to the default for an out-of-range or non-integer SQUARE_PORT", () => {
+		expect(expectedDaemonPort({ SQUARE_PORT: "0" })).toBe(3101);
+		expect(expectedDaemonPort({ SQUARE_PORT: "70000" })).toBe(3101);
+		expect(expectedDaemonPort({ SQUARE_PORT: "3101.5" })).toBe(3101);
+		expect(expectedDaemonPort({ SQUARE_PORT: "not-a-number" })).toBe(3101);
+		expect(expectedDaemonPort({ SQUARE_PORT: "-1" })).toBe(3101);
 	});
 });
 

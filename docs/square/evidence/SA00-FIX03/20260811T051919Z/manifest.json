@@ -1,0 +1,24 @@
+{
+  "task": "SA00-FIX03",
+  "candidateCommit": "9af0955471022ff5256f48b497f0631e3a01c26d",
+  "algorithm": "SHA-256",
+  "entries": [
+    {"path":"backend/internal/config/config.go","sha256":"7003b13c87dbbf18bc355a22a9a7ef5394e92de584772a9ff6ba184d77715beb"},
+    {"path":"backend/internal/config/config_test.go","sha256":"fef344703f15eafea598d9c2a42f7d74b234ec9a1a1135db7100ac1ee895446c"},
+    {"path":"backend/internal/cli/root.go","sha256":"7d75d2fe3ce223332c0ddf756de129062c174132f61124c481a28cf950108ead"},
+    {"path":"backend/internal/daemonmeta/meta.go","sha256":"60de47820bfb3e7772f436ff2d2430df4ff384a04625b777899334081a9dd9f7"},
+    {"path":"backend/internal/httpd/server.go","sha256":"9ea5ff49e73a319f33bb796b71f5d407e23a6f836eaf4c64d3f79d149cd008d5"},
+    {"path":"backend/internal/session_manager/manager.go","sha256":"24a9cedd7c29cd0a7d71bf12d977695f3beadf29e64111bd8288fd3473ca9be1"},
+    {"path":"backend/internal/browserruntime/broker.go","sha256":"e7351e6c68a23667e4da550783aa730b80174ab0c7a44e6f7a9be9a876c1f4fe"},
+    {"path":"backend/internal/browserruntime/listen_windows.go","sha256":"79b7a673845f473abfa034bad0beac0d6c2a7c0d5c8f5d4e8d997d462e4c75cb"},
+    {"path":"backend/internal/daemon/supervisor/listen_windows.go","sha256":"3c6b87291a4efddfcd44a57f9d74e53b71d9547287e470708dfdaaebde11b1f2"},
+    {"path":"backend/internal/adapters/runtime/conpty/ptyregistry/registry.go","sha256":"c916863f43590e82da886ca601840524a18731061d7ae42ef0a39da90889105a"},
+    {"path":"backend/internal/agentlaunch/spec.go","sha256":"b6d2ecebb33de75f25c0485f8b3a287abaf34c6b95a5cc223bb229609325f2f3"},
+    {"path":"frontend/src/main.ts","sha256":"41070106559023536db711ef1ca7adfe995717399c04b74d206f0198c35fe9b3"},
+    {"path":"frontend/src/shared/daemon-attach.ts","sha256":"8dda372f41b48bdf1aca5723b4378b7aebe7944c7351f55125b545b55cab4efb"},
+    {"path":"frontend/src/shared/daemon-discovery.ts","sha256":"0a24c71522083e6bfc013a2992453732bf9f1d56a9fa09ab450cbe4d0a1b3ba8"},
+    {"path":"frontend/src/shared/daemon-launch.ts","sha256":"219d129f879f8abc956f6109614348f1a27181609a548a9f460f4343b64ad209"},
+    {"path":"frontend/src/main/daemon-owner.ts","sha256":"f6efc5d38ea3cfa086771b1681a02fc2f6f414c28bac3ff5143e4a46a470243f"},
+    {"path":"frontend/scripts/build-daemon.mjs","sha256":"3175f032801d27e84b85f35fb05d5f207156911cbd77a6d7516822fae582130b"}
+  ]
+}

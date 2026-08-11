@@ -30,18 +30,18 @@ const (
 	// sentinel), so user-authored plugins in other files are never touched.
 	// It is TypeScript (opencode runs on Bun); the file's only import is a
 	// type-only import, which Bun erases at runtime.
-	opencodePluginFileName = "ao-activity.ts"
+	opencodePluginFileName = "square-activity.ts"
 
 	// opencodePluginSentinel marks the file as AO-managed. AreHooksInstalled and
 	// UninstallHooks key off it so AO never deletes a user file that happens to
 	// share the name. It must appear verbatim in the embedded plugin source.
-	opencodePluginSentinel = "agent-orchestrator: managed opencode activity plugin"
+	opencodePluginSentinel = "square-orchestrator: managed opencode activity plugin"
 
 	// opencodeHookCommandPrefix identifies the hook commands AO owns. The
-	// embedded plugin shells `ao hooks opencode <event>`; this prefix is the
-	// shared contract with the (forthcoming) `ao hooks` CLI and is asserted by
+	// embedded plugin shells `square hooks opencode <event>`; this prefix is the
+	// shared contract with the Square `hooks` CLI and is asserted by
 	// tests so the plugin can't silently drift away from it.
-	opencodeHookCommandPrefix = "ao hooks opencode "
+	opencodeHookCommandPrefix = "square hooks opencode "
 
 	// opencodeSkillSubDir is where opencode discovers project skills
 	// (`.opencode/skills/<name>/SKILL.md`). AO materializes the using-ao skill
@@ -52,11 +52,11 @@ const (
 	// opencodeSkillMarkerFile lives beside the skill directory (not inside it) so
 	// Materialize's RemoveAll of using-ao/ cannot erase ownership mid-install.
 	// Install overwrites and uninstall deletes only when this marker is present.
-	opencodeSkillMarkerFile = ".using-ao.ao-managed"
+	opencodeSkillMarkerFile = ".using-square.square-managed"
 
 	// opencodeSkillSentinel is written into the marker file. Keep it distinct
 	// from the plugin sentinel so ownership checks stay file-specific.
-	opencodeSkillSentinel = "agent-orchestrator: managed opencode using-ao skill"
+	opencodeSkillSentinel = "square-orchestrator: managed opencode using-square skill"
 )
 
 // opencodePluginSource is the AO-managed opencode plugin, embedded so it ships
@@ -74,8 +74,8 @@ var opencodePluginSource string
 var opencodeManagedEvents = []string{"session-start", "user-prompt-submit", "stop"}
 
 // GetAgentHooks installs AO's opencode activity plugin into the worktree-local
-// .opencode/plugins/ directory, and materializes the using-ao skill into
-// .opencode/skills/using-ao/ so opencode's native `skill` tool can discover it.
+// .opencode/plugins/ directory, and materializes the using-square skill into
+// .opencode/skills/using-square/ so opencode's native `skill` tool can discover it.
 // Unlike Claude Code and Codex, opencode has no native command-hook config to
 // merge into; its only lifecycle-extensibility surface is a JS/TS plugin. AO
 // therefore writes a dedicated, AO-owned plugin file. The write is atomic and

@@ -11,7 +11,7 @@ function joinPath(...segments: string[]): string {
 }
 
 export function bundledDaemonBinaryName(platform: NodeJS.Platform): string {
-	return platform === "win32" ? "ao.exe" : "ao";
+	return platform === "win32" ? "square.exe" : "square";
 }
 
 export function resolveDaemonLaunch(
@@ -22,7 +22,7 @@ export function resolveDaemonLaunch(
 	homeDir: string,
 	platform: NodeJS.Platform,
 ): DaemonLaunchSpec | null {
-	const configuredCommand = env.AO_DAEMON_COMMAND?.trim();
+	const configuredCommand = env.SQUARE_DAEMON_COMMAND?.trim();
 	if (configuredCommand) {
 		return {
 			command: configuredCommand,
@@ -46,7 +46,7 @@ export function resolveDaemonLaunch(
 	return {
 		command: joinPath(resourcesPath, "daemon", bundledDaemonBinaryName(platform)),
 		args: ["daemon"],
-		cwd: joinPath(homeDir, ".ao"),
+		cwd: joinPath(homeDir, ".square"),
 		shell: false,
 		source: "bundled",
 	};

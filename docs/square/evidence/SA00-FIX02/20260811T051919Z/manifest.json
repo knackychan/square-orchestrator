@@ -1,0 +1,16 @@
+{
+  "task": "SA00-FIX02",
+  "candidateCommit": "9af0955471022ff5256f48b497f0631e3a01c26d",
+  "algorithm": "SHA-256",
+  "entries": [
+    {"path":"frontend/forge.config.ts","sha256":"df848e2995bdf422fbea6a85efe96d991937dacc806c83b1e63f03167d4a54fb"},
+    {"path":"frontend/package.json","sha256":"f0252e039100931922d6e7e13ab710b8c5bbfaf0cb3d3cd3c7c1db5655c85f3f"},
+    {"path":"frontend/package-lock.json","sha256":"1320591c40442927638f3ac2794587613b8944a0d5d33780cabdb760f0cdb29d"},
+    {"path":"frontend/src/main.ts","sha256":"41070106559023536db711ef1ca7adfe995717399c04b74d206f0198c35fe9b3"},
+    {"path":"frontend/src/main/auto-updater.ts","sha256":"0fba54be1065fd8f95270862b0043400b5c72db4d2c575aee808c056c44b8cd4"},
+    {"path":"frontend/src/main/feature-builds.ts","sha256":"45b02daf81b8919b1c8a945034e4a79f02d7f7e8cfff4d7d4d7b3f25cda31629"},
+    {"path":"frontend/src/shared/posthog-config.ts","sha256":"dcde031c4b49241075bdd6362e35116e1dfeff2c03047dd00a38482ccfb4c907"},
+    {"path":"frontend/src/shared/telemetry.ts","sha256":"36b879f21556cbc14ad06be1fcae68112b91ca49886c85d655071688ea934e71"},
+    {"path":"frontend/src/main/square-safety.test.ts","sha256":"32baba5b66d2a707073d1ae42cb8f8b48554fab28e2c43af2aa68dca1762e9c9"}
+  ]
+}

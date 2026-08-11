@@ -31,7 +31,7 @@ func registryFile() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, ".ao", "windows-pty-hosts.json"), nil
+	return filepath.Join(home, ".square", "windows-pty-hosts.json"), nil
 }
 
 // readRaw reads and defensively parses the registry. Missing file or malformed

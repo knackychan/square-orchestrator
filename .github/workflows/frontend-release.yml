@@ -94,7 +94,7 @@ jobs:
           exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AO_RELEASE_REPO: ${{ github.repository }}
+          SQUARE_RELEASE_REPO: ${{ github.repository }}
           # macOS signing + notarization env (APPLE_SIGNING_IDENTITY, APPLE_API_KEY,
           # APPLE_API_KEY_ID, APPLE_API_ISSUER) is exported by the "macOS signing
           # setup" step above via $GITHUB_ENV; the Developer ID cert is in the
@@ -219,7 +219,7 @@ jobs:
           exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AO_RELEASE_REPO: ${{ github.repository }}
+          SQUARE_RELEASE_REPO: ${{ github.repository }}
       - name: Upload stable asset aliases (macOS)
         shell: bash
         run: |
@@ -371,13 +371,14 @@ jobs:
         # failure fails this job so that adding `e2e-gate` to `publish-feed.needs`
         # actually blocks the release. infra/neutral and skips never block — only
         # `app_failed` (a real smoke failure of the release build) does.
-        if: ${{ always() && vars.AO_GATE_BLOCKING == 'true' && steps.gate.outputs.classification == 'app_failed' }}
+        if: ${{ always() && vars.SQUARE_GATE_BLOCKING == 'true' && steps.gate.outputs.classification == 'app_failed' }}
         run: |
           echo "::error::ao-stable-gate: app smoke failed and AO_GATE_BLOCKING=true — failing the release."
           exit 1
 
   publish-feed:
     needs: [release, release-intel]
+    if: ${{ false }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

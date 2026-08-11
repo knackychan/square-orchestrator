@@ -1,0 +1,72 @@
+schema_version: square.role-routing-set/v1
+profiles:
+  - id: global-secretary-economy
+    scope: GLOBAL
+    scope_id: null
+    role: SECRETARY
+    selection: AUTO
+    route_class: economical
+    permissions: READ_ONLY
+    required_capabilities:
+      - structured_artifact
+    fallback: AUTO_ELIGIBLE
+    context_budget: 32000
+    output_budget: 8000
+    enabled: true
+    version: 1
+
+  - id: project-planner-quality
+    scope: PROJECT
+    scope_id: PROJECT_ID_HERE
+    role: PLANNER
+    selection: PREFERRED
+    routes:
+      - claude-code/opus-planning
+      - codex/high-reasoning
+    permissions: READ_ONLY
+    required_capabilities:
+      - structured_artifact
+      - model_override
+      - large_context
+    fallback: APPROVED_LIST_ONLY
+    context_budget: 120000
+    output_budget: 24000
+    enabled: true
+    version: 1
+
+  - id: project-worker-balanced
+    scope: PROJECT
+    scope_id: PROJECT_ID_HERE
+    role: WORKER
+    selection: AUTO
+    route_class: coding
+    permissions: WRITER
+    required_capabilities:
+      - worktree
+      - terminal_or_chat
+      - cancellation
+    fallback: AUTO_ELIGIBLE
+    context_budget: 100000
+    output_budget: 30000
+    enabled: true
+    version: 1
+
+  - id: project-reviewer-independent
+    scope: PROJECT
+    scope_id: PROJECT_ID_HERE
+    role: REVIEWER
+    selection: AUTO
+    route_class: review
+    permissions: REVIEW_ONLY
+    required_capabilities:
+      - read_only_review
+      - structured_artifact
+    fallback: AUTO_ELIGIBLE
+    independence:
+      mode: DIFFERENT_MODEL_FAMILY
+      relative_to_roles:
+        - WORKER
+    context_budget: 90000
+    output_budget: 20000
+    enabled: true
+    version: 1

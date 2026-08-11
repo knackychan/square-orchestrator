@@ -71,30 +71,30 @@ var (
 
 // Env vars a spawned process reads to learn who it is. A worker that starts
 // its own Docker containers (a database, a queue, any ad-hoc service) should
-// label them `--label ao.session=$AO_SESSION_ID` so AO's container reaper
+// label them `--label square.session=$SQUARE_SESSION_ID` so Square's container reaper
 // (dockerreap) removes them on session kill/terminal state — see #2652. Add
 // `--label ao.spare=true` to a deliberately shared container that must
 // survive past this session.
 const (
-	EnvSessionID = "AO_SESSION_ID"
-	EnvProjectID = "AO_PROJECT_ID"
-	EnvIssueID   = "AO_ISSUE_ID"
+	EnvSessionID = "SQUARE_SESSION_ID"
+	EnvProjectID = "SQUARE_PROJECT_ID"
+	EnvIssueID   = "SQUARE_ISSUE_ID"
 	// EnvRuntimeLaunchID identifies the current supervised agent generation.
-	EnvRuntimeLaunchID = "AO_RUNTIME_LAUNCH_ID"
-	// EnvDataDir tells a spawned agent's AO hook commands where the store lives.
-	EnvDataDir = "AO_DATA_DIR"
+	EnvRuntimeLaunchID = "SQUARE_RUNTIME_LAUNCH_ID"
+	// EnvDataDir tells a spawned agent's Square hook commands where the store lives.
+	EnvDataDir = "SQUARE_DATA_DIR"
 	// EnvBrowserCapability proves ownership of the session's browser target.
-	EnvBrowserCapability = "AO_BROWSER_CAPABILITY"
+	EnvBrowserCapability = "SQUARE_BROWSER_CAPABILITY"
 	// EnvBrowserRuntimeToken must never be inherited by a worker. It authenticates
 	// the privileged Electron runtime, not session-scoped browser callers.
-	EnvBrowserRuntimeToken = "AO_BROWSER_RUNTIME_TOKEN" //nolint:gosec // Environment variable name, not a credential.
+	EnvBrowserRuntimeToken = "SQUARE_BROWSER_RUNTIME_TOKEN" //nolint:gosec // Environment variable name, not a credential.
 )
 
 // hookBinaryName is the executable name the workspace hook commands invoke:
-// every agent adapter installs a bare `ao hooks <agent> <event>`. The session
+// every agent adapter installs a bare `square hooks <agent> <event>`. The session
 // PATH pin (hookPATH) only works when the daemon's own executable carries this
-// name, since prepending its directory must change what `ao` resolves to.
-const hookBinaryName = "ao"
+// name, since prepending its directory must change what `square` resolves to.
+const hookBinaryName = "square"
 
 type lifecycleRecorder interface {
 	PrepareLaunch(id domain.SessionID, launchID string) error
@@ -312,7 +312,7 @@ type Deps struct {
 	Preview             PreviewLifecycle
 	Browser             BrowserLifecycle
 	BrowserCapabilities BrowserCapabilityIssuer
-	// DataDir is exported to spawned agents as AO_DATA_DIR so their hook
+	// DataDir is exported to spawned agents as SQUARE_DATA_DIR so their hook
 	// commands can open the same store.
 	DataDir string
 	Clock   func() time.Time
@@ -2400,7 +2400,7 @@ func isDefaultDevDataDir(dataDir string) bool {
 	if err != nil {
 		return false
 	}
-	want, err := filepath.Abs(filepath.Join(home, ".ao", "dev", "data"))
+	want, err := filepath.Abs(filepath.Join(home, ".square", "dev", "data"))
 	if err != nil {
 		return false
 	}
@@ -2451,7 +2451,7 @@ func promptProjectContext(projectID domain.ProjectID, project domain.ProjectReco
 
 // attachmentsDir is the worktree-relative directory where spawn image
 // attachments are written.
-const attachmentsDir = ".ao/attachments"
+const attachmentsDir = ".square/attachments"
 
 // writeSpawnAttachments writes each attachment into the worktree under
 // attachmentsDir as image-1<ext>, image-2<ext>, ... and returns the
@@ -2575,13 +2575,13 @@ func (m *Manager) aoSkillPointer() string {
 	commandsGlob := filepath.ToSlash(filepath.Join(dir, "commands", "*.md"))
 	browserFile := filepath.ToSlash(filepath.Join(dir, "commands", "browser.md"))
 	previewFile := filepath.ToSlash(filepath.Join(dir, "commands", "preview.md"))
-	return "\n\n" + "## Using the ao CLI\n\n" +
-		"When using `ao`, read `" + skillFile + "` and only the relevant file under `" + commandsGlob + "`; do not load unrelated command guides.\n\n" +
-		"## AO desktop Browser panel\n\n" +
-		"For frontend work, read `" + previewFile + "` before previewing or starting an app: open static HTML or Markdown directly; Never create or modify `package.json` or install dependencies solely to display static files. Do not create `.ao/launch.json` unless the user asks. Automatically open the primary requested browser-displayable artifact immediately after creating or materially updating it, but do not replace an active application preview with a supporting asset. " +
-		"For page inspection or interaction, read `" + browserFile + "` and use `ao browser` from this AO session. Browser network capture is optional and off by default; follow that guide and never enable it for routine browser actions. " +
-		"Do not use Codex/host in-app browser connectors, `agent.browsers.get(\"iab\")`, or a browser MCP for the AO Browser panel: those are separate browser runtimes and cannot see or control AO's session-owned page. " +
-		"`ao browser` operates the same live page the user sees in that panel."
+	return "\n\n" + "## Using the square CLI\n\n" +
+		"When using `square`, read `" + skillFile + "` and only the relevant file under `" + commandsGlob + "`; do not load unrelated command guides.\n\n" +
+		"## Square desktop Browser panel\n\n" +
+		"For frontend work, read `" + previewFile + "` before previewing or starting an app: open static HTML or Markdown directly; Never create or modify `package.json` or install dependencies solely to display static files. Do not create `.square/launch.json` unless the user asks. Automatically open the primary requested browser-displayable artifact immediately after creating or materially updating it, but do not replace an active application preview with a supporting asset. " +
+		"For page inspection or interaction, read `" + browserFile + "` and use `square browser` from this Square session. Browser network capture is optional and off by default; follow that guide and never enable it for routine browser actions. " +
+		"Do not use Codex/host in-app browser connectors, `agent.browsers.get(\"iab\")`, or a browser MCP for the Square Browser panel: those are separate browser runtimes and cannot see or control Square's session-owned page. " +
+		"`square browser` operates the same live page the user sees in that panel."
 }
 
 func (m *Manager) workspaceProjectPrompt(ctx context.Context, kind domain.SessionKind, projectID domain.ProjectID) (string, error) {

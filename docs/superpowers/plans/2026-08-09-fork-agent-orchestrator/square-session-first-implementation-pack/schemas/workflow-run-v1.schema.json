@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://square.local/schemas/workflow-run-v1.json",
+  "title": "Square Workflow Run v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "session_id",
+    "profile",
+    "status",
+    "stage",
+    "baseline",
+    "role_runs",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "square.workflow-run/v1"
+    },
+    "id": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "profile": {
+      "enum": [
+        "AUTO",
+        "QUICK",
+        "PLANNED",
+        "BOUNDED",
+        "SYSTEMIC"
+      ]
+    },
+    "resolved_profile": {
+      "enum": [
+        "QUICK",
+        "PLANNED",
+        "BOUNDED",
+        "SYSTEMIC"
+      ]
+    },
+    "status": {
+      "enum": [
+        "CREATED",
+        "TRIAGING",
+        "PREVIEW_READY",
+        "APPROVAL_REQUIRED",
+        "QUEUED",
+        "CONTEXT_BUILDING",
+        "PLANNING",
+        "PLAN_APPROVAL_REQUIRED",
+        "DISPATCHING",
+        "IMPLEMENTING",
+        "VERIFYING",
+        "REVIEWING",
+        "FIXING",
+        "FINALIZING",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELLED",
+        "PAUSED",
+        "BLOCKED"
+      ]
+    },
+    "stage": {
+      "type": "string"
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "GIT_COMMIT",
+            "TREE_HASH",
+            "LOCAL_STATE"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "role_runs": {
+      "type": "array",
+      "items": {
+        "$ref": "role-run-v1.json"
+      }
+    },
+    "receipt_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

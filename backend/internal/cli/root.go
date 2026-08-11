@@ -1,4 +1,4 @@
-// Package cli implements the user-facing ao command. It stays thin: commands
+// Package cli implements the user-facing square command. It stays thin: commands
 // discover the local daemon, call its loopback HTTP API, and format output.
 package cli
 
@@ -20,7 +20,7 @@ import (
 	"github.com/aoagents/agent-orchestrator/backend/internal/telemetrymeta"
 )
 
-// Execute runs the ao CLI with process stdio.
+// Execute runs the square CLI with process stdio.
 func Execute() error {
 	return executeWithDeps(DefaultDeps(), os.Args[1:])
 }
@@ -157,9 +157,9 @@ func NewRootCommand(deps Deps) *cobra.Command {
 	ctx := &commandContext{deps: deps}
 
 	root := &cobra.Command{
-		Use:           "ao",
-		Short:         "Agent Orchestrator",
-		Long:          "Agent Orchestrator manages the local daemon that supervises parallel coding-agent sessions.",
+		Use:           "square",
+		Short:         "Square Orchestrator",
+		Long:          "Square Orchestrator manages the local daemon that supervises parallel coding-agent sessions.",
 		Version:       VersionString(),
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -239,10 +239,10 @@ func (c *commandContext) emitCLIInvoked(ctx context.Context, cmd *cobra.Command)
 }
 
 func cliInvocationActorType(cmd *cobra.Command) string {
-	if strings.TrimSpace(cmd.CommandPath()) == "ao hooks" {
+	if strings.TrimSpace(cmd.CommandPath()) == "square hooks" {
 		return "agent"
 	}
-	if sessionIDPattern.MatchString(strings.TrimSpace(os.Getenv("AO_SESSION_ID"))) {
+	if sessionIDPattern.MatchString(strings.TrimSpace(os.Getenv("SQUARE_SESSION_ID"))) {
 		return "agent"
 	}
 	return "user"

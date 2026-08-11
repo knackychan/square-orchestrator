@@ -18,26 +18,26 @@ import (
 
 const (
 	// LoopbackHost is the only host the daemon ever binds. There is deliberately
-	// no AO_HOST env var: the daemon has no auth/CORS/TLS and a stray
-	// AO_HOST=0.0.0.0 would turn it into a public no-auth service. If a
+	// no SQUARE_HOST env var: the daemon has no auth/CORS/TLS and a stray
+	// SQUARE_HOST=0.0.0.0 would turn it into a public no-auth service. If a
 	// non-default loopback (e.g. ::1, 127.0.0.2) is ever needed, add it back with
 	// an IsLoopback() validator — not a raw env read.
 	LoopbackHost = "127.0.0.1"
 	// DefaultPort is the single port for REST, terminal mux, health, and control.
-	DefaultPort = 3001
+	DefaultPort = 3101
 	// DefaultRequestTimeout bounds a single REST request. Long-lived terminal mux
 	// connections are mounted outside this timeout.
 	DefaultRequestTimeout = 60 * time.Second
 	// DefaultShutdownTimeout is the hard cap on graceful shutdown. After this
 	// the process exits even if connections are still draining.
 	DefaultShutdownTimeout = 10 * time.Second
-	// DefaultAgent is the compatibility value used when AO_AGENT is unset. The
+	// DefaultAgent is the compatibility value used when SQUARE_AGENT is unset. The
 	// daemon validates it at startup, but worker/orchestrator spawns resolve from
 	// explicit requests or project role config instead of falling back to it.
 	DefaultAgent = "claude-code"
 	// DefaultTelemetryPostHogHost is the default PostHog ingestion host when
-	// remote telemetry is enabled and AO_TELEMETRY_POSTHOG_HOST is unset.
-	DefaultTelemetryPostHogHost = "https://us.i.posthog.com"
+	// Square has no telemetry host until a separately accepted owner opt-in.
+	DefaultTelemetryPostHogHost = ""
 )
 
 // TelemetryRemote selects the remote telemetry exporter.
@@ -98,11 +98,11 @@ type Config struct {
 	// DataDir is the directory holding durable SQLite state: DB and WAL files.
 	// It is created on first use by the storage layer.
 	DataDir string
-	// Agent is the compatibility agent adapter id selected by AO_AGENT;
+	// Agent is the compatibility agent adapter id selected by SQUARE_AGENT;
 	// startSession fails fast if no adapter with this id is registered.
 	Agent string
 	// AppRunID identifies one desktop-app launch. The Electron supervisor mints
-	// it and passes it down (AO_APP_RUN_ID), holding it constant across daemon
+	// it and passes it down (SQUARE_APP_RUN_ID), holding it constant across daemon
 	// restarts it performs, so standalone shell terminals can survive a daemon
 	// restart while still being reaped when the APP itself goes away.
 	//
@@ -111,7 +111,7 @@ type Config struct {
 	// from an earlier run look like orphans and get cleaned up.
 	AppRunID string
 	// AllowedOrigins are the browser origins granted CORS read access (see
-	// DefaultAllowedOrigins). Overridden by AO_ALLOWED_ORIGINS.
+	// DefaultAllowedOrigins). Overridden by SQUARE_ALLOWED_ORIGINS.
 	AllowedOrigins []string
 	// Telemetry controls local/remote telemetry sinks.
 	Telemetry TelemetryConfig
@@ -129,24 +129,20 @@ func (c Config) Addr() string {
 
 // Load resolves configuration from the environment, applying defaults. It
 // returns an error only for values that are present but malformed (e.g. a
-// non-numeric AO_PORT); missing values fall back to defaults.
+// non-numeric SQUARE_PORT); missing values fall back to defaults.
 //
 // Recognised variables:
 //
-//	AO_PORT              bind port           (default 3001)
-//	AO_REQUEST_TIMEOUT   per-request timeout (Go duration > 0, default 60s)
-//	AO_SHUTDOWN_TIMEOUT  shutdown deadline   (Go duration > 0, default 10s)
-//	AO_RUN_FILE          running.json path   (default ~/.ao/running.json)
-//	AO_DATA_DIR          durable state dir   (default ~/.ao/data)
-//	AO_AGENT             compatibility agent id (default claude-code)
-//	AO_APP_RUN_ID        desktop-app launch id, set by the Electron supervisor
+//	SQUARE_PORT              bind port           (default 3101)
+//	SQUARE_REQUEST_TIMEOUT   per-request timeout (Go duration > 0, default 60s)
+//	SQUARE_SHUTDOWN_TIMEOUT  shutdown deadline   (Go duration > 0, default 10s)
+//	SQUARE_RUN_FILE          running.json path   (default ~/.square/running.json)
+//	SQUARE_DATA_DIR          durable state dir   (default ~/.square/data)
+//	SQUARE_AGENT             compatibility agent id (default claude-code)
+//	SQUARE_APP_RUN_ID        desktop-app launch id, set by the Electron supervisor
 //	                     (default: a fresh id minted per daemon boot)
-//	AO_ALLOWED_ORIGINS   CORS origins, comma-separated (default DefaultAllowedOrigins)
-//	AO_TELEMETRY_EVENTS  local event capture off|on (default off)
-//	AO_TELEMETRY_METRICS local metric capture off|on (default off)
-//	AO_TELEMETRY_REMOTE  remote exporter off|posthog (default off)
-//	AO_TELEMETRY_POSTHOG_KEY   PostHog project key
-//	AO_TELEMETRY_POSTHOG_HOST  PostHog host (default DefaultTelemetryPostHogHost)
+//	SQUARE_ALLOWED_ORIGINS   CORS origins, comma-separated (default DefaultAllowedOrigins)
+//	SQUARE telemetry variables are intentionally ignored until SA14 owner opt-in.
 //
 // The bind host is not configurable: the daemon is loopback-only by design.
 func Load() (Config, error) {
@@ -163,47 +159,47 @@ func Load() (Config, error) {
 		},
 	}
 
-	if raw := os.Getenv("AO_PORT"); raw != "" {
+	if raw := os.Getenv("SQUARE_PORT"); raw != "" {
 		port, err := strconv.Atoi(raw)
 		if err != nil {
-			return Config{}, fmt.Errorf("invalid AO_PORT %q: %w", raw, err)
+			return Config{}, fmt.Errorf("invalid SQUARE_PORT %q: %w", raw, err)
 		}
 		if port < 1 || port > 65535 {
-			return Config{}, fmt.Errorf("invalid AO_PORT %d: out of range 1-65535", port)
+			return Config{}, fmt.Errorf("invalid SQUARE_PORT %d: out of range 1-65535", port)
 		}
 		cfg.Port = port
 	}
 
-	if raw := os.Getenv("AO_REQUEST_TIMEOUT"); raw != "" {
-		d, err := parsePositiveDuration("AO_REQUEST_TIMEOUT", raw)
+	if raw := os.Getenv("SQUARE_REQUEST_TIMEOUT"); raw != "" {
+		d, err := parsePositiveDuration("SQUARE_REQUEST_TIMEOUT", raw)
 		if err != nil {
 			return Config{}, err
 		}
 		cfg.RequestTimeout = d
 	}
 
-	if raw := os.Getenv("AO_SHUTDOWN_TIMEOUT"); raw != "" {
-		d, err := parsePositiveDuration("AO_SHUTDOWN_TIMEOUT", raw)
+	if raw := os.Getenv("SQUARE_SHUTDOWN_TIMEOUT"); raw != "" {
+		d, err := parsePositiveDuration("SQUARE_SHUTDOWN_TIMEOUT", raw)
 		if err != nil {
 			return Config{}, err
 		}
 		cfg.ShutdownTimeout = d
 	}
 
-	if raw := os.Getenv("AO_AGENT"); raw != "" {
+	if raw := os.Getenv("SQUARE_AGENT"); raw != "" {
 		cfg.Agent = raw
 	}
 
-	// A missing AO_APP_RUN_ID means nothing is supervising this daemon, so this
+	// A missing SQUARE_APP_RUN_ID means nothing is supervising this daemon, so this
 	// boot IS the run: mint an id rather than leaving it empty, which would make
 	// every boot share one run id and defeat orphan detection entirely.
-	if raw := os.Getenv("AO_APP_RUN_ID"); raw != "" {
+	if raw := os.Getenv("SQUARE_APP_RUN_ID"); raw != "" {
 		cfg.AppRunID = raw
 	} else {
 		cfg.AppRunID = newAppRunID()
 	}
 
-	if raw, ok := os.LookupEnv("AO_ALLOWED_ORIGINS"); ok && raw != "" {
+	if raw, ok := os.LookupEnv("SQUARE_ALLOWED_ORIGINS"); ok && raw != "" {
 		// Explicit override replaces the defaults entirely so a deployment can
 		// also narrow the list. The "null" origin is rejected, never silently
 		// dropped: an operator allowing it would open the no-auth daemon to
@@ -215,46 +211,15 @@ func Load() (Config, error) {
 				continue
 			}
 			if origin == "null" || origin == "*" {
-				return Config{}, fmt.Errorf("invalid AO_ALLOWED_ORIGINS entry %q: wildcard and null origins are not allowed", origin)
+				return Config{}, fmt.Errorf("invalid SQUARE_ALLOWED_ORIGINS entry %q: wildcard and null origins are not allowed", origin)
 			}
 			origins = append(origins, origin)
 		}
 		cfg.AllowedOrigins = origins
 	}
 
-	if raw := os.Getenv("AO_TELEMETRY_EVENTS"); raw != "" {
-		v, err := parseToggleEnv("AO_TELEMETRY_EVENTS", raw)
-		if err != nil {
-			return Config{}, err
-		}
-		cfg.Telemetry.Events = v
-	}
-	if raw := os.Getenv("AO_TELEMETRY_METRICS"); raw != "" {
-		v, err := parseToggleEnv("AO_TELEMETRY_METRICS", raw)
-		if err != nil {
-			return Config{}, err
-		}
-		cfg.Telemetry.Metrics = v
-	}
-	if raw := os.Getenv("AO_TELEMETRY_REMOTE"); raw != "" {
-		remote, err := parseTelemetryRemote(raw)
-		if err != nil {
-			return Config{}, fmt.Errorf("invalid AO_TELEMETRY_REMOTE %q: %w", raw, err)
-		}
-		cfg.Telemetry.Remote = remote
-	}
-	if raw := os.Getenv("AO_TELEMETRY_POSTHOG_KEY"); raw != "" {
-		cfg.Telemetry.PostHogKey = raw
-	}
-	if raw := os.Getenv("AO_TELEMETRY_POSTHOG_HOST"); raw != "" {
-		cfg.Telemetry.PostHogHost = raw
-	}
-	if raw := os.Getenv("AO_TELEMETRY_DISABLED_EVENTS"); raw != "" {
-		cfg.Telemetry.DisabledEvents = parseTelemetryDisabledEvents(raw)
-	}
-	if raw := os.Getenv("AO_TELEMETRY_APP_VERSION"); raw != "" {
-		cfg.Telemetry.AppVersion = strings.TrimSpace(raw)
-	}
+	// Telemetry is hard-disabled for Square through SA14. In particular, do not
+	// honor inherited AO_* variables or a caller-provided Square opt-in here.
 
 	runFile, err := resolveRunFilePath()
 	if err != nil {
@@ -335,12 +300,12 @@ func newAppRunID() string {
 	return "apprun-" + hex.EncodeToString(buf)
 }
 
-// resolveRunFilePath picks where running.json lives. An explicit AO_RUN_FILE
+// resolveRunFilePath picks where running.json lives. An explicit SQUARE_RUN_FILE
 // wins; otherwise it sits under the canonical AO home directory so the CLI and
 // Electron supervisor share one handshake location.
 func resolveRunFilePath() (string, error) {
-	if p, ok := os.LookupEnv("AO_RUN_FILE"); ok && p != "" {
-		return absOverride("AO_RUN_FILE", p)
+	if p, ok := os.LookupEnv("SQUARE_RUN_FILE"); ok && p != "" {
+		return absOverride("SQUARE_RUN_FILE", p)
 	}
 	stateDir, err := defaultStateDir()
 	if err != nil {
@@ -350,11 +315,11 @@ func resolveRunFilePath() (string, error) {
 }
 
 // resolveDataDir picks where durable state (the SQLite DB) lives. An explicit
-// AO_DATA_DIR wins; otherwise it defaults under the same canonical AO home
+// SQUARE_DATA_DIR wins; otherwise it defaults under the same canonical Square home
 // directory as the run-file.
 func resolveDataDir() (string, error) {
-	if p, ok := os.LookupEnv("AO_DATA_DIR"); ok && p != "" {
-		return absOverride("AO_DATA_DIR", p)
+	if p, ok := os.LookupEnv("SQUARE_DATA_DIR"); ok && p != "" {
+		return absOverride("SQUARE_DATA_DIR", p)
 	}
 	stateDir, err := defaultStateDir()
 	if err != nil {
@@ -368,14 +333,14 @@ func defaultStateDir() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolve state dir: %w", err)
 	}
-	return filepath.Join(homeDir, ".ao"), nil
+	return filepath.Join(homeDir, ".square"), nil
 }
 
-// absOverride resolves an explicit AO_DATA_DIR/AO_RUN_FILE override to an
+// absOverride resolves an explicit SQUARE_DATA_DIR/SQUARE_RUN_FILE override to an
 // absolute path against the process's launch cwd. The daemon chdir's into its
 // data dir at startup (see stabilizeWorkingDirectory), so a relative override
 // left as-is would be re-resolved against the new cwd and double-nest state
-// (e.g. AO_DATA_DIR=data -> <cwd>/data/data). Absolutizing here keeps the path
+// (e.g. SQUARE_DATA_DIR=data -> <cwd>/data/data). Absolutizing here keeps the path
 // stable regardless of the later chdir.
 func absOverride(name, p string) (string, error) {
 	abs, err := filepath.Abs(p)

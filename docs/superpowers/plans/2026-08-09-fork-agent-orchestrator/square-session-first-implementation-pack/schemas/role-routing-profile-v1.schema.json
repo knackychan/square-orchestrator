@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://square.local/schemas/role-routing-profile-v1.json",
+  "title": "Square Role Routing Profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "scope",
+    "role",
+    "selection",
+    "permissions",
+    "required_capabilities",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "square.role-routing/v1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "enum": [
+        "GLOBAL",
+        "PROJECT",
+        "SESSION",
+        "TASK"
+      ]
+    },
+    "scope_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "role": {
+      "enum": [
+        "SECRETARY",
+        "SCOUT",
+        "PLANNER",
+        "ORCHESTRATOR",
+        "WORKER",
+        "REVIEWER",
+        "TERMINAL_TRIAGE"
+      ]
+    },
+    "selection": {
+      "enum": [
+        "AUTO",
+        "PREFERRED",
+        "PINNED"
+      ]
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "route_class": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "permissions": {
+      "enum": [
+        "READ_ONLY",
+        "WRITER",
+        "REVIEW_ONLY",
+        "DEFAULT",
+        "AUTO",
+        "ACCEPT_EDITS",
+        "BYPASS_PERMISSIONS"
+      ]
+    },
+    "required_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "fallback": {
+      "enum": [
+        "NONE",
+        "APPROVED_LIST_ONLY",
+        "AUTO_ELIGIBLE"
+      ]
+    },
+    "independence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": [
+            "NONE",
+            "DIFFERENT_ROUTE",
+            "DIFFERENT_MODEL",
+            "DIFFERENT_MODEL_FAMILY",
+            "DIFFERENT_PROVIDER_OR_ACCOUNT",
+            "OWNER_REVIEW_IF_UNAVAILABLE"
+          ]
+        },
+        "relative_to_roles": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "WORKER",
+              "PLANNER",
+              "ORCHESTRATOR"
+            ]
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "mode"
+      ]
+    },
+    "context_budget": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "output_budget": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "selection": {
+            "const": "PINNED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "routes": {
+            "minItems": 1,
+            "maxItems": 1
+          }
+        },
+        "required": [
+          "routes"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selection": {
+            "const": "PREFERRED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "routes": {
+            "minItems": 1
+          }
+        },
+        "required": [
+          "routes"
+        ]
+      }
+    }
+  ]
+}

@@ -1,16 +1,16 @@
-// agent-orchestrator: managed opencode activity plugin (do not edit)
+// square-orchestrator: managed opencode activity plugin (do not edit)
 //
-// It maps opencode's native lifecycle events onto AO's three normalized
+// It maps opencode's native lifecycle events onto Square's three normalized
 // activity events:
-//   session.created                       -> `ao hooks opencode session-start`
-//   message.updated / message.part.updated -> `ao hooks opencode user-prompt-submit`
-//   session.status (status.type == idle)   -> `ao hooks opencode stop`
+//   session.created                       -> `square hooks opencode session-start`
+//   message.updated / message.part.updated -> `square hooks opencode user-prompt-submit`
+//   session.status (status.type == idle)   -> `square hooks opencode stop`
 //
 // The opencode-native session id (and prompt/model where known) is piped to the
-// hook command as JSON on stdin, run with cwd set to the worktree so AO can
-// correlate the opencode session to its AO session. Every invocation is
-// best-effort and must never crash the user's opencode session: a missing `ao`
-// binary is a guarded no-op (`command -v ao`), and spawn exceptions, non-zero
+// hook command as JSON on stdin, run with cwd set to the worktree so Square can
+// correlate the opencode session to its Square session. Every invocation is
+// best-effort and must never crash the user's opencode session: a missing `square`
+// binary is a guarded no-op (`command -v square`), and spawn exceptions, non-zero
 // exit codes, and malformed event payloads are caught and surfaced through
 // opencode's structured logger (client.app.log) for diagnosis — never rethrown.
 //
@@ -18,8 +18,8 @@
 // before opencode has installed @opencode-ai/plugin into the config dir.
 import type { Plugin } from "@opencode-ai/plugin"
 
-export const aoActivity: Plugin = async ({ directory, client }) => {
-  // ao hooks must never be able to hang opencode: cap each invocation, matching
+export const squareActivity: Plugin = async ({ directory, client }) => {
+  // square hooks must never be able to hang opencode: cap each invocation, matching
   // the 30s timeout the claude-code and codex hook entries use.
   const HOOK_TIMEOUT_MS = 30_000
   // A user message is reported at most twice (see reportUserPrompt): an optional
@@ -32,10 +32,10 @@ export const aoActivity: Plugin = async ({ directory, client }) => {
   let currentModel: string | null = null
   const messageStore = new Map<string, any>()
 
-  // Wrap in `sh -c` with a guard so a missing `ao` binary is a silent no-op
+  // Wrap in `sh -c` with a guard so a missing `square` binary is a silent no-op
   // (exit 0) rather than a per-event error in the user's session.
   function hookCmd(hookName: string): string[] {
-    return ["sh", "-c", `if ! command -v ao >/dev/null 2>&1; then exit 0; fi; exec ao hooks opencode ${hookName}`]
+    return ["sh", "-c", `if ! command -v square >/dev/null 2>&1; then exit 0; fi; exec square hooks opencode ${hookName}`]
   }
 
   // Report a hook failure through opencode's structured logger. Best-effort: the

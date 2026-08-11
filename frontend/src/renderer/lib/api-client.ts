@@ -8,7 +8,7 @@ function devApiBaseUrl(): string {
 	return typeof window === "undefined" ? "http://127.0.0.1:3001" : window.location.origin;
 }
 
-const explicitApiBaseUrl = import.meta.env.VITE_AO_API_BASE_URL;
+const explicitApiBaseUrl = import.meta.env.VITE_SQUARE_API_BASE_URL;
 const initialApiBaseUrl = explicitApiBaseUrl ?? (import.meta.env.DEV ? devApiBaseUrl() : "http://127.0.0.1:3001");
 
 let runtimeApiBaseUrl: string | null = explicitApiBaseUrl ?? null;

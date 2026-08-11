@@ -259,7 +259,7 @@ type SetSessionPreviewRequest struct {
 	URL string `json:"url,omitempty" description:"Preview target URL. When empty, the daemon autodetects a static entry point in the session workspace."`
 }
 
-// StartPreviewServerRequest selects one named entry from .ao/launch.json. The
+// StartPreviewServerRequest selects one named entry from .square/launch.json. The
 // name may be omitted when the file contains exactly one configuration.
 type StartPreviewServerRequest struct {
 	Configuration string `json:"configuration,omitempty" description:"Named preview configuration. Optional when exactly one configuration exists."`

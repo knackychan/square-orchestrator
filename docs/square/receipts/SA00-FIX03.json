@@ -1,0 +1,29 @@
+{
+  "taskId": "SA00-FIX03",
+  "title": "Square/AO identity and state isolation",
+  "status": "PASS",
+  "ownerAuthorization": "authorize everything",
+  "candidateImplementationCommit": "9af0955471022ff5256f48b497f0631e3a01c26d",
+  "evidence": "docs/square/evidence/SA00-FIX03/20260811T051919Z/",
+  "manifest": "docs/square/evidence/SA00-FIX03/20260811T051919Z/manifest.json",
+  "acceptedIdentity": {
+    "productName": "Square Orchestrator",
+    "cli": "square",
+    "appId": "dev.square-orchestrator.desktop",
+    "stateRoot": "~/.square",
+    "developmentStateRoot": "~/.square/dev",
+    "packagedPort": 3101,
+    "developmentPort": 3102,
+    "reservedLanPort": 3111,
+    "environmentNamespace": "SQUARE_"
+  },
+  "verification": {
+    "backendBuild": "PASS",
+    "backendFocusedTests": "PASS",
+    "windowsSupervisorPackage": "PASS",
+    "frontendTypecheck": "PASS",
+    "frontendIdentityTests": "PASS"
+  },
+  "boundary": "Daemon identity, stale endpoint takeover, PID fencing, and safe-stop semantics remain SA01-T02/combined-amendment concerns.",
+  "nextAuthorizedAction": "Request a fresh independent SA00-T05 A0 review; do not dispatch SA01."
+}

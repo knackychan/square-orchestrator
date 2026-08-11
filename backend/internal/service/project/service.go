@@ -360,9 +360,9 @@ func validateRepositorySetupPathSafety(path string) error {
 		}
 	}
 
-	aoState := comparablePath(filepath.Join(home, ".ao"))
-	if samePath(clean, aoState) || isDescendantPath(clean, aoState) {
-		return unsafeRepositorySetupPathError(path, "AO state directory")
+	squareState := comparablePath(filepath.Join(home, ".square"))
+	if samePath(clean, squareState) || isDescendantPath(clean, squareState) {
+		return unsafeRepositorySetupPathError(path, "Square state directory")
 	}
 	return nil
 }

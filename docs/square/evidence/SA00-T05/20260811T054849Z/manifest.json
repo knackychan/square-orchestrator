@@ -1,0 +1,14 @@
+{
+  "schema_version": "square.evidence-manifest/v1",
+  "task_id": "SA00-T05",
+  "reviewed_commit": "de5e7754a18b1f5bcea44dbfa0a654730bb7dde7",
+  "algorithm": "SHA-256",
+  "entries": [
+    { "path": "review-report.md", "sha256": "179a9eaea8ccb94d6f163b74db0d57bca8e30bda5342700c1227854f59bffc4c" },
+    { "path": "review.json", "sha256": "d9748ef952a67799560a465d71285ec98a70feacf7a8624607b488d432fd9b46" }
+  ],
+  "notes": [
+    "Prior SA00-T05 evidence and receipt are preserved.",
+    "Hashes cover the two review artifacts; this manifest is excluded from its own entry."
+  ]
+}

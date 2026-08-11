@@ -204,7 +204,7 @@ func checkStore(dataDir string) doctorCheck {
 }
 
 func checkDataDirWritable(dataDir string) doctorCheck {
-	f, err := os.CreateTemp(dataDir, ".ao-doctor-write-*")
+	f, err := os.CreateTemp(dataDir, ".square-doctor-write-*")
 	if err != nil {
 		return doctorCheck{Level: doctorFail, Section: doctorSectionCore, Name: "data-dir-write", Message: err.Error()}
 	}
@@ -475,14 +475,14 @@ func (c *commandContext) checkGitHubToken(ctx context.Context) doctorCheck {
 }
 
 func (c *commandContext) githubToken(ctx context.Context) (token, source string, err error) {
-	for _, name := range []string{"AO_GITHUB_TOKEN", "GITHUB_TOKEN"} {
+	for _, name := range []string{"SQUARE_GITHUB_TOKEN", "GITHUB_TOKEN"} {
 		if v := strings.TrimSpace(os.Getenv(name)); v != "" {
 			return v, name, nil
 		}
 	}
 	path, lookErr := c.deps.LookPath("gh")
 	if lookErr != nil || path == "" {
-		return "", "", errors.New("no GitHub token found (set AO_GITHUB_TOKEN/GITHUB_TOKEN or run `gh auth login`)")
+		return "", "", errors.New("no GitHub token found (set SQUARE_GITHUB_TOKEN/GITHUB_TOKEN or run `gh auth login`)")
 	}
 	reqCtx, cancel := context.WithTimeout(ctx, probeTimeout)
 	defer cancel()

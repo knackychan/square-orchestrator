@@ -120,5 +120,5 @@ export function defaultRunFilePath(
 ): string | null {
 	void platform;
 	if (!homeDir) return null;
-	return joinPath(homeDir, ".ao", "running.json");
+	return joinPath(homeDir, ".square", "running.json");
 }

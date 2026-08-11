@@ -4,9 +4,9 @@ import { resolveDaemonLaunch } from "./daemon-launch";
 describe("resolveDaemonLaunch", () => {
 	it("uses AO_DAEMON_COMMAND when configured", () => {
 		expect(
-			resolveDaemonLaunch({ AO_DAEMON_COMMAND: "/tmp/ao daemon" }, false, "/resources", "/app", "/home/user", "darwin"),
+		resolveDaemonLaunch({ SQUARE_DAEMON_COMMAND: "/tmp/square daemon" }, false, "/resources", "/app", "/home/user", "darwin"),
 		).toEqual({
-			command: "/tmp/ao daemon",
+			command: "/tmp/square daemon",
 			args: [],
 			cwd: "/app",
 			shell: true,
@@ -35,9 +35,9 @@ describe("resolveDaemonLaunch", () => {
 				"darwin",
 			),
 		).toEqual({
-			command: "/Applications/Agent Orchestrator.app/Contents/Resources/daemon/ao",
+			command: "/Applications/Agent Orchestrator.app/Contents/Resources/daemon/square",
 			args: ["daemon"],
-			cwd: "/Users/alice/.ao",
+			cwd: "/Users/alice/.square",
 			shell: false,
 			source: "bundled",
 		});
@@ -54,9 +54,9 @@ describe("resolveDaemonLaunch", () => {
 				"win32",
 			),
 		).toEqual({
-			command: "C:\\Program Files\\AO\\resources/daemon/ao.exe",
+			command: "C:\\Program Files\\AO\\resources/daemon/square.exe",
 			args: ["daemon"],
-			cwd: "C:\\Users\\alice/.ao",
+			cwd: "C:\\Users\\alice/.square",
 			shell: false,
 			source: "bundled",
 		});

@@ -15,25 +15,25 @@ import (
 	"github.com/aoagents/agent-orchestrator/backend/internal/config"
 )
 
-// releaseRepo is the GitHub "owner/repo" that `ao start` fetches the desktop app
+// releaseRepo is the GitHub "owner/repo" that `square start` fetches the desktop app
 // from. It defaults to the production target and is overridable at build time so
 // a test binary fetches from the fork without a source edit:
 //
-//	go build -ldflags "-X github.com/aoagents/agent-orchestrator/backend/internal/cli.releaseRepo=harshitsinghbhandari/agent-orchestrator" ./cmd/ao
+//	go build -ldflags "-X github.com/aoagents/agent-orchestrator/backend/internal/cli.releaseRepo=knackychan/square-orchestrator" ./cmd/ao
 //
 // Mirrors how version.go's Version var is stamped by release tooling.
-var releaseRepo = "AgentWrapper/agent-orchestrator"
+var releaseRepo = "knackychan/square-orchestrator"
 
 // appBundleName is the macOS bundle directory name produced by electron-forge
 // (spaced, per frontend/forge.config.ts).
-const appBundleName = "Agent Orchestrator.app"
+const appBundleName = "Square Orchestrator.app"
 
-// appStateFileName is the marker the desktop app writes under ~/.ao on every
-// launch (spec §5). `ao start` is a read-only consumer of it.
+// appStateFileName is the marker the desktop app writes under ~/.square on every
+// launch (spec §5). `square start` is a read-only consumer of it.
 const appStateFileName = "app-state.json"
 
-// appState mirrors the app-written ~/.ao/app-state.json marker (spec §5). Only
-// the desktop app writes it; `ao start` reads it as a fast-path hint and never
+// appState mirrors the app-written ~/.square/app-state.json marker (spec §5). Only
+// the desktop app writes it; `square start` reads it as a fast-path hint and never
 // trusts appPath without stat-ing it (invariant 2).
 type appState struct {
 	SchemaVersion    int    `json:"schemaVersion"`
@@ -48,7 +48,7 @@ type startOptions struct {
 	json bool
 }
 
-// startResult is the JSON shape emitted with --json: what `ao start` resolved,
+// startResult is the JSON shape emitted with --json: what `square start` resolved,
 // whether it fetched, whether it opened, and the resulting bundle path.
 type startResult struct {
 	Resolved bool   `json:"resolved"`
@@ -61,9 +61,9 @@ func newStartCommand(ctx *commandContext) *cobra.Command {
 	opts := startOptions{}
 	cmd := &cobra.Command{
 		Use:   "start",
-		Short: "Fetch (if needed) and open the Agent Orchestrator desktop app",
-		Long: "Fetch (if needed) and open the Agent Orchestrator desktop app.\n\n" +
-			"The desktop app now owns the daemon, state, and updates. `ao start` no\n" +
+		Short: "Fetch (if needed) and open the Square Orchestrator desktop app",
+		Long: "Fetch (if needed) and open the Square Orchestrator desktop app.\n\n" +
+			"The desktop app now owns the daemon, state, and updates. `square start` no\n" +
 			"longer runs a daemon: it resolves the installed app (or downloads the\n" +
 			"latest release), opens it, and exits.",
 		Args: noArgs,
@@ -133,10 +133,10 @@ func (c *commandContext) resolveApp() string {
 // tests can point the scan at a temp bundle instead of real system paths.
 var appScanLocations = knownAppLocations
 
-// markerAppPath reads ~/.ao/app-state.json and returns its recorded appPath, or
+// markerAppPath reads ~/.square/app-state.json and returns its recorded appPath, or
 // "" if the marker is missing/unreadable. It does not stat the path; callers do.
 func (c *commandContext) markerAppPath() string {
-	dir, err := aoStateDir()
+	dir, err := squareStateDir()
 	if err != nil {
 		return ""
 	}
@@ -151,14 +151,14 @@ func (c *commandContext) markerAppPath() string {
 	return st.AppPath
 }
 
-// aoStateDir resolves the canonical ~/.ao home, honoring AO_DATA_DIR exactly as
-// the daemon's config does (the marker lives beside running.json under ~/.ao).
-func aoStateDir() (string, error) {
+// squareStateDir resolves the canonical ~/.square home, honoring SQUARE_DATA_DIR
+// exactly as the daemon's config does.
+func squareStateDir() (string, error) {
 	cfg, err := config.Load()
 	if err != nil {
 		return "", err
 	}
-	// running.json lives directly under ~/.ao; the marker sits beside it.
+	// running.json lives directly under ~/.square; the marker sits beside it.
 	return filepath.Dir(cfg.RunFilePath), nil
 }
 
@@ -180,13 +180,13 @@ func knownAppLocations() []string {
 		}
 		// Per-machine fallback (if a user chose an all-users install).
 		if pf := os.Getenv("ProgramFiles"); pf != "" {
-			paths = append(paths, filepath.Join(pf, "Agent Orchestrator", "agent-orchestrator.exe"))
+			paths = append(paths, filepath.Join(pf, "Square Orchestrator", "square.exe"))
 		}
 		return paths
 	case "linux":
 		paths := []string{linuxAppImagePath()}
 		if home, err := os.UserHomeDir(); err == nil {
-			paths = append(paths, filepath.Join(home, "Applications", "agent-orchestrator.AppImage"))
+			paths = append(paths, filepath.Join(home, "Applications", "square-orchestrator.AppImage"))
 		}
 		return paths
 	default:
@@ -197,20 +197,20 @@ func knownAppLocations() []string {
 // windowsInstalledExe is the default per-user electron-builder NSIS install
 // target for the app exe under %LOCALAPPDATA%.
 func windowsInstalledExe(localAppData string) string {
-	return filepath.Join(localAppData, "Programs", "Agent Orchestrator", "agent-orchestrator.exe")
+	return filepath.Join(localAppData, "Programs", "Square Orchestrator", "square.exe")
 }
 
-// linuxAppImagePath is the stable location `ao start` downloads the AppImage to
+// linuxAppImagePath is the stable location `square start` downloads the AppImage to
 // and scans for. Keeping it out of the cleared staging dir lets re-runs resolve
 // the existing download instead of re-fetching (spec §6.2/§6.3).
 func linuxAppImagePath() string {
-	dir, err := aoStateDir()
+	dir, err := squareStateDir()
 	if err != nil {
 		// Fall back to a bare filename so a misconfigured state dir surfaces as a
 		// clear "not found" rather than a panic; fetch will re-error on download.
-		return "agent-orchestrator.AppImage"
+		return "square-orchestrator.AppImage"
 	}
-	return filepath.Join(dir, "agent-orchestrator.AppImage")
+	return filepath.Join(dir, "square-orchestrator.AppImage")
 }
 
 // isUsableBundle reports whether p stats as a usable app bundle. On macOS a
@@ -244,12 +244,12 @@ func (c *commandContext) fetchApp(ctx context.Context, w io.Writer) (string, err
 	case "linux":
 		return c.fetchAppLinux(ctx, w)
 	default:
-		return "", fmt.Errorf("ao start: fetch not supported on %s", runtime.GOOS)
+		return "", fmt.Errorf("square start: fetch not supported on %s", runtime.GOOS)
 	}
 }
 
 // fetchAppDarwin downloads the latest macOS release zip and unpacks it into a
-// staging dir under ~/.ao/staging, returning the .app bundle path (spec §6.3).
+// staging dir under ~/.square/staging, returning the .app bundle path (spec §6.3).
 func (c *commandContext) fetchAppDarwin(ctx context.Context, w io.Writer) (string, error) {
 	asset, err := assetName()
 	if err != nil {
@@ -257,7 +257,7 @@ func (c *commandContext) fetchAppDarwin(ctx context.Context, w io.Writer) (strin
 	}
 	url := downloadURL(asset)
 
-	stateDir, err := aoStateDir()
+	stateDir, err := squareStateDir()
 	if err != nil {
 		return "", err
 	}
@@ -277,7 +277,7 @@ func (c *commandContext) fetchAppDarwin(ctx context.Context, w io.Writer) (strin
 	}
 
 	// The unpack step is silent and can take seconds on a large bundle; announce
-	// it so a quiet `ao start` doesn't look hung after the download finishes.
+	// it so a quiet `square start` doesn't look hung after the download finishes.
 	_, _ = fmt.Fprintln(w, "Unpacking...")
 	// ditto preserves the .app code signature; plain unzip corrupts it (spec §6.3).
 	if out, err := c.deps.CommandOutput(ctx, "ditto", "-x", "-k", zipPath, staging); err != nil {
@@ -286,7 +286,7 @@ func (c *commandContext) fetchAppDarwin(ctx context.Context, w io.Writer) (strin
 
 	appPath := filepath.Join(staging, appBundleName)
 	if !isUsableBundle(appPath) {
-		return "", fmt.Errorf("ao start: %s not found in unpacked release at %s", appBundleName, staging)
+		return "", fmt.Errorf("square start: %s not found in unpacked release at %s", appBundleName, staging)
 	}
 	return appPath, nil
 }
@@ -305,7 +305,7 @@ func (c *commandContext) fetchAppWindows(ctx context.Context, w io.Writer) (stri
 	}
 	url := downloadURL(asset)
 
-	stateDir, err := aoStateDir()
+	stateDir, err := squareStateDir()
 	if err != nil {
 		return "", err
 	}
@@ -334,17 +334,17 @@ func (c *commandContext) fetchAppWindows(ctx context.Context, w io.Writer) (stri
 
 	local := os.Getenv("LOCALAPPDATA")
 	if local == "" {
-		return "", fmt.Errorf("ao start: LOCALAPPDATA not set; cannot locate installed app")
+		return "", fmt.Errorf("square start: LOCALAPPDATA not set; cannot locate installed app")
 	}
 	appPath := windowsInstalledExe(local)
 	if !isUsableBundle(appPath) {
-		return "", fmt.Errorf("ao start: installed app not found at %s", appPath)
+		return "", fmt.Errorf("square start: installed app not found at %s", appPath)
 	}
 	return appPath, nil
 }
 
 // fetchAppLinux downloads the self-contained AppImage to a stable path under
-// ~/.ao, makes it executable, and returns it. There is no install step (spec
+// ~/.square, makes it executable, and returns it. There is no install step (spec
 // §6.3). Re-runs resolve the existing file via knownAppLocations and skip fetch.
 func (c *commandContext) fetchAppLinux(ctx context.Context, w io.Writer) (string, error) {
 	asset, err := assetName()
@@ -374,7 +374,7 @@ func (c *commandContext) fetchAppLinux(ctx context.Context, w io.Writer) (string
 		return "", fmt.Errorf("install AppImage: %w", err)
 	}
 	if !isUsableBundle(appPath) {
-		return "", fmt.Errorf("ao start: AppImage not found at %s", appPath)
+		return "", fmt.Errorf("square start: AppImage not found at %s", appPath)
 	}
 	return appPath, nil
 }
@@ -409,9 +409,9 @@ func (c *commandContext) download(ctx context.Context, w io.Writer, url, asset, 
 	// percentage is unknown and we report transferred bytes instead.
 	total := resp.ContentLength
 	if total > 0 {
-		_, _ = fmt.Fprintf(w, "Downloading Agent Orchestrator (%s, ~%s) from %s...\n", asset, humanBytes(total), releaseRepo)
+		_, _ = fmt.Fprintf(w, "Downloading Square Orchestrator (%s, ~%s) from %s...\n", asset, humanBytes(total), releaseRepo)
 	} else {
-		_, _ = fmt.Fprintf(w, "Downloading Agent Orchestrator (%s) from %s...\n", asset, releaseRepo)
+		_, _ = fmt.Fprintf(w, "Downloading Square Orchestrator (%s) from %s...\n", asset, releaseRepo)
 	}
 
 	f, err := os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
@@ -496,9 +496,9 @@ func humanBytes(n int64) string {
 
 // assetName maps the current GOOS/GOARCH to the stable release asset name the
 // release pipeline publishes (spec §6.3, §8). The pipeline uses "x64" for amd64.
-//   - darwin: agent-orchestrator-darwin-{arm64,x64}.zip (signed bundle zip)
-//   - windows: agent-orchestrator-win32-x64.exe (NSIS installer, amd64 only)
-//   - linux: agent-orchestrator-linux-x64.AppImage (self-contained, amd64 only)
+//   - darwin: square-orchestrator-darwin-{arm64,x64}.zip (signed bundle zip)
+//   - windows: square-orchestrator-win32-x64.exe (NSIS installer, amd64 only)
+//   - linux: square-orchestrator-linux-x64.AppImage (self-contained, amd64 only)
 func assetName() (string, error) {
 	switch runtime.GOOS {
 	case "darwin":
@@ -506,19 +506,19 @@ func assetName() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("agent-orchestrator-darwin-%s.zip", arch), nil
+		return fmt.Sprintf("square-orchestrator-darwin-%s.zip", arch), nil
 	case "windows":
 		if _, err := requireAMD64(); err != nil {
 			return "", err
 		}
-		return "agent-orchestrator-win32-x64.exe", nil
+		return "square-orchestrator-win32-x64.exe", nil
 	case "linux":
 		if _, err := requireAMD64(); err != nil {
 			return "", err
 		}
-		return "agent-orchestrator-linux-x64.AppImage", nil
+		return "square-orchestrator-linux-x64.AppImage", nil
 	default:
-		return "", fmt.Errorf("ao start: no release asset for %s", runtime.GOOS)
+		return "", fmt.Errorf("square start: no release asset for %s", runtime.GOOS)
 	}
 }
 
@@ -527,7 +527,7 @@ func assetName() (string, error) {
 // mirroring assetArch rather than fetching a 404.
 func requireAMD64() (string, error) {
 	if runtime.GOARCH != "amd64" {
-		return "", fmt.Errorf("ao start: unsupported architecture %q on %s (only amd64 is published)", runtime.GOARCH, runtime.GOOS)
+		return "", fmt.Errorf("square start: unsupported architecture %q on %s (only amd64 is published)", runtime.GOARCH, runtime.GOOS)
 	}
 	return "x64", nil
 }
@@ -540,7 +540,7 @@ func assetArch(goarch string) (string, error) {
 	case "amd64":
 		return "x64", nil
 	default:
-		return "", fmt.Errorf("ao start: unsupported architecture %q", goarch)
+		return "", fmt.Errorf("square start: unsupported architecture %q", goarch)
 	}
 }
 
@@ -563,7 +563,7 @@ func (c *commandContext) openApp(ctx context.Context, appPath string) (bool, err
 		return true, nil
 	case "windows", "linux":
 		// No `open`-style launcher on these platforms; exec the bundle directly,
-		// detached, so `ao start` does not block on the app. StartProcess uses
+		// detached, so `square start` does not block on the app. StartProcess uses
 		// cmd.Start() + a detached SysProcAttr (see process.go).
 		//
 		// ponytail: on some Linux hosts the AppImage may need --no-sandbox; not
@@ -584,15 +584,15 @@ func (c *commandContext) openApp(ctx context.Context, appPath string) (bool, err
 	}
 }
 
-// printDeprecationNotice explains the new role of the npm `ao` binary. Keep it
+// printDeprecationNotice explains the desktop launcher role of `square`. Keep it
 // honest: Track B (live auto-update) is not done, so it does not promise it.
 func (c *commandContext) printDeprecationNotice(w io.Writer) {
-	_, _ = fmt.Fprint(w, "Agent Orchestrator is now a desktop app, and the npm `ao` is just its launcher.\n"+
+	_, _ = fmt.Fprint(w, "Square Orchestrator is a desktop app, and `square` is its launcher.\n"+
 		"The app is distributed from the website and GitHub Releases; it owns the daemon and updates itself.\n"+
-		"You can keep running `ao start` to fetch (if needed) and open it.\n")
+		"You can keep running `square start` to fetch (if needed) and open it.\n")
 }
 
-// printManualOpen tells the user how to open the bundle when `ao start` could
+// printManualOpen tells the user how to open the bundle when `square start` could
 // not launch it for them (non-darwin, or a failed launch handled upstream).
 func (c *commandContext) printManualOpen(w io.Writer, appPath string) {
 	_, _ = fmt.Fprintf(w, "Could not open the app automatically. Open it manually: %s\n", appPath)

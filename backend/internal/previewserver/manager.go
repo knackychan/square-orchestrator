@@ -28,7 +28,7 @@ import (
 
 const (
 	// ConfigPath is the workspace-relative managed preview configuration file.
-	ConfigPath              = ".ao/launch.json"
+	ConfigPath              = ".square/launch.json"
 	defaultReadyTimeout     = 30 * time.Second
 	maxReadyTimeout         = 55 * time.Second
 	probeInterval           = 150 * time.Millisecond
@@ -94,7 +94,7 @@ type launchFile struct {
 	Configurations []Configuration `json:"configurations"`
 }
 
-// Configuration is one named server entry in .ao/launch.json. ${PORT} is
+// Configuration is one named server entry in .square/launch.json. ${PORT} is
 // expanded in runtimeArgs, url, and env values after AO chooses the port.
 type Configuration struct {
 	Name               string            `json:"name"`
@@ -796,8 +796,8 @@ func previewEnvironment(
 	}
 	env = append(env,
 		"PORT="+strconv.Itoa(port),
-		"AO_PREVIEW_PORT="+strconv.Itoa(port),
-		"AO_SESSION_ID="+string(sessionID),
+		"SQUARE_PREVIEW_PORT="+strconv.Itoa(port),
+		"SQUARE_SESSION_ID="+string(sessionID),
 	)
 	return env
 }

@@ -18,13 +18,13 @@ import (
 	"github.com/aoagents/agent-orchestrator/backend/internal/domain"
 )
 
-// sessionIDPattern bounds the AO_SESSION_ID we will place in a request path to
+// sessionIDPattern bounds the SQUARE_SESSION_ID we will place in a request path to
 // the id alphabet the daemon issues. Validating the externally-set env value
 // before it reaches the loopback URL keeps it from steering the request.
 var sessionIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 const (
-	// hooksLogName is the file under AO_DATA_DIR where hook delivery failures
+	// hooksLogName is the file under SQUARE_DATA_DIR where hook delivery failures
 	// are appended. Agent hook runners swallow stderr, so without a durable
 	// sink a dead activity feed (e.g. an unreachable daemon) stays invisible.
 	hooksLogName = "hooks.log"
@@ -110,13 +110,13 @@ type sessionStartHookOutput struct {
 	} `json:"hookSpecificOutput"`
 }
 
-// newHooksCommand builds the hidden `ao hooks <agent> <event>` command that
+// newHooksCommand builds the hidden `square hooks <agent> <event>` command that
 // agent CLIs invoke from their workspace-local hook config. It reads the native
-// hook payload from stdin and the AO session id from AO_SESSION_ID, derives an
+// hook payload from stdin and the Square session id from SQUARE_SESSION_ID, derives an
 // activity state for the event, and reports it to the daemon.
 //
 // It is best-effort by design: a hook must never break the user's agent, so a
-// non-AO session (no AO_SESSION_ID), an event that carries no activity signal,
+// non-Square session (no SQUARE_SESSION_ID), an event that carries no activity signal,
 // or an unreachable daemon all exit 0 rather than erroring.
 func newHooksCommand(ctx *commandContext) *cobra.Command {
 	return &cobra.Command{
@@ -131,7 +131,7 @@ func newHooksCommand(ctx *commandContext) *cobra.Command {
 }
 
 func (c *commandContext) runHook(ctx context.Context, agent, event string) error {
-	sessionID := strings.TrimSpace(os.Getenv("AO_SESSION_ID"))
+	sessionID := strings.TrimSpace(os.Getenv("SQUARE_SESSION_ID"))
 	if !sessionIDPattern.MatchString(sessionID) {
 		// Not an AO-managed session (unset/empty), or an id we won't put in a
 		// request path. Return before reading stdin so a manual invocation
@@ -167,7 +167,7 @@ func (c *commandContext) runHook(ctx context.Context, agent, event string) error
 		ToolName:       toolName,
 		ToolUseID:      toolUseID,
 		AgentSessionID: agentSessionID,
-		LaunchID:       validLaunchID(os.Getenv("AO_RUNTIME_LAUNCH_ID")),
+		LaunchID:       validLaunchID(os.Getenv("SQUARE_RUNTIME_LAUNCH_ID")),
 	}
 	if hasActivity {
 		req.State = string(state)
@@ -201,7 +201,7 @@ func shouldEmitSessionStartContext(agent, event string) bool {
 }
 
 func (c *commandContext) emitSessionStartContext(agent, event, sessionID string) {
-	dataDir := strings.TrimSpace(os.Getenv("AO_DATA_DIR"))
+	dataDir := strings.TrimSpace(os.Getenv("SQUARE_DATA_DIR"))
 	if dataDir == "" {
 		return
 	}
@@ -225,11 +225,11 @@ func (c *commandContext) emitSessionStartContext(agent, event, sessionID string)
 
 // reportHookFailure surfaces a hook delivery failure without breaking the
 // agent: stderr for the agent's hook runner, plus a best-effort append to
-// $AO_DATA_DIR/hooks.log so the failure can be diagnosed after the fact.
+// $SQUARE_DATA_DIR/hooks.log so the failure can be diagnosed after the fact.
 func (c *commandContext) reportHookFailure(agent, event, sessionID string, cause error) {
-	msg := fmt.Sprintf("ao hooks %s %s: %v", agent, event, cause)
+	msg := fmt.Sprintf("square hooks %s %s: %v", agent, event, cause)
 	_, _ = fmt.Fprintln(c.deps.Err, msg)
-	dataDir := strings.TrimSpace(os.Getenv("AO_DATA_DIR"))
+	dataDir := strings.TrimSpace(os.Getenv("SQUARE_DATA_DIR"))
 	if dataDir == "" {
 		return
 	}

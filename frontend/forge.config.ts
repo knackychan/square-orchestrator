@@ -3,17 +3,16 @@ import { VitePlugin } from "@electron-forge/plugin-vite";
 import MakerNSIS from "./makers/maker-nsis";
 import MakerDMG, { sealDmg, verifyDmg } from "./makers/maker-dmg";
 import MakerAppImage from "./makers/maker-appimage";
-import { writeFileSync } from "node:fs";
 
 // Default GitHub release target (production). aoagents was the temporary rewrite
 // home; releases land on AgentWrapper (spec §1.1).
-const DEFAULT_RELEASE_REPO = "AgentWrapper/agent-orchestrator";
+const DEFAULT_RELEASE_REPO = "knackychan/square-orchestrator";
 
 // The packaged binary name (no extension). Single source of truth: the packager
 // names the exe/ELF from this, and the NSIS + deb makers must point their
 // shortcut/launcher at the SAME name. Drift here means a broken Start menu
 // shortcut on Windows (#2414) or "could not find the Electron app binary" on deb.
-const EXECUTABLE_NAME = "agent-orchestrator";
+const EXECUTABLE_NAME = "square";
 
 // parseReleaseRepo turns an "owner/repo" string (from AO_RELEASE_REPO) into the
 // publisher-github { owner, name } shape, falling back to the production default
@@ -30,8 +29,8 @@ function parseReleaseRepo(value: string | undefined): { owner: string; name: str
 const config: ForgeConfig = {
 	packagerConfig: {
 		asar: true,
-		appBundleId: "dev.agent-orchestrator.desktop",
-		name: "Agent Orchestrator",
+		appBundleId: "dev.square-orchestrator.desktop",
+		name: "Square Orchestrator",
 		executableName: EXECUTABLE_NAME,
 		appCategoryType: "public.app-category.developer-tools",
 		// App icon. electron-packager appends the per-platform extension
@@ -44,7 +43,6 @@ const config: ForgeConfig = {
 			"assets/icon.ico",
 			"assets/trayIconTemplate.png",
 			"assets/trayIconTemplate@2x.png",
-			"app-update.yml",
 		],
 		// Notarization. Two paths:
 		//  - CI: an App Store Connect API key. APPLE_API_KEY is a PATH to the .p8
@@ -58,8 +56,8 @@ const config: ForgeConfig = {
 			: process.env.CSC_LINK
 				? {}
 				: undefined,
-		osxNotarize: process.env.AO_NOTARY_PROFILE
-			? { keychainProfile: process.env.AO_NOTARY_PROFILE }
+		osxNotarize: process.env.SQUARE_NOTARY_PROFILE
+			? { keychainProfile: process.env.SQUARE_NOTARY_PROFILE }
 			: process.env.APPLE_API_KEY
 				? {
 						appleApiKey: process.env.APPLE_API_KEY,
@@ -69,25 +67,7 @@ const config: ForgeConfig = {
 				: undefined,
 	},
 	hooks: {
-		// electron-forge does not generate app-update.yml (electron-builder does);
-		// electron-updater reads it from the app's Resources dir at runtime to know
-		// which GitHub repo to pull from, else it throws ENOENT during download.
-		// Generate it in prePackage (BEFORE osxSign) and ship it via extraResource
-		// above, so it is copied into the bundle and SIGNED as part of the seal.
-		// Writing it after signing (a postPackage hook) adds an unsealed resource
-		// and macOS reports the app as "damaged". owner/repo are baked from
-		// AO_RELEASE_REPO at build time.
-		prePackage: async () => {
-			const { owner, name } = parseReleaseRepo(process.env.AO_RELEASE_REPO);
-			const yml = [
-				"provider: github",
-				`owner: ${owner}`,
-				`repo: ${name}`,
-				"updaterCacheDirName: agent-orchestrator-updater",
-				"",
-			].join("\n");
-			writeFileSync("app-update.yml", yml);
-		},
+		// No update feed metadata is generated for Square through SA14.
 		// The dmg container is NOT signed, notarized or stapled by any maker
 		// (neither Forge's maker-dmg nor app-builder-lib's dmg target does it), and
 		// the .app's own stapled ticket does not propagate through an unsealed
@@ -121,8 +101,8 @@ const config: ForgeConfig = {
 		// custom install dir or proper uninstaller (issue #401).
 		new MakerNSIS(
 			{
-				appId: "dev.agent-orchestrator.desktop",
-				productName: "Agent Orchestrator",
+				appId: "dev.square-orchestrator.desktop",
+				productName: "Square Orchestrator",
 				// Match the packaged binary name so the Start menu shortcut targets
 				// the real "agent-orchestrator.exe" (not "Agent Orchestrator.exe").
 				executableName: EXECUTABLE_NAME,
@@ -140,8 +120,8 @@ const config: ForgeConfig = {
 		// break the signature seal on the way in (see makers/maker-dmg.ts, #3267).
 		new MakerDMG(
 			{
-				appId: "dev.agent-orchestrator.desktop",
-				productName: "Agent Orchestrator",
+				appId: "dev.square-orchestrator.desktop",
+				productName: "Square Orchestrator",
 			},
 			["darwin"],
 		),
@@ -151,8 +131,8 @@ const config: ForgeConfig = {
 		// prefer a system package.
 		new MakerAppImage(
 			{
-				appId: "dev.agent-orchestrator.desktop",
-				productName: "Agent Orchestrator",
+				appId: "dev.square-orchestrator.desktop",
+				productName: "Square Orchestrator",
 				icon: "assets/icon.png",
 			},
 			["linux"],
@@ -166,8 +146,8 @@ const config: ForgeConfig = {
 					// the Electron app binary". (Both are "agent-orchestrator".)
 					bin: EXECUTABLE_NAME,
 					icon: "assets/icon.png",
-					maintainer: "Agent Orchestrator",
-					homepage: "https://github.com/aoagents/agent-orchestrator",
+					maintainer: "Square Orchestrator",
+					homepage: "https://github.com/knackychan/square-orchestrator",
 				},
 			},
 		},
@@ -177,8 +157,8 @@ const config: ForgeConfig = {
 				options: {
 					icon: "assets/icon.png",
 					// rpmbuild rejects a spec with an empty License field.
-					license: "MIT",
-					homepage: "https://github.com/aoagents/agent-orchestrator",
+					license: "Apache-2.0",
+					homepage: "https://github.com/knackychan/square-orchestrator",
 				},
 			},
 		},
@@ -187,14 +167,12 @@ const config: ForgeConfig = {
 		{
 			name: "@electron-forge/publisher-github",
 			// Release target is build-time overridable so a fork run publishes to the
-			// fork without a source edit. AO_RELEASE_REPO is "owner/repo"; it defaults
+			// fork without a source edit. SQUARE_RELEASE_REPO is "owner/repo"; it defaults
 			// to the production target. The dev/test loop sets
-			// AO_RELEASE_REPO=harshitsinghbhandari/agent-orchestrator (spec §1.1, §8).
-			// Note: aoagents/agent-orchestrator was the temporary rewrite home and is
-			// intentionally NOT the default; releases land on AgentWrapper.
+			// SQUARE_RELEASE_REPO=knackychan/square-orchestrator.
 			config: {
-				repository: parseReleaseRepo(process.env.AO_RELEASE_REPO),
-				prerelease: process.env.AO_RELEASE_PRERELEASE === "true",
+				repository: parseReleaseRepo(process.env.SQUARE_RELEASE_REPO),
+				prerelease: process.env.SQUARE_RELEASE_PRERELEASE === "true",
 				draft: false,
 			},
 		},

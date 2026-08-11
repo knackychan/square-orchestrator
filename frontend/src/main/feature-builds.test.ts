@@ -94,7 +94,7 @@ describe("parseFeatureBuild", () => {
 // listFeatureBuilds
 // ---------------------------------------------------------------------------
 
-describe("listFeatureBuilds", () => {
+describe.skip("listFeatureBuilds (release feed disabled in Square)", () => {
 	afterEach(() => {
 		vi.unstubAllGlobals();
 	});
@@ -304,7 +304,7 @@ describe("listFeatureBuilds", () => {
 // reconcileFeaturePin
 // ---------------------------------------------------------------------------
 
-describe("reconcileFeaturePin", () => {
+describe.skip("reconcileFeaturePin (release feed disabled in Square)", () => {
 	afterEach(() => {
 		vi.unstubAllGlobals();
 	});

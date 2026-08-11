@@ -1,0 +1,21 @@
+{
+  "schema_version": "square.completion-receipt/v1",
+  "task_id": "SA00-T05",
+  "title": "Adoption gate A0 superseding independent review",
+  "status": "BLOCKED",
+  "reviewed_commit": "de5e7754a18b1f5bcea44dbfa0a654730bb7dde7",
+  "reviewed_branch": "square/a0-review-20260811",
+  "evidence": "docs/square/evidence/SA00-T05/20260811T054849Z/",
+  "manifest": "docs/square/evidence/SA00-T05/20260811T054849Z/manifest.json",
+  "criteria_passed": ["A0-01", "A0-02", "A0-04", "A0-05", "A0-06", "A0-09", "A0-10", "A0-11"],
+  "criteria_failed": ["A0-03", "A0-07", "A0-08", "A0-12"],
+  "blockers": [
+    "SA00-T02 committed evidence manifest fails 13 of 42 raw Git-blob checks.",
+    "SA00-T03 committed evidence manifest fails 12 of 16 raw Git-blob checks.",
+    "Retired updater/feed scripts retain official AO update references.",
+    "Active runtime seams retain AO environment, state, workspace, and release identity defaults."
+  ],
+  "preservation": "Prior SA00-T05 review, receipts, and evidence are unchanged and preserved.",
+  "next_authorized_action": "Create and owner-authorize SA00-FIX04 — Complete Square runtime namespace closure and supersede baseline evidence; after its receipt is committed, rerun only SA00-T05.",
+  "sa01_dispatch": "PROHIBITED"
+}

@@ -2169,8 +2169,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
           description: Gateway Timeout
-      summary: Start a session-owned server from .ao/launch.json and open its application
-        preview
+      summary: Start a session-owned server from .square/launch.json and open its
+        application preview
       tags:
       - sessions
   /api/v1/sessions/{sessionId}/restore:

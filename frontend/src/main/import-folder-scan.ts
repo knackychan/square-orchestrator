@@ -77,9 +77,9 @@ function isDescendantPath(child: string, parent: string): boolean {
 function projectSetupSafetyReason(repoPath: string, options: ScanOptions = {}): string | undefined {
 	const home = options.homeDir?.trim();
 	if (!home) return undefined;
-	const aoState = path.join(home, ".ao");
-	if (isDescendantPath(repoPath, aoState)) {
-		return "Selected folder is inside AO's internal data directory. Select a project folder outside ~/.ao.";
+	const squareState = path.join(home, ".square");
+	if (isDescendantPath(repoPath, squareState)) {
+		return "Selected folder is inside Square's internal data directory. Select a project folder outside ~/.square.";
 	}
 	return undefined;
 }

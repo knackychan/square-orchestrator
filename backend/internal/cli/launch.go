@@ -29,7 +29,7 @@ func newLaunchCommand(ctx *commandContext) *cobra.Command {
 func (c *commandContext) launchAgent(ctx context.Context) error {
 	specPath := strings.TrimSpace(os.Getenv(agentlaunch.EnvSpecPath))
 	if specPath == "" {
-		return errors.New("launch: AO_LAUNCH_SPEC is required")
+		return errors.New("launch: SQUARE_LAUNCH_SPEC is required")
 	}
 	spec, err := agentlaunch.ReadAndRemove(specPath)
 	if err != nil {
@@ -42,7 +42,7 @@ func (c *commandContext) launchAgent(ctx context.Context) error {
 		return launchErr
 	}
 	if launchErr != nil {
-		_, _ = fmt.Fprintf(c.deps.Err, "\r\n[ao launch] agent process exited: %v\r\n", launchErr)
+		_, _ = fmt.Fprintf(c.deps.Err, "\r\n[square launch] agent process exited: %v\r\n", launchErr)
 	}
 	return c.runLaunchCommand(ctx, spec.WorkspacePath, spec.FallbackArgv, env)
 }

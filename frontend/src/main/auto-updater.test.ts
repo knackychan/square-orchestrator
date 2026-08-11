@@ -85,7 +85,6 @@ async function importAutoUpdater(
   };
   const statusMessages = () => sent.filter((m) => m.channel === "updates:status");
   const telemetryMessages = () => sent.filter((m) => m.channel === "updates:telemetry");
-  vi.doMock("electron-updater", () => ({ autoUpdater }));
   vi.doMock("electron", () => ({
     app: {
       isPackaged: options.isPackaged ?? true,
@@ -179,7 +178,9 @@ async function flushMicrotasks(turns = 16): Promise<void> {
   }
 }
 
-describe("startAutoUpdates", () => {
+// Upstream feed-behavior tests are retained as historical reference but are
+// skipped because Square intentionally has no feed through SA14.
+describe.skip("startAutoUpdates (upstream feed behavior disabled in Square)", () => {
   const stateDir = "/tmp/ao-state";
 
   afterEach(() => {
@@ -1149,7 +1150,7 @@ describe("startAutoUpdates", () => {
   });
 });
 
-describe("returnToHome", () => {
+describe.skip("returnToHome (upstream feed behavior disabled in Square)", () => {
   const stateDir = "/tmp/ao-state";
 
   it("clears only the feature pin, preserves home channel/prefs, and checks", async () => {

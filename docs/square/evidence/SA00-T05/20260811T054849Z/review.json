@@ -1,0 +1,37 @@
+{
+  "schema_version": "square.gate-review/v1",
+  "gate_id": "A0",
+  "task_id": "SA00-T05",
+  "decision": "BLOCKED",
+  "reviewed_commit": "de5e7754a18b1f5bcea44dbfa0a654730bb7dde7",
+  "reviewed_branch": "square/a0-review-20260811",
+  "reviewed_utc": "2026-08-11T05:48:49Z",
+  "criteria": {
+    "A0-01": "PASS",
+    "A0-02": "PASS",
+    "A0-03": "FAIL",
+    "A0-04": "PASS",
+    "A0-05": "PASS",
+    "A0-06": "PASS",
+    "A0-07": "FAIL",
+    "A0-08": "FAIL",
+    "A0-09": "PASS",
+    "A0-10": "PASS",
+    "A0-11": "PASS",
+    "A0-12": "FAIL"
+  },
+  "manifest_recomputation": {
+    "SA00-T02": { "entries": 42, "pass": 29, "fail": 13, "method": "raw Git blobs at reviewed_commit" },
+    "SA00-T03": { "entries": 16, "pass": 4, "fail": 12, "method": "raw Git blobs at reviewed_commit" },
+    "SA00-FIX02": { "result": "PASS", "method": "declared source SHA-256 against committed candidate files" },
+    "SA00-FIX03": { "result": "PASS", "method": "declared source SHA-256 against committed candidate files" }
+  },
+  "blockers": [
+    "SA00-T02 manifest is not reproducible from committed Git bytes.",
+    "SA00-T03 manifest is not reproducible from committed Git bytes.",
+    "Retired updater/feed scripts and official AO update references remain in the committed frontend tree.",
+    "Active CLI, preview, session, mobile, and frontend state seams retain AO namespace defaults."
+  ],
+  "next_authorized_action": "Create and owner-authorize SA00-FIX04, commit its receipt, then rerun only SA00-T05.",
+  "sa01_dispatch": "PROHIBITED"
+}

@@ -1,0 +1,22 @@
+{
+  "taskId": "SA00-FIX02",
+  "title": "Telemetry, crash reporting, and updater hard-off",
+  "status": "PASS",
+  "ownerAuthorization": "authorize everything",
+  "candidateImplementationCommit": "9af0955471022ff5256f48b497f0631e3a01c26d",
+  "evidence": "docs/square/evidence/SA00-FIX02/20260811T051919Z/",
+  "manifest": "docs/square/evidence/SA00-FIX02/20260811T051919Z/manifest.json",
+  "scope": [
+    "Square telemetry and crash reporting remain disabled",
+    "No AO PostHog key or host is activated",
+    "Updater and feature-build feed surfaces are disabled through SA14",
+    "electron-updater dependency and feed metadata are removed"
+  ],
+  "verification": {
+    "frontendTypecheck": "PASS",
+    "frontendSafetyTests": "PASS",
+    "backendBuild": "PASS",
+    "backendFocusedTests": "PASS"
+  },
+  "nextAuthorizedAction": "Request a fresh independent SA00-T05 A0 review; do not dispatch SA01."
+}

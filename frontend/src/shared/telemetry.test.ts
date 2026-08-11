@@ -20,8 +20,8 @@ afterEach(async () => {
 	);
 });
 
-test("defaultDataDir prefers AO_DATA_DIR", () => {
-	expect(defaultDataDir("linux", { AO_DATA_DIR: "/tmp/custom" }, "/home/test")).toBe("/tmp/custom");
+test("defaultDataDir prefers SQUARE_DATA_DIR", () => {
+	expect(defaultDataDir("linux", { SQUARE_DATA_DIR: "/tmp/custom" }, "/home/test")).toBe("/tmp/custom");
 });
 
 test("loadOrCreateTelemetryInstallId persists a stable install id", async () => {
@@ -41,11 +41,10 @@ test("buildTelemetryBootstrap returns null when no home dir is available", async
 	await expect(buildTelemetryBootstrap({}, "1.2.3", "linux", "")).resolves.toBeNull();
 });
 
-test("renderer telemetry is off on unpackaged builds unless explicitly opted in", () => {
+test("renderer telemetry stays off until owner opt-in policy exists", () => {
 	expect(rendererTelemetryEnabled({}, false)).toBe(false);
-	expect(rendererTelemetryEnabled({}, true)).toBe(true);
-	expect(rendererTelemetryEnabled({ AO_TELEMETRY_RENDERER: " ON " }, false)).toBe(true);
-	expect(rendererTelemetryEnabled({ AO_TELEMETRY_RENDERER: "off" }, true)).toBe(false);
+	expect(rendererTelemetryEnabled({}, true)).toBe(false);
+	expect(rendererTelemetryEnabled({ SQUARE_TELEMETRY_RENDERER: "on" }, true)).toBe(false);
 });
 
 // A null bootstrap is the switch itself: initTelemetry bails on it, so an
@@ -55,22 +54,20 @@ test("buildTelemetryBootstrap withholds the bootstrap on an unpackaged build", a
 	tempDirs.push(dir);
 
 	await expect(buildTelemetryBootstrap({}, "0.11.2", "linux", dir, false)).resolves.toBeNull();
-	const optedIn = await buildTelemetryBootstrap({ AO_TELEMETRY_RENDERER: "on" }, "0.11.2", "linux", dir, false);
-	expect(optedIn?.appVersion).toBe("0.11.2");
+	await expect(buildTelemetryBootstrap({ SQUARE_TELEMETRY_RENDERER: "on" }, "0.11.2", "linux", dir, false)).resolves.toBeNull();
 });
 
 test("buildTelemetryBootstrap carries the deny list across the process boundary", async () => {
 	const dir = await mkdtemp(path.join(os.tmpdir(), "ao-telemetry-"));
 	tempDirs.push(dir);
 
-	const bootstrap = await buildTelemetryBootstrap(
-		{ AO_TELEMETRY_DISABLED_EVENTS: "ao.v2.app.active, ao.renderer.* ,, " },
+	await expect(buildTelemetryBootstrap(
+		{ SQUARE_TELEMETRY_DISABLED_EVENTS: "ao.v2.app.active, ao.renderer.* ,, " },
 		"0.11.2",
 		"linux",
 		dir,
 		true,
-	);
-	expect(bootstrap?.disabledEvents).toEqual(["ao.v2.app.active", "ao.renderer.*"]);
+	)).resolves.toBeNull();
 });
 
 test("parseDisabledEvents treats absent or blank policy as no policy", () => {

@@ -10,7 +10,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { DEFAULT_POSTHOG_HOST } from "./src/shared/posthog-config";
 
 const POSTHOG_ORIGINS = (() => {
-	const configured = process.env.VITE_AO_POSTHOG_HOST?.trim() || DEFAULT_POSTHOG_HOST;
+	const configured = process.env.VITE_SQUARE_POSTHOG_HOST?.trim() || DEFAULT_POSTHOG_HOST;
 	if (!configured) return [];
 	let url: URL;
 	try {
@@ -85,11 +85,11 @@ export default defineConfig({
 	server: {
 		proxy: {
 			"/api": {
-				target: process.env.AO_DEV_API_TARGET ?? "http://127.0.0.1:3001",
+			target: process.env.SQUARE_DEV_API_TARGET ?? "http://127.0.0.1:3102",
 				changeOrigin: false,
 			},
 			"/mux": {
-				target: process.env.AO_DEV_API_TARGET ?? "http://127.0.0.1:3001",
+			target: process.env.SQUARE_DEV_API_TARGET ?? "http://127.0.0.1:3102",
 				changeOrigin: false,
 				ws: true,
 			},

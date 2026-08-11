@@ -21,9 +21,9 @@ import type { DaemonStatus } from "./daemon-status";
 import { parseRunFile } from "./daemon-discovery";
 
 // The daemon's default bind port (backend/internal/config). AO_PORT overrides it.
-export const DEFAULT_DAEMON_PORT = 3001;
+export const DEFAULT_DAEMON_PORT = 3101;
 // The `service` field every genuine AO daemon stamps on its health payloads.
-export const DAEMON_SERVICE_NAME = "agent-orchestrator-daemon";
+export const DAEMON_SERVICE_NAME = "square-orchestrator-daemon";
 
 export type DaemonProbe = {
 	status: string;
@@ -43,7 +43,7 @@ export type DaemonProber = (port: number, endpoint: "healthz" | "readyz") => Pro
  * daemon before spawning a child that would only refuse and exit.
  */
 export function expectedDaemonPort(env: Record<string, string | undefined>): number {
-	const configured = env.AO_PORT ? Number(env.AO_PORT) : NaN;
+	const configured = env.SQUARE_PORT ? Number(env.SQUARE_PORT) : NaN;
 	return Number.isInteger(configured) && configured >= 1 && configured <= 65535 ? configured : DEFAULT_DAEMON_PORT;
 }
 

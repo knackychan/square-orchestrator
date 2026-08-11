@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://square.local/schemas/role-run-v1.json",
+  "title": "Square Role Run v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "workflow_run_id",
+    "role",
+    "attempt",
+    "state",
+    "requested_route",
+    "resolved_route",
+    "actual_identity",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "square.role-run/v1"
+    },
+    "id": {
+      "type": "string"
+    },
+    "workflow_run_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "role": {
+      "enum": [
+        "TASK_MANAGER",
+        "SECRETARY",
+        "SCOUT",
+        "PLANNER",
+        "ORCHESTRATOR",
+        "WORKER",
+        "REVIEWER",
+        "TERMINAL_TRIAGE"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "state": {
+      "enum": [
+        "CREATED",
+        "WAITING_ROUTE",
+        "WAITING_CAPACITY",
+        "STARTING",
+        "RUNNING",
+        "QUIET_ACTIVE",
+        "WAITING_FOR_INPUT",
+        "WAITING_FOR_APPROVAL",
+        "AUTH_REQUIRED",
+        "BLOCKED",
+        "SUSPECTED_STALL",
+        "COMPLETING",
+        "CANCELLING",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELLED",
+        "HARD_STOPPED",
+        "LOST_PROCESS",
+        "SUPERSEDED"
+      ]
+    },
+    "requested_route": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "resolved_route": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "actual_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verification"
+      ],
+      "properties": {
+        "harness": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "provider": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verification": {
+          "enum": [
+            "VERIFIED",
+            "REPORTED",
+            "UNVERIFIED",
+            "MISMATCH"
+          ]
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "permission": {
+      "enum": [
+        "READ_ONLY",
+        "WRITER",
+        "REVIEW_ONLY",
+        "NONE"
+      ]
+    },
+    "ao_binding": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ao_session_id": {
+          "type": "string"
+        },
+        "controller_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "worktree": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "branch": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pr": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mode": {
+          "enum": [
+            "TERMINAL",
+            "CHAT",
+            "REVIEW",
+            "NONE"
+          ]
+        }
+      },
+      "required": [
+        "ao_session_id",
+        "controller_generation",
+        "mode"
+      ]
+    },
+    "attention": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "interaction_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "summary"
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "started_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

@@ -2,7 +2,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 /**
- * The marker the desktop app writes under ~/.ao on every launch (spec §5).
+ * The marker the desktop app writes under ~/.square on every launch (spec §5).
  * It is the fast-path hint `ao start` reads to locate the installed bundle.
  * The Go reader is backend/internal/cli/start.go `appState`; the JSON keys
  * below MUST match its struct tags exactly (camelCase).
@@ -31,11 +31,11 @@ export interface AppStateMarker {
 /** Current marker format version (spec §5, schemaVersion field). */
 const SCHEMA_VERSION = 2;
 
-/** File name of the marker under the ~/.ao state dir. */
+/** File name of the marker under the ~/.square state dir. */
 export const APP_STATE_FILE_NAME = "app-state.json";
 
 export interface WriteAppStateOptions {
-	/** Directory the marker lives in (dirname of running.json, i.e. ~/.ao). */
+	/** Directory the marker lives in (dirname of running.json, i.e. ~/.square). */
 	stateDir: string;
 	/** Bundle path as of this launch (the macOS .app, or the platform exe). */
 	appPath: string;
@@ -85,7 +85,7 @@ async function atomicWriteMarker(stateDir: string, marker: AppStateMarker): Prom
 }
 
 /**
- * Write ~/.ao/app-state.json. The app is the SOLE writer (invariant 3) and
+ * Write ~/.square/app-state.json. The app is the SOLE writer (invariant 3) and
  * writes on every launch. Mirrors the daemon's proven atomic write
  * (backend/internal/runfile/runfile.go Write): a temp file in the same dir
  * then an atomic rename, so a concurrent `ao start` reader never observes a

@@ -182,7 +182,7 @@ func TestPreviewEnvironmentDoesNotInheritDaemonCredentials(t *testing.T) {
 	if strings.Contains(joined, "GITHUB_TOKEN") || strings.Contains(joined, "AO_BROWSER_RUNTIME_TOKEN") {
 		t.Fatalf("preview inherited daemon credentials: %v", env)
 	}
-	for _, want := range []string{"PATH=/usr/bin", "HOME=/home/test", "PUBLIC_FLAG=enabled", "AO_SESSION_ID=session-1"} {
+	for _, want := range []string{"PATH=/usr/bin", "HOME=/home/test", "PUBLIC_FLAG=enabled", "SQUARE_SESSION_ID=session-1"} {
 		if !strings.Contains(joined, want) {
 			t.Fatalf("preview env missing %q: %v", want, env)
 		}
@@ -206,7 +206,7 @@ func helperConfiguration(name string, kind TargetKind) Configuration {
 func writeLaunchFile(t *testing.T, configurations []Configuration) string {
 	t.Helper()
 	workspace := t.TempDir()
-	dir := filepath.Join(workspace, ".ao")
+	dir := filepath.Join(workspace, ".square")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}

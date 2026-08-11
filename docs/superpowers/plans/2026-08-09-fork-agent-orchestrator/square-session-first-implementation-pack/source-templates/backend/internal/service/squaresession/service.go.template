@@ -1,0 +1,25 @@
+// TEMPLATE ONLY — SA05 must adapt this to AO's actual service conventions.
+package squaresession
+
+import (
+	"context"
+
+	"<module>/internal/domain"
+)
+
+type Store interface {
+	CreateSession(ctx context.Context, session domain.SquareSession, message InitialMessage, idempotencyKey string) error
+	GetSession(ctx context.Context, id domain.SquareSessionID) (domain.SquareSession, error)
+}
+
+type EventAppender interface {
+	AppendWithProjection(ctx context.Context, event SemanticEvent, projection func(context.Context) error) error
+}
+
+type Service struct {
+	store  Store
+	events EventAppender
+}
+
+// Create must commit the semantic event and current projection atomically before
+// Task Manager or an AO execution facade launches external work.

@@ -1,6 +1,6 @@
 /**
  * Whether the user opted the app's own daemon out of the app-lifetime link via
- * the AO_KEEP_DAEMON env var. When set to an explicit truthy value ("1",
+ * the SQUARE_KEEP_DAEMON env var. When set to an explicit truthy value ("1",
  * "true", "yes", "on"), the app spawns the daemon but does NOT hold the
  * supervisor link, so the daemon survives the window closing and stops only on
  * an explicit `ao stop`. Any other value — including conventional falsy ones
@@ -9,8 +9,8 @@
  * app quits. An allowlist (rather than "anything but 0/false") keeps "off"/"no"
  * from unexpectedly retaining the daemon.
  */
-export function keepDaemonAlive(env: { AO_KEEP_DAEMON?: string }): boolean {
-	const raw = env.AO_KEEP_DAEMON?.trim().toLowerCase();
+export function keepDaemonAlive(env: { SQUARE_KEEP_DAEMON?: string }): boolean {
+	const raw = env.SQUARE_KEEP_DAEMON?.trim().toLowerCase();
 	return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
 }
 

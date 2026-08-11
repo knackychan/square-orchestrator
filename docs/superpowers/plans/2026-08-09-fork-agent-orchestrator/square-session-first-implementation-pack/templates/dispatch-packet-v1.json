@@ -1,0 +1,57 @@
+{
+  "schema_version": "square.dispatch-packet/v1",
+  "task_id": "__FILL__",
+  "title": "__FILL__",
+  "dispatch_id": "__FILL__",
+  "created_utc": "1970-01-01T00:00:00Z",
+  "dispatcher": "__FILL__",
+  "repository": {
+    "path": "__FILL_LOCAL_ONLY_DO_NOT_COMMIT_ABSOLUTE_PATH__",
+    "branch": "__FILL__",
+    "starting_commit": "__FILL_FULL_SHA__",
+    "working_tree_clean": true,
+    "upstream_tag": "v0.12.1",
+    "upstream_commit": "__FILL_FULL_SHA__"
+  },
+  "authorities": [
+    {
+      "path": "docs/square/authority/01-master-session-first-plan.md",
+      "sha256": "__FILL__"
+    }
+  ],
+  "prerequisites": [
+    {
+      "id": "__FILL__",
+      "receipt_path": "__FILL__",
+      "receipt_sha256": "__FILL__",
+      "accepted": false
+    }
+  ],
+  "objective": "__FILL__",
+  "allowed_read_paths": [],
+  "allowed_write_paths": [],
+  "forbidden_paths": [],
+  "required_behavior": [],
+  "required_symbols": [],
+  "required_tests": [],
+  "validation_commands": [],
+  "evidence_directory": "docs/square/evidence/__TASK_ID__/__UTC_STAMP__",
+  "completion_receipt_path": "docs/square/receipts/__TASK_ID__.json",
+  "budgets": {
+    "max_retries": 1,
+    "max_context_tokens": 120000,
+    "max_output_tokens": 30000,
+    "wall_clock_deadline_utc": null,
+    "resource_profile": "NORMAL"
+  },
+  "discretion": {
+    "allowed": [],
+    "forbidden": []
+  },
+  "stop_conditions": [],
+  "commit_policy": {
+    "may_commit": false,
+    "may_push": false,
+    "suggested_message": "__TASK_ID__: __IMPERATIVE_OUTCOME__"
+  }
+}

@@ -158,7 +158,7 @@ func newSpawnCommand(ctx *commandContext) *cobra.Command {
 		},
 	}
 	f := cmd.Flags()
-	// --agent is an alias for --harness so the more intuitive `ao spawn --agent
+	// --agent is an alias for --harness so the more intuitive `square spawn --agent
 	// droid` works identically; both resolve to the same harness flag.
 	f.SetNormalizeFunc(func(_ *pflag.FlagSet, name string) pflag.NormalizedName {
 		if name == "agent" {
@@ -166,7 +166,7 @@ func newSpawnCommand(ctx *commandContext) *cobra.Command {
 		}
 		return pflag.NormalizedName(name)
 	})
-	f.StringVar(&opts.project, "project", "", "Project id to spawn the session in (default: AO_PROJECT_ID, current registered repo, or Scratch when it is the only project)")
+	f.StringVar(&opts.project, "project", "", "Project id to spawn the session in (default: SQUARE_PROJECT_ID, current registered repo, or Scratch when it is the only project)")
 	f.StringVar(&opts.harness, "harness", "", "Agent harness / --agent: claude-code, codex, aider, opencode, grok, droid, amp, agy, crush, cursor, qwen, copilot, goose, auggie, continue, devin, cline, kimi, kiro, kilocode, vibe, pi, autohand (default: project worker.agent; orchestrator spawns default to project orchestrator.agent; required if the project has none)")
 	f.StringVar(&opts.kind, "kind", "", "Session role: worker or orchestrator (default: worker)")
 	f.StringVar(&opts.branch, "branch", "", "Branch for git project sessions (default: ao/<session-id>/root; unsupported for Scratch)")
@@ -197,10 +197,10 @@ func (c *commandContext) resolveSpawnProject(ctx context.Context, explicit strin
 	if id := strings.TrimSpace(explicit); id != "" {
 		return c.fetchProjectDetails(ctx, id)
 	}
-	if id := strings.TrimSpace(os.Getenv("AO_PROJECT_ID")); id != "" {
+	if id := strings.TrimSpace(os.Getenv("SQUARE_PROJECT_ID")); id != "" {
 		return c.fetchProjectDetails(ctx, id)
 	}
-	if sessionID := strings.TrimSpace(os.Getenv("AO_SESSION_ID")); sessionID != "" {
+	if sessionID := strings.TrimSpace(os.Getenv("SQUARE_SESSION_ID")); sessionID != "" {
 		project, err := c.resolveProjectFromSession(ctx, sessionID)
 		if err != nil {
 			return projectDetails{}, err
@@ -214,16 +214,16 @@ func (c *commandContext) resolveSpawnProject(ctx context.Context, explicit strin
 	if ok {
 		return project, nil
 	}
-	return projectDetails{}, usageError{fmt.Errorf("project could not be resolved; pass --project or run `ao project add --path <repo-path> --worker-agent <agent>`")}
+	return projectDetails{}, usageError{fmt.Errorf("project could not be resolved; pass --project or run `square project add --path <repo-path> --worker-agent <agent>`")}
 }
 
 func (c *commandContext) resolveProjectFromSession(ctx context.Context, sessionID string) (projectDetails, error) {
 	sess, err := c.fetchScopedSession(ctx, sessionID, "")
 	if err != nil {
-		return projectDetails{}, usageError{fmt.Errorf("project could not be resolved from AO_SESSION_ID %q; pass --project", sessionID)}
+		return projectDetails{}, usageError{fmt.Errorf("project could not be resolved from SQUARE_SESSION_ID %q; pass --project", sessionID)}
 	}
 	if strings.TrimSpace(sess.ProjectID) == "" {
-		return projectDetails{}, usageError{fmt.Errorf("project could not be resolved from AO_SESSION_ID %q; pass --project", sessionID)}
+		return projectDetails{}, usageError{fmt.Errorf("project could not be resolved from SQUARE_SESSION_ID %q; pass --project", sessionID)}
 	}
 	return c.fetchProjectDetails(ctx, sess.ProjectID)
 }
@@ -341,9 +341,9 @@ func resolveSpawnHarness(explicit, kind string, project projectDetails) (string,
 		}
 	}
 	if kind == "orchestrator" {
-		return "", usageError{fmt.Errorf("agent could not be resolved; pass --agent or configure `ao project set-config %s --orchestrator-agent <agent>`", project.ID)}
+		return "", usageError{fmt.Errorf("agent could not be resolved; pass --agent or configure `square project set-config %s --orchestrator-agent <agent>`", project.ID)}
 	}
-	return "", usageError{fmt.Errorf("agent could not be resolved; pass --agent or configure `ao project set-config %s --worker-agent <agent>`", project.ID)}
+	return "", usageError{fmt.Errorf("agent could not be resolved; pass --agent or configure `square project set-config %s --worker-agent <agent>`", project.ID)}
 }
 
 func (c *commandContext) preflightSpawnAgentAuth(ctx context.Context, cmd *cobra.Command, agentID string) error {

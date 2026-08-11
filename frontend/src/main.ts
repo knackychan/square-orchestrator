@@ -16,8 +16,6 @@ import {
 	type OpenDialogOptions,
 } from "electron";
 import {
-	startAutoUpdates,
-	ensureUpdatePrefs,
 	checkForUpdatesNow,
 	downloadUpdateNow,
 	quitAndInstallUpdate,
@@ -61,7 +59,6 @@ import {
 } from "./shared/daemon-attach";
 import { shouldReplacePortHolder } from "./shared/daemon-takeover";
 import { buildDaemonEnv, resolveShellEnv, type ShellRunner } from "./shared/shell-env";
-import { DEFAULT_POSTHOG_HOST, DEFAULT_POSTHOG_PROJECT_KEY } from "./shared/posthog-config";
 import { buildTelemetryBootstrap } from "./shared/telemetry";
 import { createBrowserViewHost, type BrowserViewHost } from "./main/browser-view-host";
 import { connectSupervisor, type SupervisorLinkHandle } from "./main/supervisor-link";
@@ -90,14 +87,14 @@ process.stdout.on("error", ignoreStdStreamError);
 process.stderr.on("error", ignoreStdStreamError);
 
 // Must run before app ready so the About panel and default-menu role labels use it.
-app.setName("Agent Orchestrator");
+app.setName("Square Orchestrator");
 
 // Windows shows native toasts only when the app declares an AppUserModelID that
 // matches its installer shortcut (the NSIS maker's appId). Without it,
 // Notification.isSupported() still returns true but show() silently drops the
 // toast, so notifications never appear. No-op on macOS/Linux.
 if (process.platform === "win32") {
-	app.setAppUserModelId("dev.agent-orchestrator.desktop");
+	app.setAppUserModelId("dev.square-orchestrator.desktop");
 }
 
 // Pin ALL Electron-owned state (Chromium cache, cookies, local/session storage,
@@ -112,7 +109,7 @@ if (process.platform === "win32") {
 // the daemon data dir into ~/.ao/dev.
 app.setPath(
 	"userData",
-	app.isPackaged ? path.join(os.homedir(), ".ao", "electron") : path.join(os.homedir(), ".ao", "dev", "electron"),
+	app.isPackaged ? path.join(os.homedir(), ".square", "electron") : path.join(os.homedir(), ".square", "dev", "electron"),
 );
 
 let mainWindow: BrowserWindow | null = null;
@@ -145,8 +142,8 @@ const isDev = !app.isPackaged;
 // a concurrently running installed-app daemon. The subdir also isolates supervise.sock
 // on Unix (backend derives it as dir(RunFilePath)/supervise.sock) and the named pipe
 // on Windows (supervisorPipeFromRunFile derives it from the same dir basename).
-const DEV_DAEMON_PORT = 3002;
-const DEV_STATE_SUBDIR = "dev"; // ~/.ao/dev/
+const DEV_DAEMON_PORT = 3102;
+const DEV_STATE_SUBDIR = "dev"; // ~/.square/dev/
 
 // Height (px) of the custom Windows title bar. Must stay in sync with
 // --size-window-titlebar (tokens.css) and .window-titlebar, plus the Window
@@ -280,7 +277,7 @@ function createWindow(): void {
 		height: 860,
 		minWidth: 960,
 		minHeight: 640,
-		title: "Agent Orchestrator",
+		title: "Square Orchestrator",
 		icon: windowIconPath(),
 		backgroundColor: "#0f1014",
 		// Windows goes frameless with a Window Controls Overlay: Electron still draws
@@ -364,7 +361,7 @@ function createWindow(): void {
 
 	void mainWindow.loadURL(rendererUrl());
 
-	if (isDev && process.env.AO_OPEN_DEVTOOLS === "1") {
+	if (isDev && process.env.SQUARE_OPEN_DEVTOOLS === "1") {
 		mainWindow.webContents.once("did-frame-finish-load", () => {
 			mainWindow?.webContents.openDevTools({ mode: "detach" });
 		});
@@ -412,8 +409,8 @@ const RUN_FILE_FRESHNESS_SKEW_MS = 2_000;
 const DAEMON_PROBE_TIMEOUT_MS = 2_000;
 
 function runFilePath(): string | null {
-	if (process.env.AO_RUN_FILE) return process.env.AO_RUN_FILE;
-	if (isDev) return path.join(os.homedir(), ".ao", DEV_STATE_SUBDIR, "running.json");
+	if (process.env.SQUARE_RUN_FILE) return process.env.SQUARE_RUN_FILE;
+	if (isDev) return path.join(os.homedir(), ".square", DEV_STATE_SUBDIR, "running.json");
 	return defaultRunFilePath(process.platform, process.env, os.homedir());
 }
 
@@ -437,18 +434,11 @@ let shellEnvPromise: Promise<void> | null = null;
 // exercise the export path from a dev build.
 function telemetryOverrides(): Record<string, string> {
 	return {
-		AO_TELEMETRY_EVENTS: process.env.AO_TELEMETRY_EVENTS ?? "on",
-		AO_TELEMETRY_REMOTE: process.env.AO_TELEMETRY_REMOTE ?? (isDev ? "off" : "posthog"),
-		AO_TELEMETRY_POSTHOG_KEY: process.env.AO_TELEMETRY_POSTHOG_KEY ?? DEFAULT_POSTHOG_PROJECT_KEY,
-		AO_TELEMETRY_POSTHOG_HOST: process.env.AO_TELEMETRY_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST,
-		// The daemon binary has no version of its own that release tooling sets,
-		// so without this every daemon event lands unattributable to a release.
-		AO_TELEMETRY_APP_VERSION: process.env.AO_TELEMETRY_APP_VERSION ?? app.getVersion(),
-		// Kill switch: forwarded so a noisy stream can be silenced by env on an
-		// install that already exists, without shipping a new build.
-		...(process.env.AO_TELEMETRY_DISABLED_EVENTS
-			? { AO_TELEMETRY_DISABLED_EVENTS: process.env.AO_TELEMETRY_DISABLED_EVENTS }
-			: {}),
+		// Hard-off for Square through SA14. Do not forward AO telemetry settings,
+		// project keys, hosts, or opt-in switches from the parent environment.
+		SQUARE_TELEMETRY_EVENTS: "off",
+		SQUARE_TELEMETRY_METRICS: "off",
+		SQUARE_TELEMETRY_REMOTE: "off",
 	};
 }
 
@@ -509,7 +499,7 @@ function ensureShellEnv(): Promise<void> {
 // One id per app launch, minted eagerly so every daemon spawn in this process
 // (including supervisor restarts) reports the same run. An explicit
 // AO_APP_RUN_ID in the environment wins, which lets a test or a wrapper pin it.
-const appRunId = process.env.AO_APP_RUN_ID ?? `apprun-${randomUUID()}`;
+const appRunId = process.env.SQUARE_APP_RUN_ID ?? `apprun-${randomUUID()}`;
 const browserRuntimeToken = randomBytes(32).toString("base64url");
 
 function daemonEnv(): NodeJS.ProcessEnv {
@@ -525,19 +515,19 @@ function daemonEnv(): NodeJS.ProcessEnv {
 	// standalone shell terminals survive; a later app launch gets a new id, which
 	// is how the daemon recognises the previous run's shells as orphans and
 	// destroys them (see internal/service/shellterm).
-	const AO_OWNER = keepDaemonAlive(process.env) ? "persistent" : "app";
+	const SQUARE_OWNER = keepDaemonAlive(process.env) ? "persistent" : "app";
 	const ownerTag = {
-		AO_OWNER,
-		AO_APP_RUN_ID: appRunId,
-		AO_BROWSER_RUNTIME_TOKEN: browserRuntimeToken,
+		SQUARE_OWNER,
+		SQUARE_APP_RUN_ID: appRunId,
+		SQUARE_BROWSER_RUNTIME_TOKEN: browserRuntimeToken,
 	};
 	// In dev mode, inject isolation defaults so the dev daemon never collides with
 	// the installed app. User-set env vars take priority (checked first).
 	const devExtras: Record<string, string> = {};
 	if (isDev) {
-		if (!process.env.AO_PORT) devExtras.AO_PORT = String(DEV_DAEMON_PORT);
-		if (!process.env.AO_RUN_FILE) devExtras.AO_RUN_FILE = runFilePath() ?? "";
-		if (!process.env.AO_DATA_DIR) devExtras.AO_DATA_DIR = path.join(os.homedir(), ".ao", DEV_STATE_SUBDIR, "data");
+		if (!process.env.SQUARE_PORT) devExtras.SQUARE_PORT = String(DEV_DAEMON_PORT);
+		if (!process.env.SQUARE_RUN_FILE) devExtras.SQUARE_RUN_FILE = runFilePath() ?? "";
+		if (!process.env.SQUARE_DATA_DIR) devExtras.SQUARE_DATA_DIR = path.join(os.homedir(), ".square", DEV_STATE_SUBDIR, "data");
 	}
 	// Windows keeps the old behavior exactly: no shell probe, no unix PATH floor.
 	if (process.platform === "win32") {
@@ -626,10 +616,10 @@ function daemonIdentityError(launch: DaemonLaunchSpec, probe: DaemonProbe): stri
  * app quit.
  */
 function supervisorPipeFromRunFile(rfp: string | null): string {
-	if (!rfp) return "\\\\.\\pipe\\ao-supervise";
+	if (!rfp) return "\\\\.\\pipe\\square-supervise";
 	const dir = path.basename(path.dirname(rfp));
-	if (dir === ".ao" || dir === "." || dir === "") return "\\\\.\\pipe\\ao-supervise";
-	return "\\\\.\\pipe\\ao-supervise-" + dir.replace(/[^a-zA-Z0-9-]/g, "-");
+	if (dir === ".square" || dir === "." || dir === "") return "\\\\.\\pipe\\square-supervise";
+	return "\\\\.\\pipe\\square-supervise-" + dir.replace(/[^a-zA-Z0-9-]/g, "-");
 }
 
 function establishBrowserRuntimeLink(): void {
@@ -755,7 +745,7 @@ async function startDaemon(): Promise<DaemonStatus> {
 // separate port isolates the dev daemon from the installed-app daemon.
 // AO_PORT always wins if set explicitly.
 function resolvedDaemonPort(): number {
-	return isDev && !process.env.AO_PORT ? DEV_DAEMON_PORT : expectedDaemonPort(process.env);
+	return isDev && !process.env.SQUARE_PORT ? DEV_DAEMON_PORT : expectedDaemonPort(process.env);
 }
 
 async function startDaemonInner(startEpoch: number): Promise<DaemonStatus> {
@@ -779,7 +769,7 @@ async function startDaemonInner(startEpoch: number): Promise<DaemonStatus> {
 	if (!launch) {
 		setDaemonStatus({
 			state: "stopped",
-			message: "AO_DAEMON_COMMAND is not configured; renderer uses loopback REST when available.",
+			message: "SQUARE_DAEMON_COMMAND is not configured; renderer uses loopback REST when available.",
 			code: "not_configured",
 		});
 		return daemonStatus;
@@ -946,7 +936,7 @@ async function startDaemonInner(startEpoch: number): Promise<DaemonStatus> {
 	let keepDaemonLogFd: number | undefined;
 	let stdio: "pipe" | "ignore" | ["ignore", number, number] = "pipe";
 	if (keep) {
-		const logPath = path.join(os.homedir(), ".ao", "daemon.log");
+		const logPath = path.join(os.homedir(), ".square", "daemon.log");
 		try {
 			keepDaemonLogFd = openSync(logPath, "a");
 			stdio = ["ignore", keepDaemonLogFd, keepDaemonLogFd];
@@ -1335,8 +1325,8 @@ ipcMain.handle("menu:action", (_event, action: string) => {
 		case "help.about":
 			void dialog.showMessageBox(win, {
 				type: "info",
-				title: "About Agent Orchestrator",
-				message: "Agent Orchestrator",
+				title: "About Square Orchestrator",
+				message: "Square Orchestrator",
 				detail: `Version ${app.getVersion()}`,
 				buttons: ["OK"],
 			});
@@ -1569,11 +1559,10 @@ ipcMain.on(TRAY_RENDERER_READY_CHANNEL, (event) => trayLifecycle.handleRendererR
 // A live updater additionally requires a signed + notarized build — see
 // frontend/docs/desktop-release.md.
 function initAutoUpdates(): void {
-	if (!app.isPackaged) return;
-	const runFile = runFilePath();
-	if (!runFile) return;
-	const stateDir = path.dirname(runFile);
-	void ensureUpdatePrefs(stateDir).then(() => startAutoUpdates(stateDir));
+	// Square updater activation is forbidden through SA14. Keep the entry point
+	// explicit so a future release cannot accidentally re-enable it by restoring
+	// the upstream startup call.
+	return;
 }
 
 // Resolve the bundle path `ao start` will later `open` and stat as a usable app.
@@ -1609,7 +1598,7 @@ async function writeAppStateOnLaunch(): Promise<void> {
 	// the marker; the caller's try/catch logs it.
 	const runFile = runFilePath();
 	if (!runFile) {
-		throw new Error("cannot resolve ~/.ao run-file path; skipping app-state marker");
+		throw new Error("cannot resolve ~/.square run-file path; skipping app-state marker");
 	}
 	const stateDir = path.dirname(runFile);
 	await writeAppStateMarker({

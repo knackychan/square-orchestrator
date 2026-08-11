@@ -27,13 +27,13 @@ import (
 
 // SessionLabel is the label key a worker's own `docker run` should set to
 // `--label ao.session=$AO_SESSION_ID` so AO can identify containers it owns.
-const SessionLabel = "ao.session"
+const SessionLabel = "square.session"
 
 // SpareLabel opts a container out of reaping even though it carries
 // SessionLabel — set `--label ao.spare=true` on a deliberately shared
 // container (a shared postgres, a registry) that must survive the session
 // that happened to start it.
-const SpareLabel = "ao.spare"
+const SpareLabel = "square.spare"
 
 // reapTimeout bounds every docker CLI call this adapter makes. Kill is
 // user-facing and synchronous, and the reap runs between runtime destroy and
